@@ -6,257 +6,180 @@
 <title>OrgChart Editor</title>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-:root {
-  --bg: #f0efeb;
-  --surface: #ffffff;
-  --surface2: #f5f4f1;
-  --b1: rgba(0,0,0,.07);
-  --b2: rgba(0,0,0,.13);
-  --t1: #111;
-  --t2: #555;
-  --t3: #999;
-  --accent: #3b82f6;
-  --sh: 0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.08);
-  --sh2: 0 2px 8px rgba(0,0,0,.08), 0 12px 32px rgba(0,0,0,.12);
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f0efeb;--surface:#fff;--s2:#f5f4f1;
+  --b1:rgba(0,0,0,.07);--b2:rgba(0,0,0,.13);--b3:rgba(0,0,0,.22);
+  --t1:#111;--t2:#555;--t3:#999;
+  --accent:#3b82f6;
+  --sh:0 1px 3px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.08);
+  --sh2:0 2px 8px rgba(0,0,0,.1),0 12px 32px rgba(0,0,0,.14);
 }
-
-html, body { height: 100%; font-family: 'Geist', system-ui, sans-serif; background: var(--bg); color: var(--t1); overflow: hidden; font-size: 13px; }
-.app { display: flex; flex-direction: column; height: 100vh; }
+html,body{height:100%;font-family:'Geist',system-ui,sans-serif;background:var(--bg);color:var(--t1);overflow:hidden;font-size:13px}
+.app{display:flex;flex-direction:column;height:100vh}
 
 /* HEADER */
-.hdr {
-  height: 50px; display: flex; align-items: center; padding: 0 14px; gap: 6px;
-  background: var(--surface); border-bottom: 1px solid var(--b1); z-index: 100; flex-shrink: 0;
-}
-.logo { font-size: 13.5px; font-weight: 700; letter-spacing: -.03em; color: var(--t1); padding-right: 6px; }
-.logo span { color: var(--accent); }
-.sep { width: 1px; height: 18px; background: var(--b2); margin: 0 2px; }
-
-/* editable title */
-.chart-title-wrap { display: flex; align-items: center; gap: 5px; }
-#chart-title {
-  font-size: 12.5px; font-weight: 600; color: var(--t1);
-  background: transparent; border: 1px solid transparent; border-radius: 6px;
-  padding: 3px 7px; font-family: 'Geist', sans-serif; outline: none;
-  transition: border-color .15s, background .15s; min-width: 120px;
-}
-#chart-title:hover { border-color: var(--b2); background: var(--surface2); }
-#chart-title:focus { border-color: var(--accent); background: var(--surface); }
-
-.btn {
-  display: inline-flex; align-items: center; gap: 5px; padding: 5px 11px;
-  border-radius: 8px; font-size: 12px; font-weight: 600; border: 1px solid var(--b2);
-  background: var(--surface); color: var(--t1); cursor: pointer;
-  transition: background .12s, border-color .12s; font-family: 'Geist', sans-serif;
-  white-space: nowrap; line-height: 1;
-}
-.btn:hover { background: var(--surface2); }
-.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
-.btn.primary:hover { background: #2563eb; }
-.btn.danger { color: #dc2626; border-color: rgba(220,38,38,.2); }
-.btn.danger:hover { background: rgba(220,38,38,.08); }
-.btn.conn-active { background: #fef3c7; border-color: #f59e0b; color: #92400e; }
-.btn svg { width: 13px; height: 13px; flex-shrink: 0; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-.hdr-right { margin-left: auto; display: flex; align-items: center; gap: 5px; }
+.hdr{height:50px;display:flex;align-items:center;padding:0 14px;gap:6px;background:var(--surface);border-bottom:1px solid var(--b1);z-index:100;flex-shrink:0}
+.logo{font-size:13.5px;font-weight:700;letter-spacing:-.03em;color:var(--t1);padding-right:4px}
+.logo b{color:var(--accent)}
+.sep{width:1px;height:18px;background:var(--b2);margin:0 2px}
+#chart-title{font-size:12.5px;font-weight:600;color:var(--t1);background:transparent;border:1px solid transparent;border-radius:6px;padding:3px 7px;font-family:'Geist',sans-serif;outline:none;transition:border-color .15s,background .15s;min-width:120px}
+#chart-title:hover{border-color:var(--b2);background:var(--s2)}
+#chart-title:focus{border-color:var(--accent);background:var(--surface)}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:8px;font-size:12px;font-weight:600;border:1px solid var(--b2);background:var(--surface);color:var(--t1);cursor:pointer;transition:background .12s,border-color .12s;font-family:'Geist',sans-serif;white-space:nowrap;line-height:1}
+.btn:hover{background:var(--s2)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.primary:hover{background:#2563eb}
+.btn.danger{color:#dc2626;border-color:rgba(220,38,38,.2)}
+.btn.danger:hover{background:rgba(220,38,38,.08)}
+.btn.active{background:#fef3c7;border-color:#f59e0b;color:#92400e}
+.btn svg{width:13px;height:13px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.btn-icon{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;border:1px solid var(--b2);background:var(--surface);cursor:pointer;transition:background .12s;font-size:14px;flex-shrink:0}
+.btn-icon:hover{background:var(--s2)}
+.btn-icon.disabled{opacity:.35;pointer-events:none}
+.hdr-right{margin-left:auto;display:flex;align-items:center;gap:5px}
 
 /* BODY */
-.body { flex: 1; display: flex; overflow: hidden; position: relative; }
+.body{flex:1;display:flex;overflow:hidden}
 
 /* SIDEBAR */
-.sb {
-  width: 258px; flex-shrink: 0; background: var(--surface); border-right: 1px solid var(--b1);
-  display: flex; flex-direction: column; z-index: 50; overflow: hidden;
-}
-.sb-head { padding: 12px 14px 8px; font-size: 10.5px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--t3); border-bottom: 1px solid var(--b1); flex-shrink: 0; }
-.sb-scroll { flex: 1; overflow-y: auto; padding: 12px 14px; scrollbar-width: thin; scrollbar-color: var(--b2) transparent; }
-.sb-empty { font-size: 12px; color: var(--t3); line-height: 1.65; }
+.sb{width:258px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--b1);display:flex;flex-direction:column;z-index:50;overflow:hidden}
+.sb-head{padding:11px 14px 8px;font-size:10.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--t3);border-bottom:1px solid var(--b1);flex-shrink:0}
+.sb-scroll{flex:1;overflow-y:auto;padding:12px 14px;scrollbar-width:thin;scrollbar-color:var(--b2) transparent}
+.sb-empty{font-size:12px;color:var(--t3);line-height:1.65}
+.fl{font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--t3);margin:13px 0 5px}
+.fl:first-child{margin-top:0}
+input[type=text],select{width:100%;padding:7px 9px;background:var(--s2);border:1px solid var(--b1);border-radius:8px;color:var(--t1);font-family:'Geist',sans-serif;font-size:12.5px;outline:none;transition:border-color .15s,box-shadow .15s}
+input[type=text]:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.1)}
+.color-row{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px}
+.cp{width:22px;height:22px;border-radius:6px;cursor:pointer;border:2px solid transparent;transition:transform .1s;flex-shrink:0}
+.cp:hover{transform:scale(1.15)}
+.cp.sel{border-color:var(--t1)!important;transform:scale(1.1)}
+.custom-c{display:flex;gap:5px;align-items:center;margin-top:6px}
+.custom-c input[type=color]{width:34px;height:30px;padding:2px;border-radius:6px;cursor:pointer;border:1px solid var(--b2);flex-shrink:0}
+.emp-item{display:flex;gap:4px;align-items:center;margin-bottom:5px}
+.emp-item input{flex:1;min-width:0}
+.av-btn{width:28px;height:28px;border-radius:50%;border:1.5px dashed var(--b2);background:var(--s2);cursor:pointer;flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--t3);transition:border-color .15s}
+.av-btn:hover{border-color:var(--accent)}
+.av-btn img{width:100%;height:100%;object-fit:cover}
+.xb{width:24px;height:24px;border-radius:6px;border:1px solid rgba(220,38,38,.2);background:rgba(220,38,38,.05);color:#dc2626;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px;transition:background .12s}
+.xb:hover{background:rgba(220,38,38,.12)}
+.conn-chip{display:flex;align-items:center;gap:6px;padding:5px 8px;background:var(--s2);border:1px solid var(--b1);border-radius:8px;font-size:11.5px;color:var(--t2);margin-bottom:4px}
+.conn-chip .lbl{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
-.fl { font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--t3); margin: 13px 0 5px; }
-.fl:first-child { margin-top: 0; }
-input[type=text], select, textarea {
-  width: 100%; padding: 7px 9px; background: var(--surface2); border: 1px solid var(--b1);
-  border-radius: 8px; color: var(--t1); font-family: 'Geist', sans-serif; font-size: 12.5px;
-  outline: none; transition: border-color .15s, box-shadow .15s;
+/* CANVAS */
+.cv-wrap{flex:1;overflow:hidden;position:relative;cursor:default;
+  background-color:var(--bg);
+  background-image:linear-gradient(var(--b1) 1px,transparent 1px),linear-gradient(90deg,var(--b1) 1px,transparent 1px),linear-gradient(var(--b2) 1px,transparent 1px),linear-gradient(90deg,var(--b2) 1px,transparent 1px);
+  background-size:24px 24px,24px 24px,120px 120px,120px 120px;
 }
-input[type=text]:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(59,130,246,.1); }
-
-.color-row { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 5px; }
-.cp { width: 22px; height: 22px; border-radius: 6px; cursor: pointer; border: 2px solid transparent; transition: transform .1s; flex-shrink: 0; }
-.cp:hover { transform: scale(1.15); }
-.cp.sel { border-color: var(--t1) !important; }
-.custom-c { display: flex; gap: 5px; align-items: center; margin-top: 6px; }
-.custom-c input[type=color] { width: 34px; height: 30px; padding: 2px; border-radius: 6px; cursor: pointer; border: 1px solid var(--b2); flex-shrink: 0; }
-
-.emp-item { display: flex; gap: 4px; align-items: center; margin-bottom: 5px; }
-.emp-item input { flex: 1; min-width: 0; }
-.av-btn {
-  width: 28px; height: 28px; border-radius: 50%; border: 1.5px dashed var(--b2);
-  background: var(--surface2); cursor: pointer; flex-shrink: 0; overflow: hidden;
-  display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--t3);
-  transition: border-color .15s;
-}
-.av-btn:hover { border-color: var(--accent); }
-.av-btn img { width: 100%; height: 100%; object-fit: cover; }
-.x-btn {
-  width: 24px; height: 24px; border-radius: 6px; border: 1px solid rgba(220,38,38,.2);
-  background: rgba(220,38,38,.05); color: #dc2626; cursor: pointer; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center; font-size: 14px;
-  transition: background .12s;
-}
-.x-btn:hover { background: rgba(220,38,38,.12); }
-
-.conn-chip {
-  display: flex; align-items: center; gap: 6px; padding: 5px 8px;
-  background: var(--surface2); border: 1px solid var(--b1); border-radius: 8px;
-  font-size: 11.5px; color: var(--t2); margin-bottom: 4px;
-}
-.conn-chip .lbl { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.conn-chip strong { color: var(--t1); }
-
-/* INFINITE CANVAS */
-.cv-wrap {
-  flex: 1; overflow: hidden; position: relative; cursor: default;
-  background: var(--bg);
-  background-image: radial-gradient(circle, rgba(0,0,0,.13) 1px, transparent 1px);
-  background-size: 24px 24px;
-}
-/* The transform target */
-#world { position: absolute; top: 0; left: 0; will-change: transform; }
-#svg-lines { position: absolute; top: 0; left: 0; overflow: visible; pointer-events: none; }
+#world{position:absolute;top:0;left:0;will-change:transform}
+#svg-lines{position:absolute;top:0;left:0;overflow:visible;pointer-events:none}
+/* snap guides */
+.guide{position:absolute;pointer-events:none;z-index:999;opacity:0;transition:opacity .1s}
+.guide.h{left:-9999px;right:-9999px;height:1px;background:#3b82f6}
+.guide.v{top:-9999px;bottom:-9999px;width:1px;background:#3b82f6}
+.guide.show{opacity:1}
+/* snap label */
+.snap-lbl{position:absolute;pointer-events:none;z-index:1000;font-size:10px;font-weight:700;font-family:'Geist Mono',monospace;color:#3b82f6;background:rgba(255,255,255,.9);border:1px solid #3b82f6;border-radius:4px;padding:1px 5px;white-space:nowrap;display:none}
 
 /* NODE */
-.onode {
-  position: absolute; width: 196px; border-radius: 14px; overflow: hidden;
-  background: var(--surface); border: 1.5px solid var(--b1); box-shadow: var(--sh);
-  cursor: grab; user-select: none;
-  transition: box-shadow .15s, border-color .15s;
-}
-.onode:hover { box-shadow: var(--sh2); }
-.onode.sel { border-color: var(--accent) !important; box-shadow: var(--sh2), 0 0 0 3px rgba(59,130,246,.2) !important; }
-.onode.conn-src { border-color: #f59e0b !important; box-shadow: 0 0 0 3px rgba(245,158,11,.2) !important; }
-.onode.conn-tgt { border-color: #22c55e !important; box-shadow: 0 0 0 3px rgba(34,197,94,.2) !important; cursor: crosshair !important; }
-.onode.multi { border-color: #f59e0b !important; box-shadow: 0 0 0 3px rgba(245,158,11,.18) !important; }
-.on-head { padding: 11px 12px 10px; display: flex; align-items: center; gap: 8px; }
-.on-texts { flex: 1; min-width: 0; }
-.on-role { font-size: 12.5px; font-weight: 700; color: #fff; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.on-dept { font-size: 10.5px; color: rgba(255,255,255,.7); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.on-arr { width: 20px; height: 20px; border-radius: 50%; background: rgba(255,255,255,.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: transform .25s, background .15s; }
-.on-arr svg { width: 8px; height: 8px; stroke: #fff; fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
-.onode.sel .on-arr { transform: rotate(90deg); background: rgba(255,255,255,.35); }
+.onode{position:absolute;width:196px;border-radius:14px;overflow:hidden;background:var(--surface);border:1.5px solid var(--b1);box-shadow:var(--sh);cursor:grab;user-select:none;transition:box-shadow .15s,border-color .15s}
+.onode:hover{box-shadow:var(--sh2)}
+.onode.sel{border-color:var(--accent)!important;box-shadow:var(--sh2),0 0 0 3px rgba(59,130,246,.18)!important}
+.onode.multi-sel{border-color:#f59e0b!important;box-shadow:var(--sh2),0 0 0 3px rgba(245,158,11,.18)!important}
+.onode.conn-src{border-color:#f59e0b!important;box-shadow:0 0 0 3px rgba(245,158,11,.25)!important}
+.onode.conn-tgt-ok{border-color:#22c55e!important;box-shadow:0 0 0 3px rgba(34,197,94,.2)!important;cursor:crosshair!important}
+.on-head{padding:11px 12px 10px;display:flex;align-items:center;gap:8px}
+.on-texts{flex:1;min-width:0}
+.on-role{font-size:12.5px;font-weight:700;color:#fff;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.on-dept{font-size:10.5px;color:rgba(255,255,255,.7);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.on-arr{width:20px;height:20px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .25s,background .15s}
+.on-arr svg{width:8px;height:8px;stroke:#fff;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.onode.sel .on-arr,.onode.multi-sel .on-arr{transform:rotate(90deg);background:rgba(255,255,255,.35)}
 
-/* connect mode overlay */
-.conn-banner {
-  position: fixed; top: 58px; left: 50%; transform: translateX(-50%);
-  background: #fffbeb; border: 1px solid #f59e0b; border-radius: 20px;
-  padding: 7px 18px; font-size: 12.5px; font-weight: 600; color: #92400e;
-  z-index: 200; display: none; gap: 10px; align-items: center;
-  box-shadow: 0 4px 20px rgba(0,0,0,.1);
-}
-.conn-banner.show { display: flex; }
+/* connect banner */
+.conn-banner{position:fixed;top:58px;left:50%;transform:translateX(-50%);background:#fffbeb;border:1px solid #f59e0b;border-radius:20px;padding:7px 18px;font-size:12.5px;font-weight:600;color:#92400e;z-index:200;display:none;gap:10px;align-items:center;box-shadow:0 4px 20px rgba(0,0,0,.1)}
+.conn-banner.show{display:flex}
 
 /* zoom controls */
-.zoom-ctrl {
-  position: fixed; bottom: 20px; right: 20px; z-index: 100;
-  display: flex; flex-direction: column; gap: 4px;
-}
-.zoom-ctrl button {
-  width: 32px; height: 32px; border-radius: 8px; font-size: 16px; font-weight: 600;
-  background: var(--surface); border: 1px solid var(--b2); color: var(--t1); cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  box-shadow: var(--sh); transition: background .12s;
-}
-.zoom-ctrl button:hover { background: var(--surface2); }
-.zoom-label { font-size: 10px; font-weight: 600; color: var(--t3); text-align: center; }
+.zoom-ctrl{position:fixed;bottom:20px;right:20px;z-index:100;display:flex;flex-direction:column;gap:4px}
+.zoom-ctrl button{width:32px;height:32px;border-radius:8px;font-size:16px;font-weight:600;background:var(--surface);border:1px solid var(--b2);color:var(--t1);cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--sh);transition:background .12s}
+.zoom-ctrl button:hover{background:var(--s2)}
+.zoom-label{font-size:10px;font-weight:600;color:var(--t3);text-align:center}
 
-/* EXPORT MODAL */
-.modal-ov { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 500; display: none; align-items: center; justify-content: center; padding: 20px; }
-.modal-ov.open { display: flex; }
-.modal { background: var(--surface); border: 1px solid var(--b2); border-radius: 16px; width: 100%; max-width: 700px; max-height: 85vh; display: flex; flex-direction: column; box-shadow: 0 16px 60px rgba(0,0,0,.18); }
-.modal-head { padding: 16px 20px; border-bottom: 1px solid var(--b1); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
-.modal-title { font-size: 14px; font-weight: 700; }
-.modal-body { flex: 1; overflow: auto; padding: 16px 20px; }
-.code-out { background: #0f1117; border-radius: 10px; padding: 14px; font-family: 'Geist Mono', monospace; font-size: 11px; color: #a5d6ff; line-height: 1.65; white-space: pre; overflow: auto; max-height: 360px; }
-.modal-foot { padding: 12px 20px; border-top: 1px solid var(--b1); display: flex; gap: 8px; justify-content: flex-end; flex-shrink: 0; }
+/* selection box */
+#sel-box{position:absolute;border:1.5px solid var(--accent);background:rgba(59,130,246,.06);pointer-events:none;display:none;z-index:5}
 
-/* TOAST */
-.toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #111; border-radius: 10px; padding: 8px 16px; font-size: 12px; color: #fff; z-index: 999; opacity: 0; transition: opacity .2s; pointer-events: none; white-space: nowrap; }
-.toast.show { opacity: 1; }
+/* MODAL */
+.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:500;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-ov.open{display:flex}
+.modal{background:var(--surface);border:1px solid var(--b2);border-radius:16px;width:100%;max-width:700px;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 16px 60px rgba(0,0,0,.18)}
+.modal-head{padding:16px 20px;border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.modal-title{font-size:14px;font-weight:700}
+.modal-body{flex:1;overflow:auto;padding:16px 20px}
+.code-out{background:#0f1117;border-radius:10px;padding:14px;font-family:'Geist Mono',monospace;font-size:11px;color:#a5d6ff;line-height:1.65;white-space:pre;overflow:auto;max-height:360px}
+.modal-foot{padding:12px 20px;border-top:1px solid var(--b1);display:flex;gap:8px;justify-content:flex-end;flex-shrink:0}
 
-::-webkit-scrollbar { width: 5px; height: 5px; }
-::-webkit-scrollbar-thumb { background: var(--b2); border-radius: 3px; }
+/* toast */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#111;border-radius:10px;padding:8px 16px;font-size:12px;color:#fff;z-index:999;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1}
+
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-thumb{background:var(--b2);border-radius:3px}
 </style>
 </head>
 <body>
 <div class="app">
-
-<!-- HEADER -->
 <div class="hdr">
-  <div class="logo">Org<span>Chart</span></div>
+  <div class="logo">Org<b>Chart</b></div>
   <div class="sep"></div>
-  <div class="chart-title-wrap">
-    <input type="text" id="chart-title" value="Team B · Org Chart" maxlength="60">
-  </div>
+  <input type="text" id="chart-title" value="Team B · Org Chart" maxlength="60" style="width:auto">
   <div class="sep"></div>
-  <button class="btn primary" onclick="addNode()">
-    <svg viewBox="0 0 13 13"><path d="M6.5 1v11M1 6.5h11"/></svg>Блок
-  </button>
-  <button class="btn" id="btn-conn" onclick="toggleConn()">
-    <svg viewBox="0 0 13 13"><circle cx="2.5" cy="2.5" r="1.8"/><circle cx="10.5" cy="10.5" r="1.8"/><path d="M4 4l5.5 5.5"/></svg>Связать
-  </button>
-  <button class="btn danger" id="btn-del" onclick="deleteSelected()" style="display:none">
-    <svg viewBox="0 0 13 13"><path d="M2 3.5h9M5 3.5V2h3v1.5M4 3.5l.6 7.5h3.8l.6-7.5"/></svg>Удалить
-  </button>
+  <button class="btn primary" onclick="addNode()"><svg viewBox="0 0 13 13"><path d="M6.5 1v11M1 6.5h11"/></svg>Блок</button>
+  <button class="btn" id="btn-conn" onclick="toggleConn()"><svg viewBox="0 0 13 13"><circle cx="2.5" cy="2.5" r="1.8"/><circle cx="10.5" cy="10.5" r="1.8"/><path d="M4 4l5.5 5.5"/></svg>Связать</button>
+  <button class="btn danger" id="btn-del" onclick="deleteSelected()" style="display:none"><svg viewBox="0 0 13 13"><path d="M2 3.5h9M5 3.5V2h3v1.5M4 3.5l.6 7.5h3.8l.6-7.5"/></svg>Удалить</button>
+  <div class="sep"></div>
+  <div class="btn-icon" id="btn-undo" onclick="undo()" title="Отменить (Ctrl+Z)">↩</div>
+  <div class="btn-icon" id="btn-redo" onclick="redo()" title="Повторить (Ctrl+Y)">↪</div>
   <div class="hdr-right">
-    <button class="btn" onclick="fitView()">
-      <svg viewBox="0 0 13 13"><rect x="1" y="1" width="4" height="4" rx=".8"/><rect x="8" y="1" width="4" height="4" rx=".8"/><rect x="1" y="8" width="4" height="4" rx=".8"/><rect x="8" y="8" width="4" height="4" rx=".8"/></svg>Вписать
-    </button>
+    <button class="btn" onclick="fitView()"><svg viewBox="0 0 13 13"><rect x="1" y="1" width="4" height="4" rx=".8"/><rect x="8" y="1" width="4" height="4" rx=".8"/><rect x="1" y="8" width="4" height="4" rx=".8"/><rect x="8" y="8" width="4" height="4" rx=".8"/></svg>Вписать</button>
     <button class="btn" onclick="loadExample()">Пример</button>
     <button class="btn" onclick="clearAll()">Очистить</button>
-    <button class="btn primary" onclick="openExport()">
-      <svg viewBox="0 0 13 13"><path d="M2 9.5v2h9v-2M6.5 1v7.5M4 6l2.5 3L9 6"/></svg>Экспорт
-    </button>
+    <button class="btn primary" onclick="openExport()"><svg viewBox="0 0 13 13"><path d="M2 9.5v2h9v-2M6.5 1v7.5M4 6l2.5 3L9 6"/></svg>Экспорт</button>
   </div>
 </div>
-
 <div class="body">
-<!-- SIDEBAR -->
 <div class="sb">
   <div class="sb-head" id="sb-head">Свойства</div>
-  <div class="sb-scroll" id="sb-body">
-    <div class="sb-empty">Нажмите <b>+ Блок</b> чтобы добавить карточку, затем кликните на неё для редактирования</div>
-  </div>
+  <div class="sb-scroll" id="sb-body"><div class="sb-empty">Нажмите <b>+ Блок</b> чтобы добавить карточку, затем кликните на неё для редактирования.<br><br>Shift+клик — выбор нескольких.</div></div>
 </div>
-
-<!-- INFINITE CANVAS -->
 <div class="cv-wrap" id="cv-wrap">
+  <div id="sel-box"></div>
   <div id="world">
     <svg id="svg-lines" width="1" height="1"></svg>
   </div>
+  <!-- snap guides -->
+  <div class="guide h" id="guide-h"></div>
+  <div class="guide v" id="guide-v"></div>
+  <div class="snap-lbl" id="snap-lbl"></div>
 </div>
 </div>
 
-<!-- connect banner -->
 <div class="conn-banner" id="conn-banner">
   <span id="conn-text">Кликните на источник</span>
   <button class="btn" onclick="toggleConn()">Отмена</button>
 </div>
 
-<!-- zoom -->
 <div class="zoom-ctrl">
-  <button onclick="changeZoom(0.1)">+</button>
+  <button onclick="changeZoom(.1)">+</button>
   <div class="zoom-label" id="zoom-lbl">100%</div>
-  <button onclick="changeZoom(-0.1)">−</button>
+  <button onclick="changeZoom(-.1)">−</button>
 </div>
 
-<!-- export modal -->
 <div class="modal-ov" id="exp-modal" onclick="closeExpBg(event)">
   <div class="modal">
-    <div class="modal-head">
-      <div class="modal-title">Экспорт HTML</div>
-      <button class="btn" onclick="closeExp()">✕</button>
-    </div>
+    <div class="modal-head"><div class="modal-title">Экспорт HTML</div><button class="btn" onclick="closeExp()">✕</button></div>
     <div class="modal-body">
       <p style="font-size:12px;color:var(--t2);margin-bottom:10px">Полностью автономный файл — вставьте в сайт или скачайте.</p>
       <div class="code-out" id="exp-code"></div>
@@ -267,671 +190,505 @@ input[type=text]:focus, textarea:focus { border-color: var(--accent); box-shadow
     </div>
   </div>
 </div>
-
 <div class="toast" id="toast"></div>
 
 <script>
-// ─── STATE ────────────────────────────────────────────────
-let nodes  = {};   // id → {id,x,y,role,dept,sched,color,duties,emps}
-let conns  = [];   // [{from,to,color}]
-let connLineColor = '#8b8b8b'; // default line color for new connections
-let selId  = null;
-let connMode = false;
-let connFrom = null;
+// ═══════════════════════════ STATE ═══════════════════════════
+const REDDY_ICON = 'data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAG3AbsDASIAAhEBAxEB/8QAHQABAAIBBQEAAAAAAAAAAAAAAAcIAQMEBQYJAv/EAEwQAQACAQICBgUHBwoDCAMAAAABAgMEBQYRBwgSITFRQWFxgZETFCIyNnSyN0JSdaGxsxUjQ1NiY3KCkqIWwcIXJDM0ZHOT0dLh8P/EABwBAQABBQEBAAAAAAAAAAAAAAAEAgMFBgcBCP/EADkRAQABAgMEBggGAgIDAAAAAAABAgMEBREGITFBEjJRYXGRByI1gaGxwdETFFKy4fAjQhVigsLS/9oADAMBAAIRAxEAPwCKgGJfTYAAAAAAAAAAAAADPZt5T8Ds28p+DADPZt5T8Ds28p+DADPKfKWAAAAAAAAAAAAAAAAABnlPlJ2beU/BgBns28p+BMTHolgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACZiPF2rhLo7404q7N9l4f1ebBbw1GSvyWH/XblE+7mREzwWr+ItYejp3aopjtmdI+Lqon7h3qy75niuTfuItFoYnvnHpcVs1o9XOezH73edq6tvA2mrWddrd41948e1nrjrPurXn+1eixXPJreJ2zyixOkXOlP8A1iZ+O6PiqQLr6XoM6MMFYieG/lvXl1ea0/ia9uhXovmOX/Cenj2Z83/5qvy1bGz6Qcuid1FflT/9KQi5uu6AejPUxPye1avSzPpw63J3f6pmHVt66smwZotbZ+I9y0dvRXUY6Zq/s7MvJw9cJVnbrKrk6VTVT4x9plVsS/xP1eePNqrbLtvzHesUd/LT5fk8nL/DflHwmUXb1tG67JrJ0e8bbq9v1Ef0eoxTSZ9nPx9y1VRVTxhseDzTB42NcPcirwnf5cWxAUpwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADc7XoNduu44Nu23SZtXq89+xiw4q9q159UDyqqKYmZnSIbZI3Rn0O8W8bRj1dMEbXtNu/wCe6qsx24/u6eN/b3R60z9DvQJt2x1w7xxlTDuO6Ryvj0f1tPp59f8AWW9vdHr8U5ViK1itYiIiOURHoSreH131Oc55t1TbmbOXxrP6p4e6OfjO7ulHHAPQtwRwnGPPOgjdtwr3/OtdEX5T51p9WvwmfWkiIisRERERHdEQCXTTFO6HNcXjcRjK/wAS/XNU9/8AdwA9RQAAABsd72fat70NtDvG3aXX6a3jjz4ovX9vhPrb4FVNdVFUVUzpMIA6ROrhtesrk1vBetnbtR3z8y1Npvgt6q277U9/aj2K68V8Nb7wtultt3/bc+h1EfVi8fRvHnW0d1o9cPQlxPFfDeycU7Tk2vftvw63TX8IvH0qT+lW3jWfXCPcw9NW+nc3bJtt8XhJi3iv8lHb/tHv5+/zeeolnpn6F924JnLu20Tl3PYOfO2Tlzy6WPLJEeNf7Ue/kiZCqpmmdJdXwOPw+Psxew9XSpn4d09kgDxMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAamlwZ9VqcWl02G+bPmvGPHjpHO17TPKIiPTMyEzERrLecO7NufEG86bZ9o0t9VrdTfs48df2zM+iIjvmfRC5vQz0W7T0f7XGW0Y9ZvmenLU62a+H9jHz+rX9s+M+iI23QN0Y6bgLYY1Wtpjy7/raROqyx3/JR4xirPlHpn0z6ohJidZs9HfPFxzavairH1zhcNOlqOM/q/js7ePZoASGjgAAAAAAAAAAAPnJSmTHbHkpW9LRNbVtHOJifGJhV3rCdC/8AItc/FfCOmmdt776zQ0jnOn870j9Dzj832eFpGLVras1tEWrMcpiY7phRctxXGksvk2c4jKb8XbM7uccpj+8J5POATP1kuiyOE9xniXYsExsesycsuKsd2kyz6PVS3o8p7vJDDHVUzTOku7ZdmFnMcPTiLM7p+E84nvgAUpwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAsd1TOjut+fHu74OcRNse10vHutm/fWPfPkhLo44X1PGXGm3cPaftVrqMnPPkj+jxV772+Hh65hfba9Dpds23TbdocNcOl02KuLDjr4VrWOUQkYe3rPSloW3OdThbEYO1PrV8e6n+flq3ICc5CAAAAAAAAAAAAAAAA2e97Zod62jVbTuWnrqNHqsU4s2O3has/8/X6JUT6UODtZwNxlq9i1U2yYqz8ppc0x/42Gfq29von1xK/CJes9wRHFHAl920eHtbps0Wz4+zH0smH+kp8I7UeuvrWL9vpU6xxht+x2dTl+MizXP8Ajubp7p5T9J7vBTkI745iA7YAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA+seO+XJXFirNsl7RWlY9Mz3RALPdTnhWNNsm48X6nH/O62/wA10szHhipP05j227v8iwDhOA9jxcNcG7TsWKIiNFpaY7cvTflztPvtMz73Nsnbp6NMQ+ec7zCcwx9zEcpnd4Ruj4ACtigAAAAbfcdbo9t0ObX6/U4tLpcFJvly5bRWtKx6ZmVd+kjrIWrmy6DgbRUtSszX+UdXSeVvXTH5eu3wUV3KaOLKZXk2MzSvo4ejXTjPCI8Z+nFZAUH33pD453vJa+48VbreLTz7GPPOKkeytOUOIwb9vuny/K4N73TFf9KmsyRP71j81HY3K36O780+vfiJ7omfjrHyeh4pNwn02dIfD+ana3m266eJ+lg3CPlYmPLt914+KxnRP0y8O8dWpt+WP5K3qY/8pmvE1y+fyd/zvZPKfVPiuUX6a9zA5tslmGXUTcmIrojnTy8Y4/TvSaAvNXAAAAGL1res1tWLVmOUxMc4mGQFDemHhf8A4P6Rd12WlJrpYy/LaT/2b/SrHu76/wCV1FZXrn8PxbS7JxRip9Kl7aHPaPKed6fti/xVqYy7T0aph9A7PZhOYZdavVT62mk+Mbp8+PvAFDNAAAAAAAAAAAAAAAAAAAAAAAAAAAADuXQjtMb10r8O6G1O3jjWVz5Inw7OOJyT+F01MfVD0UanpWyamY5/NNty5I9U2tSn7rSqtxrVEMXnd+cPl1+5HGKZ89NIW9AZR88AAAAD5yXpjx2yZL1pSsTa1rTyiIjxmX0iTrU8VZOH+je23aXLOPV7zl+axMTymMURzyT745V/zKaqujEym5dgq8diqMPRxqnT7z7o3oN6fulHVccb3k2zbc98fDujyTGGlZ5fObR/S284/Rj0R3+MosBjKqpqnWX0HgcDZwNimxZjSmP7rPfIA8Sx9YsmTDlpmw5L48lLRal6TytWY8JiY8JfIHFcHq4dKF+NNpvse95onfdBjiZyT3fOsXh2/wDFHdFvbE+nul9598B8RanhPi/beINLa0W0meLZKxP18c916z7azMPQDSZ8Wq0uLVYLxfFmpXJS0emsxzifgn2LnSp0nk4ptlktGXYuLlmNKLms6dkxxjw5x5cmoAvtPAAAAR/1iNpjd+h/fsUU7WTTYY1eP1TjtFp/2xaPeo+9EOJdHG4cO7loLRzjU6TLhmP8VJj/AJvO+ImsdmfGO6ULFR60S6z6PL81YW9Z/TVE+cfwAIzoQAAAAAAAAAAAAAAAAAAAAAAAAAAAAnrqXUieMN/yemu30r8cn/6QKn3qW/aniL7li/HK5Z68Ne2snTJ7/hHzhaMBknBQAAABVrroay9+L9h0Han5PDoL5oj13ycv+iFpVTuuV+Ubav1TX+LkWMR1G3bD0xOb0TPKKvkhABAdtAAAAF7eg7W5Nf0R8M6nLabX+YUxzM+nsc6f9KiU90c18OhTQZNt6J+GtJlrNbxoMeS0T6Jv9P8A6knC9aXP/SH0fyVrXj0vpOv0dwATXJAAAACYiYmJ8Jec+51im56ukeFc+Sse60vRe0xWs2nwiObzn3G8ZNx1WSPC+e9o99pRMVydM9HOvSxH/j/7NABEdPAAAAAAAAAAAAAAAAAAAAAAAAAAAAE+9S37U8RfcsX45QEn3qW/aniL7li/HK5Z68Nd2s9j3/CP3QtGAyTgwAAAAqd1yvyjbV+qa/xci2Kp3XK/KNtX6pr/ABcixiOo3DYb2tT4VfJCACA7WAAA19BpNVr9bh0Wh0+XU6rPeKYsOKs2te0+EREDyZiI1lznRpwvqOMeN9t2DBW00z5YtqLRH1MNe+9vh3e2YX6w4seHDTDipFMeOsVrWPCIjuiEZdX/AKMacBbFfWblFMm/a+sfObVnnGCnjGKs/tmfTPqiEoJ9i30Kd/FxLa/O6MzxcUWp1t0bontnnP0jw15gC+1IAAABxvFetjbuF913C0xWNNos2bn/AIaTP/J54VmZiJnxnxXc6yO7xtHQ9vUxfs5NZWmjx+ucloif9vaUkQsVPrRDrXo8w804S7en/aqI8o/kARnQQAAAAAAAAAAAAAAAAAAAAAAAAAAABPvUt+1PEX3LF+OUBJ96lv2p4i+5YvxyuWevDXdrPY9/wj90LRgMk4MAAAAKndcr8o21fqmv8XItiqd1yvyjbV+qa/xcixiOo3DYb2tT4VfJCA7X0Z8Bb5x9vn8n7TjjHgx8p1WryRPyeCs+fnafRWO+fVHet10cdFPCPBGDHfRaGms3KI+nr9VWLZZn+z6KR6o98yi27NVfg6Pnm1GEyn1KvWufpj6zy+fcpPtm07ruluztm167XT/6fT3yfhiXN6fo7491Fori4N32Zn9LRXrHxmIhfgX4wsdrTrnpEvzPqWIjxmZ+kKecJ9Xzjvd8tLbrj0ux6afrWz5IyZOXqpSZ7/bMLE9GHRZwxwDi+V2/DbV7navZya/URE5Jj0xWPCkeqPfMu9C7RZpo3w1vNdqMwzOmbdyro0dlO6Pfznz0AF1roAAAADQ3DV6fb9BqNdrMtcWn0+K2XLe3hWtY5zPwgexE1TpCunXO4gi2TZOFsN++va12orE+2mPn/vVxc5x5xDn4r4x3TiDUc4nWZ5vSsz9THHdSvurEQ4NjLlXSqmX0HkWXf8dgLeHnjEaz4zvn7AChlwAAAAAAAAAAAAAAAAAAAAAAAAAAABPvUt+1PEX3LF+OUBJ96lv2p4i+5YvxyuWevDXdrPY9/wAI/dC0YDJODAAAACr3Wn2fXcQdMnDuy7bj+U1et2/HixRPhEzmyc5n1RHOZ9ULQukW4fprOm+eI81ItG37FjwYJn0ZMubLzmPXFazH+Zbu09KNGd2ezCMvxNWJ5001aeM7o+LlujzhLbOCuFtLsW2Ujs447WbNMcrZ8k/Wvb1z+yOUeh2EFcRERpDDXr1d+5Ny5OtU75kAerYAAAAAAAAgbrccc127YcXBegzf973GIy63sz30wRPdWf8AFMfCs+aWukDivbeDOFdXv253/m8NeWLFE8rZsk/VpX1zPwjnPoUR4q3zcOJeIdbvu6ZflNXrMs5L8vCseiseURHKI9iPiLnRjow3nYnJJxeJ/N3I9Sid3fVy8uPk4wBBdiAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE+9S37U8RfcsX45QEn3qW/aniL7li/HK5Z68Nd2s9j3/AAj90LRgMk4MAAAANOmLHXU5M0RHbvWtbeyOfL98tRwOn3en/aBrdhvf+c/kvBrMdfOPlctLfup8Xkyu27dVcVdHlGvxhzwD1aAAAAAAAAG13fcdDtG2ajc9y1WPS6PTUnJmy5J5VrWGjxDvW18P7Rn3beNbi0ejwV53yZJ5R7I85n0RHfKnfTd0r7h0ga/5npIyaPYNPfng00zytmtHhkycvT5V8I9vetXbsUR3tgyDZ+/m97SN1uONX0jtn+y2XTb0j6zpB4k+Vp8pg2bSTNdDp7d08vTktH6Vv2R3efPoAMfVVNU6y7nhMJawdmmxZjSmngAPEgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAT71LftTxF9yxfjlASfepb9qeIvuWL8crlnrw13az2Pf8I/dC0YDJODAAAACvfTdxdfgnrB8Nb5PanS12quHWUr42w2y5It7ZjutHrqsIqd1yvyjbV+qa/wAXIs35mKNYbVsdYoxGY/g3I1pqpqiffC1mi1On1ujw6zSZqZtPnpGTFkpPOt6zHOJifKYaqp/V26YP+Gb4eFeJc8zsuS/LS6m08/mdpn6s/wB3M/6fZ4Wvx3pkx1yY7VvS0RNbVnnExPhMSqt3IrjWGOzvJb+U4ibVzfTPVnlMffthkBcYYAAAAABFXWK6N9dx1sOHVbRrM0bjt0Wti0dskxh1ET4xy8Iv5W90+cU41ODPpdTl02pw5MOfFeaZMeSs1tS0TymJifCXo4hzrAdEGHjDTZOIOH8WPDxBipzvSPo11lYj6s+V/K3un0TEa/Z6XrQ3/ZHamMHpg8VP+PlP6de3u7+XhwqENTU4M+l1OXTanDkw58V5pkx5KzW1LRPKYmJ8JaaE65ExMawAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJ96lv2p4i+5YvxygJPvUt+1PEX3LF+OVyz14a7tZ7Hv8AhH7oWjAZJwYAAAAVO65X5Rtq/VNf4uRbFU7rlflG2r9U1/i5FjEdRuGw3tanwq+SEE5dXrpkvw7kwcLcU6i19ntMU0uqvPOdJM+FbT/V/h9nhBohUVzROsOuZlluHzLDzYvxrE+cT2x3vR/HemTHXJjtW9LRE1tWecTE+mGVUer10yX4dyYOFuKdRa+z2mKaXVXnnOkmfCtp/q/w+zwtbjvTJjrkx2reloia2rPOJifCYlkbdyK41hwvOslxGU4j8K7vieE8pj79scmQFbDgAAAAAIc6f+h/BxhpsnEHD+LHh4gxU+nSOVa6ysfmz5X8re6fRMVG1ODPpdTl02pw5MOfFeaZMeSs1tS0TymJifCXo4hzrAdEGDjDTZOIOH8WPDxBip9OkfRrrKx+bPlfyt7p9ExFvWdfWpdB2U2rnCzGDxk+p/rV+nunu+XhwqENTUYc2nz5NPqMV8ObFaaZMd68rUtE8piY9ExLTQ3WonXfAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAn3qW/aniL7li/HKAk+9S37U8RfcsX45XLPXhru1nse/4R+6FowGScGAAAAFTuuV+Ubav1TX+LkWxVO65X5Rtq/VNf4uRYxHUbhsN7Wp8KvkhABAdrE5dXrpkvw7kwcLcU6i19ntMU0uqvPOdJM/m2n+r/AA+zwg0VUVzROsIGZZbh8yw82L8axPnE9sd70fx3pkx1yY7VvS0RNbVnnExPhMSyqj1eumS/DuTBwtxTqLX2e0xTS6q8850kz+bb+7/D7PC1uO9MmOuTHat6WiJras84mJ8JiWRt3IrjWHC86yXEZTiPwru+J4TymPv2xyZAVsOAAAAAArT1ueAsWnvh462zBFIy3rg3KtY7ptPdTL7/AKs/5VdXoH0hbLj4i4H3nZctYt860eSlPVflzpPutET7nn5ymO60cpjxhAxFHRq1jm7NsNmdeLwM2bk6zbnT3Tw8t8eGgAsN1AAAAAAAAAAAAAAAAAAAAAAAAAAAAE+dS20RxZxBTn3zoMcx7sk//cIDSp1Wd8ps/S1pdPmvFMW56fJo5mfDtTyvT4zTl71dqdK4YPaWzVeyq/RTx6Ovlv8AouYAybgAAAAAqb1ybVt0k7ZWJ767TTn/APLkWyUl6yG94986Xt3vhv28Oi7GipMT3c8cfS/3zZHxM+o3XYKzVXmc1xwppn46QjkBBdmAAE5dXrpkvw7kwcLcU6m19ntMU0uqvPOdJM+FbT/V/h9nhBoqormidYQMyy3D5lh5sX41ifOJ7Y73o/jvTJjrkx2reloia2rPOJifCYllVHq9dMl+HcmDhbinUWvs9p7Gl1V55zpJnwrb+7/D7PC1uO9MmOuTHat6WiJras84mJ9MMjbuRXGsOF51kuIynEfhXd8TwnlMfftjkyArYcAAAAnlynn4POfcuz/KWr7H1fl8nL2dqV+ekbe8fDnAu9b1kv2fmukvbH68kxypHvtMQ8/o58u+ec+lDxU74h1H0dWaoov3eUzTHlrM/OABFdKAAAAAAAAAAAAAAAAAAAAAAAAAAAAGtotTqNFrMGs0mW2LUYMlcuLJXxras84n4w0QeTETGkr59E3Gui474O0u8ae1K6qsRi1uCJ78OaI749k+MeqXbVCOjPjneeAuIa7rtV4vivyrqtLef5vUU8p8pj0T6PjC4/Rv0jcMcd6CuXadZXHrK155tDmmK5sU+nu/Oj+1HOE+zeiuNJ4uJ7TbM3stu1XbNOtqeE/p7p+k/V3ABfaiA6R0ndJ3DPAejv8AP9VXVblNeeHb8FonLefR2v0K+ufdzeTMUxrK/hsLexVyLVmmaqp5Qx01cdabgPgvUa+MlJ3LUROHb8M+Nssx9bl+jXxn3R6VGcuTJly3y5b2yZL2m17WnnNpmeczPvdg6QuMd5444iybzvOWJtMdjBgpz+TwY/RSsfvnxmXXWPu3OnPc7hszkMZRhtK99yrfVPyiPD5gC02QAAAATn1eumS/DuTBwtxTqLX2e0xTS6q8850kz+baf6v8Ps8IMFVFc0TrCBmWW4fMsPNi/GsT5xPbHe9H8d6ZMdcmO1b0tETW1Z5xMT6YZVK6CemvNwnjxcPcTzm1WyRPZwZ4+lk0nq5eNqerxj0c/BajZd22zetuxbjtOu0+u0mWOdMuG8WrPw8J9TIW7kVxucNzrIsVlN2absa08quU/ae5vQFxhQfOS9MWO2TJetKVjna1p5REecygXpq6edDt2mz7FwRqaazcLRNMu4U78Wn8+xP59/X4R61FdcURrLI5blWJzK9FrD069s8o75n+9zgOtvx9i1upxcDbXni+PTZIzbles905I+pi93PtT6+XlKvT6y5MmXLfLlyWyZL2m172nna0z3zMz6ZfLHV1zXVrLvGUZZbyzCU4a3y4z2zzn+8gBSyQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA1NNnz6bUU1GmzZMGbHPapkx3mtqz5xMd8NMCY1jSUmcOdOnSNs2KuG27YtzxV8K6/DGS3+uOVp98y7JPWY4z+T7MbJsMW5fW7GX93bQeK4u1xzYa9s7ld6rpV2KdfDT5aJI4l6b+kbfMV8E7zXbsNu6aaDFGKeX+Pvt8JR1myZM2a+bNkvly3ntXve02tafOZnvl8Cmapq4yn4XA4bCU9GxbimO6IgAeJQAAAAAAAA5XhviPfuG9X862Hd9Xt2WfrThyTFb/4q+FvfDigidFFy3RcpmiuNYnlO+Ew7T1i+kHR44pq67TuPL87Npppaf9Foj9jc67rJ8c58U00+3bHpbT+fXDkvMfG/JCor/Fr7WHnZvKpq6U2KfL6cHaOMOkHjLiyJx77v2q1GCZ5/N6TGPD/oryiffzdXBRMzPFlrFi1Yo6FqmKY7IjSPgAC6AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMxWZrNuU8o5Rz9f/APc2Gec8uXPu8QYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjvAGezbyn4HZt5T8AYGezbyn4HZt5T8AYGezbyn4HZt5T8AYGezbyn4HZt5T8AYGezbyn4HZt5T8AYGezbyn4HZt5T8AYGezbyn4HZt5T8AYGeU+UsAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPAAegAAAAAAAAAAAAAAAAAAAAAD//Z';
+let nodes = {};
+let conns = [];
+let selId = null;
+let multiSel = new Set();
+let connMode = false, connFrom = null;
+let connLineColor = '#8b8b8b';
 let nc = 0;
-
-// viewport transform
 let vx = 0, vy = 0, zoom = 1;
 
-const COLORS = [
-  '#5850c8','#7c3aed','#9333ea','#0f766e','#059669',
-  '#1d4ed8','#2563eb','#3b82f6','#0369a1','#0284c7',
-  '#0891b2','#06b6d4','#4f46e5','#4338ca',
-  '#be185d','#db2777','#dc2626','#d97706','#16a34a',
-];
+// ═══════════════════════════ UNDO/REDO ═══════════════════════
+let history = [], histIdx = -1;
+function snapshot() {
+  const s = JSON.stringify({ nodes, conns });
+  if (history[histIdx] === s) return;
+  history = history.slice(0, histIdx + 1);
+  history.push(s);
+  if (history.length > 80) history.shift();
+  histIdx = history.length - 1;
+  updateUndoUI();
+}
+function undo() {
+  if (histIdx <= 0) return;
+  histIdx--;
+  loadSnapshot(history[histIdx]);
+  updateUndoUI();
+}
+function redo() {
+  if (histIdx >= history.length - 1) return;
+  histIdx++;
+  loadSnapshot(history[histIdx]);
+  updateUndoUI();
+}
+function loadSnapshot(s) {
+  const state = JSON.parse(s);
+  document.querySelectorAll('.onode').forEach(n => n.remove());
+  nodes = {}; conns = state.conns;
+  selId = null; multiSel.clear();
+  Object.values(state.nodes).forEach(d => { nodes[d.id] = d; renderNode(d.id); });
+  drawLines(); deselect(); updateUndoUI();
+}
+function updateUndoUI() {
+  document.getElementById('btn-undo').classList.toggle('disabled', histIdx <= 0);
+  document.getElementById('btn-redo').classList.toggle('disabled', histIdx >= history.length - 1);
+}
 
-function uid() { return 'n' + (++nc) + '_' + Math.random().toString(36).slice(2,5); }
+// ═══════════════════════════ COLORS ══════════════════════════
+const COLORS = ['#5850c8','#7c3aed','#9333ea','#0f766e','#059669','#1d4ed8','#2563eb','#3b82f6','#0369a1','#0284c7','#0891b2','#06b6d4','#4f46e5','#4338ca','#be185d','#db2777','#dc2626','#d97706','#16a34a'];
+const LINE_COLORS = ['#8b8b8b','#c0c0c0','#3b82f6','#8b5cf6','#22c55e','#ef4444','#f59e0b','#06b6d4','#ec4899','#f97316'];
+function uid() { return 'n'+(++nc)+'_'+Math.random().toString(36).slice(2,5); }
 
-// ─── VIEWPORT ─────────────────────────────────────────────
+// ═══════════════════════════ VIEWPORT ═══════════════════════
 const world = document.getElementById('world');
 const cvWrap = document.getElementById('cv-wrap');
+function applyT() { world.style.transform = `translate(${vx}px,${vy}px) scale(${zoom})`; }
+function worldPt(cx, cy) { return { x: (cx - vx) / zoom, y: (cy - vy) / zoom }; }
 
-function applyTransform() {
-  world.style.transform = `translate(${vx}px, ${vy}px) scale(${zoom})`;
-}
-
-// Panning: middle-click or Space+drag
-let panning = false, panX = 0, panY = 0;
-let spaceDown = false;
-
-document.addEventListener('keydown', e => {
-  if (e.code === 'Space' && !e.target.matches('input,textarea')) {
-    spaceDown = true; cvWrap.style.cursor = 'grab'; e.preventDefault();
-  }
-  if (e.key === 'Escape') { if (connMode) toggleConn(); else deselect(); }
-  if ((e.key === 'Delete' || e.key === 'Backspace') && selId && !e.target.matches('input,textarea')) deleteSelected();
-});
-document.addEventListener('keyup', e => {
-  if (e.code === 'Space') { spaceDown = false; cvWrap.style.cursor = ''; }
-});
-
+let panning = false, panSX = 0, panSY = 0, spaceDown = false;
 cvWrap.addEventListener('mousedown', e => {
   if (e.button === 1 || (e.button === 0 && spaceDown)) {
-    panning = true; panX = e.clientX - vx; panY = e.clientY - vy;
+    panning = true; panSX = e.clientX - vx; panSY = e.clientY - vy;
     cvWrap.style.cursor = 'grabbing'; e.preventDefault();
   }
-  if (e.button === 0 && !spaceDown && e.target === cvWrap) deselect();
 });
-document.addEventListener('mousemove', e => {
-  if (!panning) return;
-  vx = e.clientX - panX; vy = e.clientY - panY;
-  applyTransform();
-});
-document.addEventListener('mouseup', () => {
-  if (panning) { panning = false; cvWrap.style.cursor = spaceDown ? 'grab' : ''; }
-});
-
-// Scroll-wheel pan + pinch zoom
+document.addEventListener('mousemove', e => { if (panning) { vx = e.clientX - panSX; vy = e.clientY - panSY; applyT(); } });
+document.addEventListener('mouseup', () => { if (panning) { panning = false; cvWrap.style.cursor = spaceDown ? 'grab' : ''; } });
 cvWrap.addEventListener('wheel', e => {
   e.preventDefault();
-  if (e.ctrlKey || e.metaKey) {
-    // pinch zoom
-    const delta = e.deltaY > 0 ? -0.08 : 0.08;
-    const rect = cvWrap.getBoundingClientRect();
-    zoomAt(e.clientX - rect.left, e.clientY - rect.top, delta);
-  } else {
-    vx -= e.deltaX; vy -= e.deltaY;
-    applyTransform();
-  }
+  if (e.ctrlKey || e.metaKey) { const d = e.deltaY > 0 ? -.08 : .08; const r = cvWrap.getBoundingClientRect(); zoomAt(e.clientX - r.left, e.clientY - r.top, d); }
+  else { vx -= e.deltaX; vy -= e.deltaY; applyT(); }
 }, { passive: false });
-
-function zoomAt(cx, cy, delta) {
-  const newZoom = Math.min(2, Math.max(0.2, zoom + delta));
-  const scale = newZoom / zoom;
-  vx = cx - scale * (cx - vx);
-  vy = cy - scale * (cy - vy);
-  zoom = newZoom;
-  applyTransform();
+function zoomAt(cx, cy, d) {
+  const nz = Math.min(3, Math.max(0.15, zoom + d));
+  const sc = nz / zoom; vx = cx - sc * (cx - vx); vy = cy - sc * (cy - vy); zoom = nz; applyT();
   document.getElementById('zoom-lbl').textContent = Math.round(zoom * 100) + '%';
 }
-
-function changeZoom(d) {
-  const rect = cvWrap.getBoundingClientRect();
-  zoomAt(rect.width / 2, rect.height / 2, d);
-}
-
+function changeZoom(d) { const r = cvWrap.getBoundingClientRect(); zoomAt(r.width/2, r.height/2, d); }
 function fitView() {
-  const ns = Object.values(nodes);
-  if (!ns.length) return;
+  const ns = Object.values(nodes); if (!ns.length) return;
   const pad = 60;
-  const minX = Math.min(...ns.map(n => n.x));
-  const minY = Math.min(...ns.map(n => n.y));
-  const maxX = Math.max(...ns.map(n => n.x + 200));
-  const maxY = Math.max(...ns.map(n => n.y + 70));
-  const W = maxX - minX + pad * 2;
-  const H = maxY - minY + pad * 2;
-  const rect = cvWrap.getBoundingClientRect();
-  zoom = Math.min(2, Math.max(0.2, Math.min(rect.width / W, rect.height / H)));
-  vx = (rect.width  - W * zoom) / 2 - (minX - pad) * zoom;
-  vy = (rect.height - H * zoom) / 2 - (minY - pad) * zoom;
-  applyTransform();
-  document.getElementById('zoom-lbl').textContent = Math.round(zoom * 100) + '%';
+  const minX = Math.min(...ns.map(n=>n.x))-pad, minY = Math.min(...ns.map(n=>n.y))-pad;
+  const maxX = Math.max(...ns.map(n=>n.x+200))+pad, maxY = Math.max(...ns.map(n=>n.y+68))+pad;
+  const r = cvWrap.getBoundingClientRect();
+  zoom = Math.min(2, Math.max(.15, Math.min(r.width/(maxX-minX), r.height/(maxY-minY))));
+  vx = (r.width-(maxX-minX)*zoom)/2 - minX*zoom;
+  vy = (r.height-(maxY-minY)*zoom)/2 - minY*zoom;
+  applyT(); document.getElementById('zoom-lbl').textContent = Math.round(zoom*100)+'%';
 }
+applyT();
 
-// ─── ADD / RENDER NODE ────────────────────────────────────
+// ═══════════════════════════ NODES ═══════════════════════════
+const NW = 196, NH = 68;
 function addNode(data) {
   const id = data?.id || uid();
-  const rect = cvWrap.getBoundingClientRect();
-  // place in viewport center
-  const cx = (-vx + rect.width  / 2) / zoom;
-  const cy = (-vy + rect.height / 2) / zoom;
-  nodes[id] = {
-    id,
-    x:     data?.x     ?? Math.round(cx - 98),
-    y:     data?.y     ?? Math.round(cy - 35),
-    role:  data?.role  ?? 'Новая должность',
-    dept:  data?.dept  ?? 'Команда · Направление',
-    sched: data?.sched ?? '5/2',
-    color: data?.color ?? COLORS[nc % COLORS.length],
-    duties: data?.duties ?? [],
-    emps:   data?.emps   ?? [],
-  };
-  renderNode(id);
-  select(id);
-  drawLines();
-  return id;
+  const r = cvWrap.getBoundingClientRect();
+  const cx = (-vx + r.width/2) / zoom, cy = (-vy + r.height/2) / zoom;
+  nodes[id] = { id, x: data?.x??Math.round(cx-NW/2), y: data?.y??Math.round(cy-NH/2),
+    role: data?.role??'Новая должность', dept: data?.dept??'Команда · Направление',
+    sched: data?.sched??'5/2', color: data?.color??COLORS[nc%COLORS.length],
+    duties: data?.duties??[], emps: data?.emps??[] };
+  renderNode(id); select(id); drawLines(); snapshot(); return id;
 }
-
 function renderNode(id) {
-  const d = nodes[id];
-  let el = document.getElementById(id);
+  const d = nodes[id]; let el = document.getElementById(id);
   if (!el) {
-    el = document.createElement('div');
-    el.className = 'onode';
-    el.id = id;
-    world.appendChild(el);
-    makeDraggable(el);
+    el = document.createElement('div'); el.className = 'onode'; el.id = id;
+    world.appendChild(el); makeDrag(el);
+    el.addEventListener('mousedown', e => { if (e.shiftKey) e.stopPropagation(); });
     el.addEventListener('click', e => {
       e.stopPropagation();
       if (connMode) { handleConn(id); return; }
-      if (e.shiftKey) {
-        if (multiSel.has(id)) { multiSel.delete(id); el.classList.remove('multi'); }
-        else { multiSel.add(id); el.classList.add('multi'); }
-        updateMultiUI(); return;
-      }
-      clearMulti();
-      select(id);
+      if (e.shiftKey) { toggleMulti(id); return; }
+      clearMulti(); select(id);
     });
   }
-  el.style.left = d.x + 'px';
-  el.style.top  = d.y + 'px';
-  const c1 = ha(d.color, .5), c2 = ha(d.color, .92);
-  el.innerHTML =
-    `<div class="on-head" style="background:linear-gradient(135deg,${c1},${c2})">
-      <div class="on-texts">
-        <div class="on-role">${esc(d.role)}</div>
-        <div class="on-dept">${esc(d.dept)} · ${esc(d.sched)}</div>
-      </div>
-      <div class="on-arr"><svg viewBox="0 0 8 8"><path d="M2 1.5l3.5 3L2 7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-    </div>`;
+  el.style.left = d.x+'px'; el.style.top = d.y+'px';
+  const c1 = ha(d.color,.5), c2 = ha(d.color,.93);
+  el.innerHTML = `<div class="on-head" style="background:linear-gradient(135deg,${c1},${c2})"><div class="on-texts"><div class="on-role">${esc(d.role)}</div><div class="on-dept">${esc(d.dept)} · ${esc(d.sched)}</div></div><div class="on-arr"><svg viewBox="0 0 8 8"><path d="M2 1.5l3.5 3L2 7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>`;
 }
+function ha(h,a){try{const r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);return`rgba(${r},${g},${b},${a})`}catch{return h}}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 
-function ha(hex, a) {
-  try { const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16); return `rgba(${r},${g},${b},${a})`; }
-  catch { return hex; }
-}
-function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-
-// ─── DRAG ─────────────────────────────────────────────────
-function makeDraggable(el) {
-  let ox, oy, sx, sy, dragging = false;
+// ═══════════════════════════ DRAG ════════════════════════════
+const SNAP_THRESH = 6; // px in world coords
+function makeDrag(el) {
+  let startX, startY, startPositions, moved = false;
   el.addEventListener('mousedown', e => {
     if (e.button !== 0 || connMode || spaceDown) return;
-    e.preventDefault(); e.stopPropagation();
-    dragging = true;
-    ox = e.clientX; oy = e.clientY;
-    sx = nodes[el.id].x; sy = nodes[el.id].y;
+    e.preventDefault(); e.stopPropagation(); moved = false;
+    const wp = worldPt(e.clientX, e.clientY);
+    startX = wp.x; startY = wp.y;
+    // drag group: if this node is in multiSel, drag all; else just this
+    const isInGroup = multiSel.has(el.id);
+    if (!isInGroup && !e.shiftKey) { clearMulti(); select(el.id); }
+    const dragIds = (multiSel.size > 0 && multiSel.has(el.id)) ? [...multiSel] : [el.id];
+    startPositions = {};
+    dragIds.forEach(id => { startPositions[id] = { x: nodes[id].x, y: nodes[id].y }; });
     el.style.cursor = 'grabbing';
+
+    const mm = e2 => {
+      const wp2 = worldPt(e2.clientX, e2.clientY);
+      const dx = wp2.x - startX, dy = wp2.y - startY;
+      moved = true;
+      // move all
+      dragIds.forEach(id => {
+        nodes[id].x = Math.round(startPositions[id].x + dx);
+        nodes[id].y = Math.round(startPositions[id].y + dy);
+      });
+      // snap guides only for single node drag
+      if (dragIds.length === 1) { showSnapGuides(dragIds[0], dx, dy, startPositions[dragIds[0]]); }
+      else { hideGuides(); }
+      dragIds.forEach(id => {
+        const nel = document.getElementById(id);
+        if (nel) { nel.style.left = nodes[id].x+'px'; nel.style.top = nodes[id].y+'px'; }
+      });
+      drawLines();
+    };
+    const mu = () => {
+      document.removeEventListener('mousemove', mm);
+      document.removeEventListener('mouseup', mu);
+      el.style.cursor = 'grab'; hideGuides();
+      if (moved) { resolveCollisions(); drawLines(); snapshot(); }
+    };
+    document.addEventListener('mousemove', mm);
+    document.addEventListener('mouseup', mu);
   });
-  document.addEventListener('mousemove', e => {
-    if (!dragging) return;
-    const dx = (e.clientX - ox) / zoom;
-    const dy = (e.clientY - oy) / zoom;
-    nodes[el.id].x = Math.round(sx + dx);
-    nodes[el.id].y = Math.round(sy + dy);
-    el.style.left = nodes[el.id].x + 'px';
-    el.style.top  = nodes[el.id].y + 'px';
-    drawLines();
-  });
-  document.addEventListener('mouseup', () => {
-    if (dragging) {
-      dragging = false; el.style.cursor = 'grab';
-      resolveCollisions(); drawLines();
-    }
-  });
 }
 
-// ─── SELECT / SIDEBAR ─────────────────────────────────────
-function select(id) {
-  document.querySelectorAll('.onode.sel').forEach(n => n.classList.remove('sel'));
-  selId = id;
-  if (id) {
-    document.getElementById(id)?.classList.add('sel');
-    document.getElementById('btn-del').style.display = 'inline-flex';
-    renderSidebar(id);
-  } else {
-    document.getElementById('btn-del').style.display = 'none';
-    document.getElementById('sb-head').textContent = 'Свойства';
-    document.getElementById('sb-body').innerHTML = '<div class="sb-empty">Выберите блок для редактирования</div>';
-  }
-}
+// ═══════════════════════════ SNAP GUIDES ═════════════════════
+const guideH = document.getElementById('guide-h');
+const guideV = document.getElementById('guide-v');
+const snapLbl = document.getElementById('snap-lbl');
+function showSnapGuides(dragId, dx, dy, orig) {
+  const d = nodes[dragId]; const others = Object.values(nodes).filter(n=>n.id!==dragId);
+  let snapX = null, snapY = null, lblParts = [];
+  const THRESH = SNAP_THRESH / zoom;
 
-function deselect() { select(null); }
-
-function renderSidebar(id) {
-  const d = nodes[id]; if (!d) return;
-  document.getElementById('sb-head').textContent = 'Свойства блока';
-
-  const colorBtns = COLORS.map(c =>
-    `<div class="cp ${c === d.color ? 'sel':''}" style="background:${c}" title="${c}" onclick="setColor('${id}','${c}')"></div>`
-  ).join('');
-
-  const dutyRows = d.duties.map((dt, i) =>
-    `<div style="display:flex;gap:4px;margin-bottom:4px">
-      <input type="text" value="${esc(dt)}" placeholder="Обязанность" oninput="setDuty('${id}',${i},this.value)">
-      <div class="x-btn" onclick="removeDuty('${id}',${i})">×</div>
-    </div>`
-  ).join('');
-
-  const empRows = d.emps.map((e, i) =>
-    `<div class="emp-item">
-      <div class="av-btn" onclick="pickAv('${id}',${i})">${e.avatar ? `<img src="${e.avatar}">` : '📷'}</div>
-      <input type="text" value="${esc(e.name||'')}" placeholder="Имя" oninput="setEmpName('${id}',${i},this.value)">
-      <input type="text" value="${esc(e.reddy||'')}" style="width:76px" placeholder="@id" oninput="setEmpReddy('${id}',${i},this.value)">
-      <div class="x-btn" onclick="removeEmp('${id}',${i})">×</div>
-    </div>`
-  ).join('');
-
-  // connections for this node
-  const nodeConns = conns.map((c, i) => {
-    if (c.from !== id && c.to !== id) return '';
-    const isOut = c.from === id;
-    const otherId = isOut ? c.to : c.from;
-    const other = nodes[otherId];
-    const lbl = isOut ? `→ ${other?.role || otherId}` : `← ${other?.role || otherId}`;
-    return `<div class="conn-chip">
-      <span class="lbl">${esc(lbl)}</span>
-      <div class="x-btn" style="font-size:13px" onclick="removeConn(${i})">×</div>
-    </div>`;
-  }).join('');
-
-  document.getElementById('sb-body').innerHTML = `
-    <div class="fl">Должность</div>
-    <input type="text" value="${esc(d.role)}" oninput="setF('${id}','role',this.value)" placeholder="Название">
-    <div class="fl">Подпись</div>
-    <input type="text" value="${esc(d.dept)}" oninput="setF('${id}','dept',this.value)" placeholder="Команда · BT">
-    <div class="fl">График</div>
-    <input type="text" value="${esc(d.sched)}" oninput="setF('${id}','sched',this.value)" style="max-width:90px" placeholder="5/2">
-    <div class="fl">Цвет</div>
-    <div class="color-row">${colorBtns}</div>
-    <div class="custom-c">
-      <input type="color" value="${d.color}" oninput="setColor('${id}',this.value)">
-      <input type="text" value="${d.color}" oninput="setColor('${id}',this.value)" placeholder="#3b82f6">
-    </div>
-    <div class="fl">Обязанности</div>
-    <div id="duties-${id}">${dutyRows}</div>
-    <button class="btn" style="width:100%;justify-content:center;margin-top:4px" onclick="addDuty('${id}')">+ Добавить</button>
-    <div class="fl">Сотрудники</div>
-    <div id="emps-${id}">${empRows}</div>
-    <button class="btn" style="width:100%;justify-content:center;margin-top:4px" onclick="addEmp('${id}')">+ Добавить</button>
-    <div class="fl">Выравнивание</div>
-    <div style="display:flex;gap:4px;flex-wrap:wrap">
-      <button class="btn" style="flex:1;justify-content:center;font-size:11px" onclick="alignSel('left')" title="По левому краю">⬛ Лево</button>
-      <button class="btn" style="flex:1;justify-content:center;font-size:11px" onclick="alignSel('center')" title="По центру X">↔ Центр</button>
-      <button class="btn" style="flex:1;justify-content:center;font-size:11px" onclick="alignSel('right')" title="По правому краю">⬛ Право</button>
-      <button class="btn" style="flex:1;justify-content:center;font-size:11px" onclick="alignSel('top')" title="По верхнему краю">↕ Верх</button>
-      <button class="btn" style="flex:1;justify-content:center;font-size:11px" onclick="alignSel('middle')" title="По центру Y">↕ Середина</button>
-      <button class="btn" style="flex:1;justify-content:center;font-size:11px" onclick="alignSel('bottom')" title="По нижнему краю">↕ Низ</button>
-      <button class="btn" style="flex:1;justify-content:center;font-size:11px" onclick="distributeH()" title="Равномерно по горизонтали">⇔ Распред.</button>
-    </div>
-    <div style="font-size:11px;color:var(--t3);margin-top:4px">Удерживайте Shift и кликайте на блоки для группового выравнивания</div>
-    <div class="fl">Цвет новых линий</div>
-    <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px" id="line-color-presets"></div>
-    <div style="display:flex;gap:5px;align-items:center">
-      <input type="color" id="line-color-pick" value="#8b8b8b" oninput="setLineColor(this.value)" style="width:34px;height:30px;padding:2px;border-radius:6px;cursor:pointer;border:1px solid var(--b2);flex-shrink:0">
-      <input type="text" id="line-color-text" value="#8b8b8b" oninput="setLineColor(this.value)" placeholder="#8b8b8b">
-    </div>
-    <div class="fl">Связи</div>
-    <div id="conns-${id}">${nodeConns || '<div style="font-size:11.5px;color:var(--t3);font-style:italic">Нет связей</div>'}</div>
-    <div style="height:10px"></div>
-    <button class="btn danger" style="width:100%;justify-content:center" onclick="deleteSelected()">Удалить блок</button>
-  `;
-}
-
-function setF(id, f, v) { if (nodes[id]) { nodes[id][f] = v; renderNode(id); } }
-function setColor(id, c) {
-  if (!nodes[id]) return;
-  nodes[id].color = c; renderNode(id);
-  document.querySelectorAll('.color-row .cp').forEach(el => el.classList.toggle('sel', el.title === c));
-  const inputs = document.querySelectorAll('.custom-c input');
-  if (inputs[0]) inputs[0].value = c; if (inputs[1]) inputs[1].value = c;
-}
-function addDuty(id) { nodes[id].duties.push(''); renderNode(id); renderSidebar(id); }
-function removeDuty(id, i) { nodes[id].duties.splice(i, 1); renderNode(id); renderSidebar(id); }
-function setDuty(id, i, v) { if (nodes[id]) nodes[id].duties[i] = v; }
-function addEmp(id) { nodes[id].emps.push({ name:'', reddy:'', avatar:'' }); renderNode(id); renderSidebar(id); }
-function removeEmp(id, i) { nodes[id].emps.splice(i, 1); renderNode(id); renderSidebar(id); }
-function setEmpName(id, i, v) { if (nodes[id]?.emps[i]) { nodes[id].emps[i].name = v; renderNode(id); } }
-function setEmpReddy(id, i, v) { if (nodes[id]?.emps[i]) nodes[id].emps[i].reddy = v; }
-function pickAv(id, i) {
-  const inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'image/*';
-  inp.onchange = () => {
-    const f = inp.files[0]; if (!f) return;
-    const r = new FileReader();
-    r.onload = e => { nodes[id].emps[i].avatar = e.target.result; renderNode(id); renderSidebar(id); };
-    r.readAsDataURL(f);
-  };
-  inp.click();
-}
-
-// ─── CONNECTIONS ──────────────────────────────────────────
-function toggleConn() {
-  connMode = !connMode; connFrom = null;
-  document.getElementById('conn-banner').classList.toggle('show', connMode);
-  document.getElementById('btn-conn').classList.toggle('conn-active', connMode);
-  document.querySelectorAll('.onode').forEach(n => { n.classList.remove('conn-src', 'conn-tgt'); });
-  if (!connMode) document.getElementById('conn-text').textContent = 'Кликните на источник';
-}
-
-function handleConn(id) {
-  if (!connFrom) {
-    connFrom = id;
-    document.getElementById(id)?.classList.add('conn-src');
-    document.getElementById('conn-text').textContent = 'Теперь кликните на дочерний блок';
-    document.querySelectorAll('.onode:not(.conn-src)').forEach(n => n.classList.add('conn-tgt'));
-  } else if (connFrom !== id) {
-    if (!conns.some(c => c.from === connFrom && c.to === id)) {
-      conns.push({ from: connFrom, to: id, color: connLineColor }); toast('Связь добавлена');
-    } else { toast('Связь уже существует'); }
-    document.getElementById(connFrom)?.classList.remove('conn-src');
-    document.querySelectorAll('.onode').forEach(n => n.classList.remove('conn-tgt'));
-    connFrom = null;
-    document.getElementById('conn-text').textContent = 'Кликните на источник';
-    drawLines();
-    if (selId) renderSidebar(selId);
-  }
-}
-
-function removeConn(i) {
-  conns.splice(i, 1); drawLines();
-  if (selId) renderSidebar(selId);
-}
-
-// ─── SVG LINES ────────────────────────────────────────────
-function nodeBox(id) {
-  const el = document.getElementById(id); const d = nodes[id];
-  if (!el || !d) return null;
-  return { cx: d.x + 98, top: d.y, bot: d.y + el.offsetHeight };
-}
-
-function drawLines() {
-  const svg = document.getElementById('svg-lines');
-  const ns = Object.values(nodes);
-  if (!ns.length) { svg.innerHTML = ''; return; }
-  const pad = 200;
-  const minX = Math.min(...ns.map(n => n.x)) - pad;
-  const minY = Math.min(...ns.map(n => n.y)) - pad;
-  const maxX = Math.max(...ns.map(n => n.x + 200)) + pad;
-  const maxY = Math.max(...ns.map(n => n.y + 100)) + pad;
-  svg.style.left = minX + 'px'; svg.style.top = minY + 'px';
-  svg.setAttribute('width', maxX - minX);
-  svg.setAttribute('height', maxY - minY);
-  svg.setAttribute('viewBox', `${minX} ${minY} ${maxX - minX} ${maxY - minY}`);
-
-  const actPairs = new Set();
-  if (selId) conns.forEach(c => { if (c.from === selId || c.to === selId) actPairs.add(c.from + '>' + c.to); });
-  // dark mode detection
-  const dark = window.matchMedia('(prefers-color-scheme:dark)').matches;
-  const defaultStroke = dark ? 'rgba(255,255,255,0.28)' : 'rgba(0,0,0,0.18)';
-
-  const seen = new Set();
-  let defs = `<defs>`;
-  let paths = '';
-  let gradIdx = 0;
-
-  conns.forEach(c => {
-    const k = c.from + '>' + c.to;
-    if (seen.has(k)) return; seen.add(k);
-    const p = nodeBox(c.from), ch = nodeBox(c.to);
-    if (!p || !ch) return;
-    const my = (p.bot + ch.top) / 2;
-    const isA = actPairs.has(k);
-    const lineColor = c.color || defaultStroke;
-
-    if (isA) {
-      // gradient from source color to target color
-      const srcColor = nodes[c.from]?.color || '#3b82f6';
-      const tgtColor = nodes[c.to]?.color   || '#3b82f6';
-      const gid = 'lg' + gradIdx++;
-      const vertical = Math.abs(ch.top - p.bot) > Math.abs(ch.cx - p.cx);
-      defs += `<linearGradient id="${gid}" x1="${p.cx}" y1="${p.bot}" x2="${ch.cx}" y2="${ch.top}" gradientUnits="userSpaceOnUse">
-        <stop offset="0%" stop-color="${srcColor}"/>
-        <stop offset="100%" stop-color="${tgtColor}"/>
-      </linearGradient>`;
-      // marker for active
-      defs += `<marker id="ah-${gid}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M1 1.5L8 5L1 8.5" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="${tgtColor}"/></marker>`;
-      paths += `<path d="M${p.cx},${p.bot} C${p.cx},${my} ${ch.cx},${my} ${ch.cx},${ch.top}" fill="none" stroke="url(#${gid})" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-${gid})"/>`;
-    } else {
-      const mid = `<marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M1 1.5L8 5L1 8.5" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="context-stroke"/></marker>`;
-      if (!defs.includes('id="ah"')) defs += mid;
-      const stroke = c.color || defaultStroke;
-      paths += `<path d="M${p.cx},${p.bot} C${p.cx},${my} ${ch.cx},${my} ${ch.cx},${ch.top}" fill="none" stroke="${stroke}" stroke-width="1.5" stroke-linecap="round" marker-end="url(#ah)"/>`;
-    }
-  });
-
-  defs += '</defs>';
-  svg.innerHTML = defs + paths;
-}
-
-// ─── LINE COLOR ───────────────────────────────────────────
-const LINE_COLORS = ['#8b8b8b','#b0b0b0','#3b82f6','#8b5cf6','#22c55e','#ef4444','#f59e0b','#06b6d4','#ec4899'];
-function setLineColor(v) {
-  connLineColor = v;
-  const pick = document.getElementById('line-color-pick');
-  const text = document.getElementById('line-color-text');
-  if (pick) pick.value = v; if (text) text.value = v;
-  renderLineColorPresets();
-}
-function renderLineColorPresets() {
-  const el = document.getElementById('line-color-presets'); if (!el) return;
-  el.innerHTML = LINE_COLORS.map(c =>
-    `<div class="cp ${c===connLineColor?'sel':''}" style="background:${c}" title="${c}" onclick="setLineColor('${c}')"></div>`
-  ).join('');
-}
-// call after sidebar renders
-const _origRenderSidebar = renderSidebar;
-
-// ─── MULTI-SELECT ─────────────────────────────────────────
-let multiSel = new Set(); // ids
-
-document.addEventListener('keydown', e => {
-  // Shift+click handled in node click
-});
-
-// Patch node click to support Shift
-function patchNodeClick(el, id) {
-  el.addEventListener('click', e => {
-    e.stopPropagation();
-    if (connMode) { handleConn(id); return; }
-    if (e.shiftKey) {
-      if (multiSel.has(id)) { multiSel.delete(id); el.classList.remove('multi'); }
-      else { multiSel.add(id); el.classList.add('multi'); }
-      updateMultiUI(); return;
-    }
-    // normal select - clear multi
-    clearMulti();
-    select(id);
-  }, true); // capture phase so it runs before existing
-}
-
-function clearMulti() {
-  multiSel.forEach(id => document.getElementById(id)?.classList.remove('multi'));
-  multiSel.clear(); updateMultiUI();
-}
-
-function updateMultiUI() {
-  const sb = document.getElementById('sb-body');
-  const head = document.getElementById('sb-head');
-  if (multiSel.size >= 2) {
-    head.textContent = `Выбрано: ${multiSel.size} блока`;
-    sb.innerHTML = `
-      <div style="font-size:12px;color:var(--t2);margin-bottom:10px">Удерживайте Shift для выбора нескольких блоков</div>
-      <div class="fl">Выравнивание</div>
-      <div style="display:flex;gap:4px;flex-wrap:wrap">
-        <button class="btn" style="flex:1;justify-content:center;font-size:11px" onclick="alignSel('left')">⬛ Лево</button>
-        <button class="btn" style="flex:1;justify-content:center;font-size:11px" onclick="alignSel('center')">↔ Центр</button>
-        <button class="btn" style="flex:1;justify-content:center;font-size:11px" onclick="alignSel('right')">⬛ Право</button>
-        <button class="btn" style="flex:1;justify-content:center;font-size:11px" onclick="alignSel('top')">↕ Верх</button>
-        <button class="btn" style="flex:1;justify-content:center;font-size:11px" onclick="alignSel('middle')">↕ Середина</button>
-        <button class="btn" style="flex:1;justify-content:center;font-size:11px" onclick="alignSel('bottom')">↕ Низ</button>
-        <button class="btn" style="flex:1;justify-content:center;font-size:11px" onclick="distributeH()">⇔ Распред. H</button>
-        <button class="btn" style="flex:1;justify-content:center;font-size:11px" onclick="distributeV()">⇕ Распред. V</button>
-      </div>
-      <div style="height:8px"></div>
-      <button class="btn danger" style="width:100%;justify-content:center" onclick="deleteMulti()">Удалить выбранные</button>
-    `;
-  }
-}
-
-// ─── ALIGN ────────────────────────────────────────────────
-const NODE_W = 196;
-function getSelIds() { return multiSel.size >= 2 ? [...multiSel] : (selId ? [selId] : []); }
-
-function alignSel(dir) {
-  const ids = getSelIds(); if (ids.length < 2) { toast('Выберите 2+ блока (Shift+клик)'); return; }
-  const ns = ids.map(id => nodes[id]).filter(Boolean);
-  if (dir === 'left') { const minX = Math.min(...ns.map(n=>n.x)); ns.forEach(n=>{n.x=minX;}); }
-  if (dir === 'right') { const maxX = Math.max(...ns.map(n=>n.x+NODE_W)); ns.forEach(n=>{n.x=maxX-NODE_W;}); }
-  if (dir === 'center') { const cx = (Math.min(...ns.map(n=>n.x))+Math.max(...ns.map(n=>n.x+NODE_W)))/2; ns.forEach(n=>{n.x=Math.round(cx-NODE_W/2);}); }
-  if (dir === 'top') { const minY = Math.min(...ns.map(n=>n.y)); ns.forEach(n=>{n.y=minY;}); }
-  if (dir === 'bottom') { const maxY = Math.max(...ns.map(n=>n.y+60)); ns.forEach(n=>{n.y=maxY-60;}); }
-  if (dir === 'middle') { const cy = (Math.min(...ns.map(n=>n.y))+Math.max(...ns.map(n=>n.y+60)))/2; ns.forEach(n=>{n.y=Math.round(cy-30);}); }
-  ids.forEach(id => { const el=document.getElementById(id); if(el&&nodes[id]){el.style.left=nodes[id].x+'px';el.style.top=nodes[id].y+'px';} });
-  resolveCollisions(); drawLines();
-}
-
-function distributeH() {
-  const ids = getSelIds().sort((a,b)=>nodes[a].x-nodes[b].x); if(ids.length<3){toast('Нужно 3+ блока');return;}
-  const minX=nodes[ids[0]].x, maxX=nodes[ids[ids.length-1]].x;
-  const step=(maxX-minX)/(ids.length-1);
-  ids.forEach((id,i)=>{nodes[id].x=Math.round(minX+step*i);const el=document.getElementById(id);if(el)el.style.left=nodes[id].x+'px';});
-  resolveCollisions(); drawLines();
-}
-
-function distributeV() {
-  const ids = getSelIds().sort((a,b)=>nodes[a].y-nodes[b].y); if(ids.length<3){toast('Нужно 3+ блока');return;}
-  const minY=nodes[ids[0]].y, maxY=nodes[ids[ids.length-1]].y;
-  const step=(maxY-minY)/(ids.length-1);
-  ids.forEach((id,i)=>{nodes[id].y=Math.round(minY+step*i);const el=document.getElementById(id);if(el)el.style.top=nodes[id].y+'px';});
-  drawLines();
-}
-
-function deleteMulti() {
-  [...multiSel].forEach(id => {
-    document.getElementById(id)?.remove();
-    delete nodes[id];
-    conns = conns.filter(c=>c.from!==id&&c.to!==id);
-  });
-  clearMulti(); selId=null; drawLines();
-  document.getElementById('sb-head').textContent='Свойства';
-  document.getElementById('sb-body').innerHTML='<div class="sb-empty">Выберите блок для редактирования</div>';
-}
-
-// ─── ANTI-COLLISION ───────────────────────────────────────
-const NODE_H = 68; // approx card height
-const MARGIN = 12; // minimum gap between nodes
-
-function resolveCollisions() {
-  const ns = Object.values(nodes);
-  let changed = true, passes = 0;
-  while (changed && passes < 20) {
-    changed = false; passes++;
-    for (let i = 0; i < ns.length; i++) {
-      for (let j = i+1; j < ns.length; j++) {
-        const a = ns[i], b = ns[j];
-        const overlapX = (a.x + NODE_W + MARGIN) - b.x;
-        const overlapY = (a.y + NODE_H + MARGIN) - b.y;
-        if (overlapX <= 0 || overlapY <= 0) continue;
-        // push apart on smaller axis
-        if (overlapX < overlapY) {
-          const half = overlapX / 2;
-          a.x = Math.round(a.x - half); b.x = Math.round(b.x + half);
-        } else {
-          const half = overlapY / 2;
-          a.y = Math.round(a.y - half); b.y = Math.round(b.y + half);
-        }
-        changed = true;
+  for (const o of others) {
+    // X alignment: left, center, right
+    const checks = [
+      [d.x, o.x, 'L'], [d.x, o.x+NW-NW, 'L'], [d.x+NW/2, o.x+NW/2, 'C'], [d.x, o.x+NW, 'R'], [d.x+NW, o.x, 'R'], [d.x+NW, o.x+NW, 'R']
+    ];
+    for (const [a, b, lbl] of checks) {
+      if (Math.abs(a-b) < THRESH && snapX === null) {
+        nodes[dragId].x += (b-a); snapX = (b < NW/2 ? b : b) ; break;
       }
     }
+    const checksY = [
+      [d.y, o.y], [d.y+NH/2, o.y+NH/2], [d.y+NH, o.y+NH], [d.y, o.y+NH], [d.y+NH, o.y]
+    ];
+    for (const [a, b] of checksY) {
+      if (Math.abs(a-b) < THRESH && snapY === null) { nodes[dragId].y += (b-a); snapY = b; break; }
+    }
   }
-  ns.forEach(n => {
-    const el = document.getElementById(n.id);
-    if (el) { el.style.left = n.x+'px'; el.style.top = n.y+'px'; }
-  });
+  // update el
+  const el = document.getElementById(dragId);
+  if (el) { el.style.left = nodes[dragId].x+'px'; el.style.top = nodes[dragId].y+'px'; }
+
+  // show guides in viewport coords
+  const toVP_Y = y => y * zoom + vy;
+  const toVP_X = x => x * zoom + vx;
+  const r = cvWrap.getBoundingClientRect();
+
+  if (snapX !== null) {
+    const vgx = toVP_X(nodes[dragId].x) - r.left;
+    guideV.style.left = vgx+'px'; guideV.classList.add('show');
+  } else guideV.classList.remove('show');
+
+  if (snapY !== null) {
+    const vgy = toVP_Y(nodes[dragId].y) - r.top;
+    guideH.style.top = vgy+'px'; guideH.classList.add('show');
+  } else guideH.classList.remove('show');
+}
+function hideGuides() { guideH.classList.remove('show'); guideV.classList.remove('show'); snapLbl.style.display='none'; }
+
+// ═══════════════════════════ SELECTION BOX ═══════════════════
+let boxSel = false, boxX0 = 0, boxY0 = 0;
+cvWrap.addEventListener('mousedown', e => {
+  if (e.button !== 0 || spaceDown || connMode) return;
+  if (e.target !== cvWrap && e.target !== world && e.target.id !== 'svg-lines' && !e.target.closest('svg')) return;
+  boxSel = true; const r = cvWrap.getBoundingClientRect();
+  boxX0 = e.clientX - r.left; boxY0 = e.clientY - r.top;
+  const sb = document.getElementById('sel-box');
+  sb.style.left = boxX0+'px'; sb.style.top = boxY0+'px'; sb.style.width='0'; sb.style.height='0'; sb.style.display='block';
+  clearMulti(); deselect();
+  const mm = e2 => {
+    if (!boxSel) return;
+    const x = e2.clientX - r.left, y = e2.clientY - r.top;
+    sb.style.left = Math.min(x,boxX0)+'px'; sb.style.top = Math.min(y,boxY0)+'px';
+    sb.style.width = Math.abs(x-boxX0)+'px'; sb.style.height = Math.abs(y-boxY0)+'px';
+    // find nodes in box
+    const bx1 = (Math.min(x,boxX0) - vx) / zoom, by1 = (Math.min(y,boxY0) - vy) / zoom;
+    const bx2 = (Math.max(x,boxX0) - vx) / zoom, by2 = (Math.max(y,boxY0) - vy) / zoom;
+    clearMulti();
+    Object.values(nodes).forEach(n => {
+      if (n.x+NW > bx1 && n.x < bx2 && n.y+NH > by1 && n.y < by2) addMulti(n.id);
+    });
+  };
+  const mu = () => { boxSel = false; sb.style.display='none'; document.removeEventListener('mousemove',mm); document.removeEventListener('mouseup',mu); updateMultiSidebar(); };
+  document.addEventListener('mousemove',mm); document.addEventListener('mouseup',mu);
+});
+
+// ═══════════════════════════ MULTI-SELECT ════════════════════
+function toggleMulti(id) { if (multiSel.has(id)) { multiSel.delete(id); document.getElementById(id)?.classList.remove('multi-sel'); } else addMulti(id); updateMultiSidebar(); }
+function addMulti(id) { multiSel.add(id); document.getElementById(id)?.classList.add('multi-sel'); }
+function clearMulti() { multiSel.forEach(id => document.getElementById(id)?.classList.remove('multi-sel')); multiSel.clear(); }
+function updateMultiSidebar() {
+  if (multiSel.size === 0) return;
+  document.getElementById('sb-head').textContent = `Выбрано: ${multiSel.size}`;
+  document.getElementById('sb-body').innerHTML = `
+    <div class="fl">Выравнивание</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px">
+      <button class="btn" style="justify-content:center;font-size:11px" onclick="alignSel('left')">◀ Лево</button>
+      <button class="btn" style="justify-content:center;font-size:11px" onclick="alignSel('cx')">↔ Центр X</button>
+      <button class="btn" style="justify-content:center;font-size:11px" onclick="alignSel('right')">▶ Право</button>
+      <button class="btn" style="justify-content:center;font-size:11px" onclick="alignSel('top')">▲ Верх</button>
+      <button class="btn" style="justify-content:center;font-size:11px" onclick="alignSel('cy')">↕ Центр Y</button>
+      <button class="btn" style="justify-content:center;font-size:11px" onclick="alignSel('bottom')">▼ Низ</button>
+    </div>
+    <div class="fl">Распределение</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">
+      <button class="btn" style="justify-content:center;font-size:11px" onclick="distributeH()">⇔ По гориз.</button>
+      <button class="btn" style="justify-content:center;font-size:11px" onclick="distributeV()">⇕ По верт.</button>
+    </div>
+    <div style="height:10px"></div>
+    <button class="btn danger" style="width:100%;justify-content:center" onclick="deleteMulti()">Удалить выбранные (${multiSel.size})</button>`;
 }
 
-// ─── DELETE ───────────────────────────────────────────────
-function deleteSelected() {
-  if (!selId) return;
-  document.getElementById(selId)?.remove();
-  delete nodes[selId];
-  conns = conns.filter(c => c.from !== selId && c.to !== selId);
-  selId = null;
-  document.getElementById('btn-del').style.display = 'none';
-  document.getElementById('sb-head').textContent = 'Свойства';
-  document.getElementById('sb-body').innerHTML = '<div class="sb-empty">Выберите блок для редактирования</div>';
+// ═══════════════════════════ ALIGN ═══════════════════════════
+function getAlignIds() { return multiSel.size >= 2 ? [...multiSel] : []; }
+function alignSel(dir) {
+  const ids = getAlignIds(); if (!ids.length) { toast('Выберите 2+ блока'); return; }
+  const ns = ids.map(id=>nodes[id]).filter(Boolean);
+  if (dir==='left')   { const v=Math.min(...ns.map(n=>n.x));       ns.forEach(n=>{n.x=v}); }
+  if (dir==='right')  { const v=Math.max(...ns.map(n=>n.x+NW));    ns.forEach(n=>{n.x=v-NW}); }
+  if (dir==='cx')     { const v=(Math.min(...ns.map(n=>n.x))+Math.max(...ns.map(n=>n.x+NW)))/2; ns.forEach(n=>{n.x=Math.round(v-NW/2)}); }
+  if (dir==='top')    { const v=Math.min(...ns.map(n=>n.y));       ns.forEach(n=>{n.y=v}); }
+  if (dir==='bottom') { const v=Math.max(...ns.map(n=>n.y+NH));    ns.forEach(n=>{n.y=v-NH}); }
+  if (dir==='cy')     { const v=(Math.min(...ns.map(n=>n.y))+Math.max(...ns.map(n=>n.y+NH)))/2; ns.forEach(n=>{n.y=Math.round(v-NH/2)}); }
+  ids.forEach(id=>{ const el=document.getElementById(id); if(el){el.style.left=nodes[id].x+'px';el.style.top=nodes[id].y+'px';} });
+  drawLines(); snapshot();
+}
+function distributeH() {
+  const ids = getAlignIds().sort((a,b)=>nodes[a].x-nodes[b].x); if(ids.length<3){toast('Нужно 3+ блока');return;}
+  const tot = ids.length, minX=nodes[ids[0]].x, maxX=nodes[ids[tot-1]].x;
+  const step=(maxX-minX)/(tot-1);
+  ids.forEach((id,i)=>{nodes[id].x=Math.round(minX+step*i);document.getElementById(id).style.left=nodes[id].x+'px';});
+  drawLines(); snapshot();
+}
+function distributeV() {
+  const ids = getAlignIds().sort((a,b)=>nodes[a].y-nodes[b].y); if(ids.length<3){toast('Нужно 3+ блока');return;}
+  const tot=ids.length, minY=nodes[ids[0]].y, maxY=nodes[ids[tot-1]].y;
+  const step=(maxY-minY)/(tot-1);
+  ids.forEach((id,i)=>{nodes[id].y=Math.round(minY+step*i);document.getElementById(id).style.top=nodes[id].y+'px';});
+  drawLines(); snapshot();
+}
+function deleteMulti() {
+  [...multiSel].forEach(id=>{ document.getElementById(id)?.remove(); delete nodes[id]; conns=conns.filter(c=>c.from!==id&&c.to!==id); });
+  clearMulti(); deselect(); drawLines(); snapshot();
+}
+
+// ═══════════════════════════ ANTI-COLLISION ══════════════════
+const COL_MARGIN = 14;
+function resolveCollisions() {
+  const ns = Object.values(nodes); let changed=true, p=0;
+  while(changed && p++<20) {
+    changed=false;
+    for(let i=0;i<ns.length;i++) for(let j=i+1;j<ns.length;j++) {
+      const a=ns[i],b=ns[j];
+      const ox=(a.x+NW+COL_MARGIN)-b.x, oy=(a.y+NH+COL_MARGIN)-b.y;
+      if(ox<=0||oy<=0) continue;
+      if(ox<oy){const h=ox/2;a.x=Math.round(a.x-h);b.x=Math.round(b.x+h);}
+      else{const h=oy/2;a.y=Math.round(a.y-h);b.y=Math.round(b.y+h);}
+      changed=true;
+    }
+  }
+  ns.forEach(n=>{const el=document.getElementById(n.id);if(el){el.style.left=n.x+'px';el.style.top=n.y+'px';}});
+}
+
+// ═══════════════════════════ SELECT / SIDEBAR ════════════════
+function select(id) {
+  document.querySelectorAll('.onode.sel').forEach(n=>n.classList.remove('sel'));
+  selId=id;
+  if(id){
+    document.getElementById(id)?.classList.add('sel');
+    document.getElementById('btn-del').style.display='inline-flex';
+    renderSidebar(id);
+  } else deselect();
+}
+function deselect() {
+  selId=null; document.querySelectorAll('.onode.sel').forEach(n=>n.classList.remove('sel'));
+  document.getElementById('btn-del').style.display='none';
+  document.getElementById('sb-head').textContent='Свойства';
+  document.getElementById('sb-body').innerHTML='<div class="sb-empty">Выберите блок для редактирования</div>';
   drawLines();
 }
+function renderSidebar(id) {
+  const d=nodes[id]; if(!d) return;
+  document.getElementById('sb-head').textContent='Свойства блока';
+  const cBtns=COLORS.map(c=>`<div class="cp ${c===d.color?'sel':''}" style="background:${c}" title="${c}" onclick="setColor('${id}','${c}')"></div>`).join('');
+  const lcBtns=LINE_COLORS.map(c=>`<div class="cp ${c===connLineColor?'sel':''}" style="background:${c}" title="${c}" onclick="setLC('${c}')"></div>`).join('');
+  const dRows=d.duties.map((t,i)=>`<div style="display:flex;gap:4px;margin-bottom:4px"><input type="text" value="${esc(t)}" placeholder="Обязанность" oninput="setDuty('${id}',${i},this.value)"><div class="xb" onclick="remDuty('${id}',${i})">×</div></div>`).join('');
+  const eRows=d.emps.map((e,i)=>`<div class="emp-item"><div class="av-btn" onclick="pickAv('${id}',${i})">${e.avatar?`<img src="${e.avatar}">`:'📷'}</div><input type="text" value="${esc(e.name||'')}" placeholder="Имя" oninput="setEN('${id}',${i},this.value)"><input type="text" value="${esc(e.reddy||'')}" style="width:76px" placeholder="ID Reddy" oninput="setER('${id}',${i},this.value)"><div class="xb" onclick="remEmp('${id}',${i})">×</div></div>`).join('');
+  const cConns=conns.map((c,i)=>{if(c.from!==id&&c.to!==id)return'';const out=c.from===id;const other=nodes[out?c.to:c.from];return`<div class="conn-chip"><span class="lbl">${out?'→':'←'} ${esc(other?.role||'')}</span><div class="xb" style="font-size:13px" onclick="removeConn(${i})">×</div></div>`;}).join('');
+  document.getElementById('sb-body').innerHTML=`
+    <div class="fl">Должность</div><input type="text" value="${esc(d.role)}" oninput="setF('${id}','role',this.value)">
+    <div class="fl">Подпись</div><input type="text" value="${esc(d.dept)}" oninput="setF('${id}','dept',this.value)">
+    <div class="fl">График</div><input type="text" value="${esc(d.sched)}" oninput="setF('${id}','sched',this.value)" style="max-width:90px">
+    <div class="fl">Цвет блока</div><div class="color-row">${cBtns}</div>
+    <div class="custom-c"><input type="color" value="${d.color}" oninput="setColor('${id}',this.value)"><input type="text" value="${d.color}" oninput="setColor('${id}',this.value)"></div>
+    <div class="fl">Цвет новых линий</div><div class="color-row">${lcBtns}</div>
+    <div class="custom-c"><input type="color" id="lc-pick" value="${connLineColor}" oninput="setLC(this.value)"><input type="text" id="lc-text" value="${connLineColor}" oninput="setLC(this.value)"></div>
+    <div class="fl">Обязанности</div><div id="duties-${id}">${dRows}</div>
+    <button class="btn" style="width:100%;justify-content:center;margin-top:4px" onclick="addDuty('${id}')">+ Добавить</button>
+    <div class="fl">Сотрудники</div><div id="emps-${id}">${eRows}</div>
+    <button class="btn" style="width:100%;justify-content:center;margin-top:4px" onclick="addEmp('${id}')">+ Добавить</button>
+    <div class="fl">Связи</div><div id="cc-${id}">${cConns||'<div style="font-size:11.5px;color:var(--t3);font-style:italic">Нет связей</div>'}</div>
+    <div style="height:8px"></div>
+    <button class="btn danger" style="width:100%;justify-content:center" onclick="deleteSelected()">Удалить блок</button>`;
+}
+function setF(id,f,v){if(nodes[id]){nodes[id][f]=v;renderNode(id);}}
+function setColor(id,c){if(!nodes[id])return;nodes[id].color=c;renderNode(id);renderSidebar(id);}
+function setLC(c){connLineColor=c;const p=document.getElementById('lc-pick');const t=document.getElementById('lc-text');if(p)p.value=c;if(t)t.value=c;document.querySelectorAll('#sb-body .color-row').forEach((row,ri)=>{if(ri===1)row.querySelectorAll('.cp').forEach(el=>el.classList.toggle('sel',el.title===c));});}
+function addDuty(id){nodes[id].duties.push('');renderNode(id);renderSidebar(id);}
+function remDuty(id,i){nodes[id].duties.splice(i,1);renderNode(id);renderSidebar(id);}
+function setDuty(id,i,v){if(nodes[id])nodes[id].duties[i]=v;}
+function addEmp(id){nodes[id].emps.push({name:'',reddy:'',avatar:''});renderNode(id);renderSidebar(id);}
+function remEmp(id,i){nodes[id].emps.splice(i,1);renderNode(id);renderSidebar(id);}
+function setEN(id,i,v){if(nodes[id]?.emps[i])nodes[id].emps[i].name=v;renderNode(id);}
+function setER(id,i,v){if(nodes[id]?.emps[i])nodes[id].emps[i].reddy=v;}
+function pickAv(id,i){const inp=document.createElement('input');inp.type='file';inp.accept='image/*';inp.onchange=()=>{const r=new FileReader();r.onload=e=>{nodes[id].emps[i].avatar=e.target.result;renderNode(id);renderSidebar(id);};r.readAsDataURL(inp.files[0]);};inp.click();}
 
-// ─── CLEAR / EXAMPLE ─────────────────────────────────────
-function clearAll(silent) {
-  if (!silent && !confirm('Очистить весь холст?')) return;
-  document.querySelectorAll('.onode').forEach(n => n.remove());
-  nodes = {}; conns = []; nc = 0;
-  select(null); drawLines();
+// ═══════════════════════════ CONNECTIONS ═════════════════════
+function toggleConn(){connMode=!connMode;connFrom=null;document.getElementById('conn-banner').classList.toggle('show',connMode);document.getElementById('btn-conn').classList.toggle('active',connMode);if(!connMode){document.querySelectorAll('.onode').forEach(n=>n.classList.remove('conn-src','conn-tgt-ok'));document.getElementById('conn-text').textContent='Кликните на источник';}}
+function handleConn(id){
+  if(!connFrom){connFrom=id;document.getElementById(id)?.classList.add('conn-src');document.getElementById('conn-text').textContent='Теперь кликните на цель';document.querySelectorAll(`.onode:not(#${id})`).forEach(n=>n.classList.add('conn-tgt-ok'));}
+  else if(connFrom!==id){
+    if(!conns.some(c=>c.from===connFrom&&c.to===id)){conns.push({from:connFrom,to:id,color:connLineColor});toast('Связь добавлена');snapshot();}
+    else toast('Связь уже существует');
+    document.getElementById(connFrom)?.classList.remove('conn-src');document.querySelectorAll('.onode').forEach(n=>n.classList.remove('conn-tgt-ok'));connFrom=null;document.getElementById('conn-text').textContent='Кликните на источник';drawLines();if(selId)renderSidebar(selId);
+  }
+}
+function removeConn(i){conns.splice(i,1);drawLines();if(selId)renderSidebar(selId);snapshot();}
+
+// ═══════════════════════════ SVG LINES ═══════════════════════
+function nodeBox(id){const d=nodes[id];const el=document.getElementById(id);if(!d||!el)return null;return{cx:d.x+NW/2,top:d.y,bot:d.y+el.offsetHeight};}
+function drawLines(){
+  const svg=document.getElementById('svg-lines');
+  const ns=Object.values(nodes);
+  if(!ns.length){svg.innerHTML='';return;}
+  const pad=300;
+  const mx=Math.min(...ns.map(n=>n.x))-pad,my=Math.min(...ns.map(n=>n.y))-pad;
+  const MX=Math.max(...ns.map(n=>n.x+NW))+pad,MY=Math.max(...ns.map(n=>n.y+NH))+pad;
+  svg.style.left=mx+'px';svg.style.top=my+'px';
+  svg.setAttribute('width',MX-mx);svg.setAttribute('height',MY-my);
+  svg.setAttribute('viewBox',`${mx} ${my} ${MX-mx} ${MY-my}`);
+
+  const dark=window.matchMedia('(prefers-color-scheme:dark)').matches;
+  const defStroke=dark?'rgba(255,255,255,0.3)':'rgba(0,0,0,0.18)';
+  const actSet=new Set();
+  if(selId)conns.forEach(c=>{if(c.from===selId||c.to===selId)actSet.add(c.from+'>'+c.to);});
+  const seen=new Set();let defs='<defs>',paths='',gi=0;
+  // default marker
+  defs+=`<marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M1 1.5L8 5L1 8.5" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="context-stroke"/></marker>`;
+  conns.forEach(c=>{
+    const k=c.from+'>'+c.to;if(seen.has(k))return;seen.add(k);
+    const p=nodeBox(c.from),ch=nodeBox(c.to);if(!p||!ch)return;
+    const my2=(p.bot+ch.top)/2;
+    const isA=actSet.has(k);
+    if(isA){
+      const sc=nodes[c.from]?.color||'#3b82f6',tc=nodes[c.to]?.color||'#3b82f6';
+      const gid='g'+gi++;
+      defs+=`<linearGradient id="${gid}" x1="${p.cx}" y1="${p.bot}" x2="${ch.cx}" y2="${ch.top}" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="${sc}"/><stop offset="100%" stop-color="${tc}"/></linearGradient>`;
+      defs+=`<marker id="ah-${gid}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M1 1.5L8 5L1 8.5" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke="${tc}"/></marker>`;
+      paths+=`<path d="M${p.cx},${p.bot} C${p.cx},${my2} ${ch.cx},${my2} ${ch.cx},${ch.top}" fill="none" stroke="url(#${gid})" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-${gid})"/>`;
+    } else {
+      const st=c.color||defStroke;
+      paths+=`<path d="M${p.cx},${p.bot} C${p.cx},${my2} ${ch.cx},${my2} ${ch.cx},${ch.top}" fill="none" stroke="${st}" stroke-width="1.5" stroke-linecap="round" marker-end="url(#ah)"/>`;
+    }
+  });
+  svg.innerHTML=defs+'</defs>'+paths;
 }
 
-function loadExample() {
+// ═══════════════════════════ DELETE ══════════════════════════
+function deleteSelected(){
+  if(multiSel.size>0){deleteMulti();return;}
+  if(!selId)return;
+  document.getElementById(selId)?.remove();delete nodes[selId];
+  conns=conns.filter(c=>c.from!==selId&&c.to!==selId);
+  deselect();drawLines();snapshot();
+}
+
+// ═══════════════════════════ KEYBOARD ════════════════════════
+document.addEventListener('keydown',e=>{
+  if(e.code==='Space'&&!e.target.matches('input,textarea')){spaceDown=true;cvWrap.style.cursor='grab';e.preventDefault();}
+  if(e.key==='Escape'){if(connMode)toggleConn();else{clearMulti();deselect();}}
+  if((e.key==='Delete'||e.key==='Backspace')&&!e.target.matches('input,textarea')){deleteSelected();}
+  if((e.ctrlKey||e.metaKey)&&e.key==='z'&&!e.shiftKey){e.preventDefault();undo();}
+  if((e.ctrlKey||e.metaKey)&&(e.key==='y'||(e.key==='z'&&e.shiftKey))){e.preventDefault();redo();}
+});
+document.addEventListener('keyup',e=>{if(e.code==='Space'){spaceDown=false;cvWrap.style.cursor='';}});
+cvWrap.addEventListener('click',e=>{if(e.target===cvWrap||e.target===world){clearMulti();deselect();}});
+
+// ═══════════════════════════ CLEAR / EXAMPLE ═════════════════
+function clearAll(s){if(!s&&!confirm('Очистить?'))return;document.querySelectorAll('.onode').forEach(n=>n.remove());nodes={};conns=[];nc=0;clearMulti();deselect();drawLines();}
+function loadExample(){
   clearAll(true);
-  const ex = [
-    { role:'L2 PS Group Lead',   dept:'Team B',          sched:'5/2', color:'#5850c8', x:500,  y:0,   duties:['Стратегическое управление командой','Координация BT и API','Эскалация инцидентов'], emps:[{name:'Вячеслав',reddy:'@vyacheslav',avatar:''}] },
-    { role:'L2 PS Supervisor',   dept:'BankTransfer',     sched:'5/2', color:'#7c3aed', x:250,  y:160, duties:['Управление BT-командой','Мониторинг SLA'], emps:[{name:'Кирилл В',reddy:'@kirill_v',avatar:''}] },
-    { role:'L2 PS Supervisor',   dept:'API',              sched:'5/2', color:'#9333ea', x:760,  y:160, duties:['Управление API-командой','Мониторинг SLA'], emps:[{name:'Виктория К',reddy:'@victoria_k',avatar:''}] },
-    { role:'T&A Group Lead',     dept:'L2 PS Team B',     sched:'5/2', color:'#0f766e', x:80,   y:320, duties:['Руководство группой T&A','Анализ ошибок'], emps:[{name:'Игорь К',reddy:'@igor_k',avatar:''}] },
-    { role:'QC Group Lead',      dept:'L2 PS Team B',     sched:'5/2', color:'#059669', x:850,  y:320, duties:['Руководство группой QC','Стандарты качества'], emps:[{name:'Ильина Р',reddy:'@ilina_r',avatar:''}] },
-    { role:'T&A Specialist',     dept:'Senior · BT',      sched:'5/2', color:'#1d4ed8', x:0,    y:480, duties:['Сложные кейсы BT','Менторство'], emps:[{name:'Егор Д',reddy:'@egor_d',avatar:''}] },
-    { role:'T&A Specialist',     dept:'Senior · API',     sched:'5/2', color:'#2563eb', x:420,  y:480, duties:['Сложные кейсы API','Верификация'], emps:[{name:'Руслан Г',reddy:'@ruslan_g',avatar:''}] },
-    { role:'QC Specialist',      dept:'Senior · BT',      sched:'5/2', color:'#0369a1', x:660,  y:480, duties:['Контроль качества BT'], emps:[{name:'Инара Д',reddy:'@inara_d',avatar:''}] },
-    { role:'QC Specialist',      dept:'Senior · API',     sched:'5/2', color:'#0284c7', x:900,  y:480, duties:['Контроль качества API'], emps:[{name:'Виктория З',reddy:'@victoria_z',avatar:''}] },
-    { role:'T&A Specialist',     dept:'L2 PS · BT · 2/2', sched:'2/2', color:'#3b82f6', x:0,    y:640, duties:['Обработка тикетов BT'], emps:[{name:'Марлен К',reddy:'@marlen_k',avatar:''},{name:'Егор П',reddy:'@egor_p',avatar:''}] },
-    { role:'T&A Specialist',     dept:'L2 PS · 5/2',      sched:'5/2', color:'#4338ca', x:210,  y:640, duties:['Обработка тикетов BT и API'], emps:[{name:'Маша И',reddy:'@masha_i',avatar:''},{name:'Кирилл Г',reddy:'@kirill_g',avatar:''}] },
-    { role:'T&A Specialist',     dept:'L2 PS · API · 2/2', sched:'2/2', color:'#4f46e5', x:420,  y:640, duties:['Обработка тикетов API'], emps:[{name:'Дильмурат Д',reddy:'@dilmurat_d',avatar:''},{name:'Сережа Л',reddy:'@serezha_l',avatar:''}] },
-    { role:'QC Specialist',      dept:'L2 PS · BT · 2/2', sched:'2/2', color:'#0891b2', x:660,  y:640, duties:['Проверка BT-тикетов'], emps:[{name:'Айжан А',reddy:'@aizhan_a',avatar:''},{name:'Ульяна Ч',reddy:'@ulyana_ch',avatar:''}] },
-    { role:'QC Specialist',      dept:'L2 PS · API · 2/2', sched:'2/2', color:'#06b6d4', x:900,  y:640, duties:['Проверка API-тикетов'], emps:[{name:'Миша П',reddy:'@misha_p',avatar:''},{name:'Саша Н',reddy:'@sasha_n',avatar:''}] },
-    { role:'L2 PS Specialist',   dept:'Team B · BT',      sched:'2/2', color:'#be185d', x:100,  y:800, duties:['Первичная обработка BT','Ввод данных Reddy'], emps:[] },
-    { role:'L2 PS Specialist',   dept:'Team B · API',     sched:'2/2', color:'#db2777', x:680,  y:800, duties:['Первичная обработка API','Ввод данных ЭПП'], emps:[] },
+  const ex=[
+    {role:'L2 PS Group Lead',dept:'Team B',sched:'5/2',color:'#5850c8',x:500,y:0,duties:['Стратегическое управление','Координация BT и API','Эскалация инцидентов'],emps:[{name:'Вячеслав',reddy:'@vyacheslav',avatar:''}]},
+    {role:'L2 PS Supervisor',dept:'BankTransfer',sched:'5/2',color:'#7c3aed',x:250,y:160,duties:['Управление BT-командой','Мониторинг SLA'],emps:[{name:'Кирилл В',reddy:'@kirill_v',avatar:''}]},
+    {role:'L2 PS Supervisor',dept:'API',sched:'5/2',color:'#9333ea',x:760,y:160,duties:['Управление API-командой','Мониторинг SLA'],emps:[{name:'Виктория К',reddy:'@victoria_k',avatar:''}]},
+    {role:'T&A Group Lead',dept:'L2 PS Team B',sched:'5/2',color:'#0f766e',x:80,y:320,duties:['Руководство T&A','Анализ ошибок'],emps:[{name:'Игорь К',reddy:'@igor_k',avatar:''}]},
+    {role:'QC Group Lead',dept:'L2 PS Team B',sched:'5/2',color:'#059669',x:850,y:320,duties:['Руководство QC','Стандарты качества'],emps:[{name:'Ильина Р',reddy:'@ilina_r',avatar:''}]},
+    {role:'T&A Specialist',dept:'Senior · BT',sched:'5/2',color:'#1d4ed8',x:0,y:480,duties:['Сложные кейсы BT','Менторство'],emps:[{name:'Егор Д',reddy:'@egor_d',avatar:''}]},
+    {role:'T&A Specialist',dept:'Senior · API',sched:'5/2',color:'#2563eb',x:420,y:480,duties:['Сложные кейсы API'],emps:[{name:'Руслан Г',reddy:'@ruslan_g',avatar:''}]},
+    {role:'QC Specialist',dept:'Senior · BT',sched:'5/2',color:'#0369a1',x:660,y:480,duties:['Контроль качества BT'],emps:[{name:'Инара Д',reddy:'@inara_d',avatar:''}]},
+    {role:'QC Specialist',dept:'Senior · API',sched:'5/2',color:'#0284c7',x:900,y:480,duties:['Контроль качества API'],emps:[{name:'Виктория З',reddy:'@victoria_z',avatar:''}]},
+    {role:'T&A Specialist',dept:'L2 PS · BT · 2/2',sched:'2/2',color:'#3b82f6',x:0,y:640,duties:['Обработка тикетов BT'],emps:[{name:'Марлен К',reddy:'@marlen_k',avatar:''},{name:'Егор П',reddy:'@egor_p',avatar:''}]},
+    {role:'T&A Specialist',dept:'L2 PS · 5/2',sched:'5/2',color:'#4338ca',x:210,y:640,duties:['Обработка тикетов BT и API'],emps:[{name:'Маша И',reddy:'@masha_i',avatar:''},{name:'Кирилл Г',reddy:'@kirill_g',avatar:''}]},
+    {role:'T&A Specialist',dept:'L2 PS · API · 2/2',sched:'2/2',color:'#4f46e5',x:420,y:640,duties:['Обработка тикетов API'],emps:[{name:'Дильмурат Д',reddy:'@dilmurat_d',avatar:''},{name:'Сережа Л',reddy:'@serezha_l',avatar:''}]},
+    {role:'QC Specialist',dept:'L2 PS · BT · 2/2',sched:'2/2',color:'#0891b2',x:660,y:640,duties:['Проверка BT-тикетов'],emps:[{name:'Айжан А',reddy:'@aizhan_a',avatar:''},{name:'Ульяна Ч',reddy:'@ulyana_ch',avatar:''}]},
+    {role:'QC Specialist',dept:'L2 PS · API · 2/2',sched:'2/2',color:'#06b6d4',x:900,y:640,duties:['Проверка API-тикетов'],emps:[{name:'Миша П',reddy:'@misha_p',avatar:''},{name:'Саша Н',reddy:'@sasha_n',avatar:''}]},
+    {role:'L2 PS Specialist',dept:'Team B · BT',sched:'2/2',color:'#be185d',x:100,y:800,duties:['Первичная обработка BT'],emps:[]},
+    {role:'L2 PS Specialist',dept:'Team B · API',sched:'2/2',color:'#db2777',x:680,y:800,duties:['Первичная обработка API'],emps:[]},
   ];
-  const ids = ex.map(d => addNode(d));
-  const c = (a, b) => { if (ids[a] && ids[b]) conns.push({ from: ids[a], to: ids[b] }); };
-  c(0,1);c(0,2);
-  c(1,3);c(1,4);c(2,3);c(2,4);
-  c(3,5);c(3,10);c(3,6);
-  c(4,7);c(4,8);
-  c(5,9);c(5,10);
-  c(6,10);c(6,11);
-  c(7,12);c(7,13);
-  c(8,12);c(8,13);
-  c(9,14);c(10,14);c(10,15);c(11,15);c(12,14);c(13,15);
-  select(null); drawLines();
-  setTimeout(fitView, 50);
-  toast('Пример загружен');
+  const ids=ex.map(d=>addNode(d));
+  const c=(a,b)=>{if(ids[a]&&ids[b])conns.push({from:ids[a],to:ids[b],color:'#8b8b8b'});};
+  c(0,1);c(0,2);c(1,3);c(1,4);c(2,3);c(2,4);c(3,5);c(3,10);c(3,6);c(4,7);c(4,8);c(5,9);c(5,10);c(6,10);c(6,11);c(7,12);c(7,13);c(8,12);c(8,13);c(9,14);c(10,14);c(10,15);c(11,15);c(12,14);c(13,15);
+  clearMulti();deselect();drawLines();setTimeout(fitView,50);toast('Пример загружен');snapshot();
 }
 
-// ─── EXPORT ───────────────────────────────────────────────
-function openExport() {
-  document.getElementById('exp-code').textContent = buildExport();
-  document.getElementById('exp-modal').classList.add('open');
-}
-function closeExp() { document.getElementById('exp-modal').classList.remove('open'); }
-function closeExpBg(e) { if (e.target === document.getElementById('exp-modal')) closeExp(); }
-function copyExp() { navigator.clipboard.writeText(document.getElementById('exp-code').textContent).then(() => toast('Скопировано!')); }
-function downloadExp() {
-  const a = document.createElement('a');
-  a.href = 'data:text/html;charset=utf-8,' + encodeURIComponent(document.getElementById('exp-code').textContent);
-  a.download = 'orgchart.html'; a.click(); toast('Файл скачан');
-}
+// ═══════════════════════════ EXPORT ══════════════════════════
+function openExport(){document.getElementById('exp-code').textContent=buildExport();document.getElementById('exp-modal').classList.add('open');}
+function closeExp(){document.getElementById('exp-modal').classList.remove('open');}
+function closeExpBg(e){if(e.target===document.getElementById('exp-modal'))closeExp();}
+function copyExp(){navigator.clipboard.writeText(document.getElementById('exp-code').textContent).then(()=>toast('Скопировано!'));}
+function downloadExp(){const a=document.createElement('a');a.href='data:text/html;charset=utf-8,'+encodeURIComponent(document.getElementById('exp-code').textContent);a.download='orgchart.html';a.click();toast('Скачано');}
 
-function buildExport() {
-  const ns = Object.values(nodes);
-  if (!ns.length) return '<!-- нет карточек -->';
-  const title = document.getElementById('chart-title').value || 'Org Chart';
-  const pad = 80;
-  const minX = Math.min(...ns.map(n => n.x));
-  const minY = Math.min(...ns.map(n => n.y));
-  const maxX = Math.max(...ns.map(n => n.x + 200));
-  const maxY = Math.max(...ns.map(n => n.y + 70));
-  const W = maxX - minX + pad * 2;
-  const H = maxY - minY + pad * 2;
-  const shifted = ns.map(n => ({ ...n, x: n.x - minX + pad, y: n.y - minY + pad }));
-  const nodesJ = JSON.stringify(shifted);
-  const connsJ = JSON.stringify(conns);
+function buildExport(){
+  const ns=Object.values(nodes);if(!ns.length)return'<!-- нет карточек -->';
+  const title=document.getElementById('chart-title').value||'Org Chart';
+  const pad=80;
+  const minX=Math.min(...ns.map(n=>n.x)),minY=Math.min(...ns.map(n=>n.y));
+  const maxX=Math.max(...ns.map(n=>n.x+200)),maxY=Math.max(...ns.map(n=>n.y+70));
+  const W=maxX-minX+pad*2,H=maxY-minY+pad*2;
+  const shifted=ns.map(n=>({...n,x:n.x-minX+pad,y:n.y-minY+pad}));
+  const NODES_J=JSON.stringify(shifted);
+  const CONNS_J=JSON.stringify(conns);
+  const REDDY=REDDY_ICON;
 
-  return `<!DOCTYPE html>
+return `<!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>${title.replace(/</g,'&lt;')}</title>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${esc(title)}</title>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -943,15 +700,13 @@ html,body{height:100%;font-family:'Geist',system-ui,sans-serif;background:var(--
 .hdr-mark{width:28px;height:28px;border-radius:7px;background:var(--t1);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .hdr-mark svg{width:12px;height:12px;fill:var(--bg)}
 .hdr-title{font-size:13px;font-weight:700;letter-spacing:-.02em}
-.hdr-sub{font-size:11px;color:var(--t3);margin-top:1px}
 .hdr-tip{margin-left:auto;font-size:11px;color:var(--t3)}
-/* canvas: centers content */
 .body{flex:1;overflow:auto;display:flex;align-items:center;justify-content:center;padding:40px}
 #stage{position:relative;width:${W}px;height:${H}px;flex-shrink:0}
 #svg-lines{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:visible;z-index:1}
 .onode{position:absolute;width:200px;border-radius:14px;background:var(--bg);border:1.5px solid var(--b1);box-shadow:var(--sh);cursor:pointer;overflow:hidden;transition:transform .18s cubic-bezier(.34,1.4,.64,1),box-shadow .18s,border-color .18s}
 .onode:hover{transform:translateY(-2px);box-shadow:0 4px 20px rgba(0,0,0,.12)}
-.onode.active{border-color:var(--nc,#3b82f6)!important;box-shadow:0 4px 20px rgba(0,0,0,.12),0 0 0 3px rgba(59,130,246,.18)!important}
+.onode.active{border-color:var(--nc,#3b82f6)!important;box-shadow:0 4px 20px rgba(0,0,0,.12),0 0 0 3px rgba(59,130,246,.15)!important}
 .on-head{padding:11px 12px 11px;display:flex;align-items:center;gap:8px}
 .on-texts{flex:1;min-width:0}
 .on-role{font-size:12.5px;font-weight:700;color:#fff;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -959,13 +714,11 @@ html,body{height:100%;font-family:'Geist',system-ui,sans-serif;background:var(--
 .on-arr{width:20px;height:20px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .25s cubic-bezier(.4,0,.2,1),background .15s}
 .on-arr svg{width:8px;height:8px;stroke:#fff;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .onode.active .on-arr{transform:rotate(90deg);background:rgba(255,255,255,.35)}
-/* detail panel */
-.dp{position:fixed;z-index:200;width:308px;background:var(--bg);border:1px solid var(--b2);border-radius:18px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.14),0 2px 8px rgba(0,0,0,.06);pointer-events:none;opacity:0;transform:scale(.96) translateX(-6px);transition:opacity .2s,transform .22s cubic-bezier(.34,1.2,.64,1)}
+.dp{position:fixed;z-index:200;width:308px;background:var(--bg);border:1px solid var(--b2);border-radius:18px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.14);pointer-events:none;opacity:0;transform:scale(.96) translateX(-6px);transition:opacity .2s,transform .22s cubic-bezier(.34,1.2,.64,1)}
 .dp.open{opacity:1;transform:scale(1) translateX(0);pointer-events:auto}
 .dp-bar{height:4px}
 .dp-head{padding:15px 16px 11px;position:relative}
-.dp-x{position:absolute;top:12px;right:12px;width:24px;height:24px;border-radius:7px;background:var(--bg2);border:1px solid var(--b1);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .12s}
-.dp-x:hover{background:var(--b2)}
+.dp-x{position:absolute;top:12px;right:12px;width:24px;height:24px;border-radius:7px;background:var(--bg2);border:1px solid var(--b1);display:flex;align-items:center;justify-content:center;cursor:pointer}
 .dp-x svg{width:10px;height:10px;stroke:var(--t2);fill:none;stroke-width:2;stroke-linecap:round}
 .dp-role{font-size:14.5px;font-weight:700;letter-spacing:-.02em;color:var(--t1);padding-right:28px;line-height:1.3}
 .dp-dept{font-size:11.5px;color:var(--t2);margin-top:3px}
@@ -981,7 +734,8 @@ html,body{height:100%;font-family:'Geist',system-ui,sans-serif;background:var(--
 .dp-av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;overflow:hidden}
 .dp-av img{width:100%;height:100%;object-fit:cover}
 .dp-en{font-size:12.5px;font-weight:600;color:var(--t1)}
-.dp-eid{font-size:11px;color:var(--t2);margin-top:3px;display:flex;align-items:center;gap:5px}.reddy-icon{width:16px;height:16px;border-radius:50%;object-fit:cover;flex-shrink:0}
+.dp-eid{font-size:11px;color:var(--t2);margin-top:3px;display:flex;align-items:center;gap:5px}
+.reddy-ic{width:16px;height:16px;border-radius:50%;object-fit:cover;flex-shrink:0}
 .dp-none{font-size:11.5px;color:var(--t3);font-style:italic;padding:6px 0}
 </style>
 </head>
@@ -989,141 +743,100 @@ html,body{height:100%;font-family:'Geist',system-ui,sans-serif;background:var(--
 <div class="app">
 <div class="hdr">
   <div class="hdr-mark"><svg viewBox="0 0 12 12"><rect x="1" y="1" width="4" height="4" rx="1"/><rect x="7" y="1" width="4" height="4" rx="1"/><rect x="1" y="7" width="4" height="4" rx="1"/><rect x="7" y="7" width="4" height="4" rx="1"/></svg></div>
-  <div><div class="hdr-title">${title.replace(/</g,'&lt;')}</div><div class="hdr-sub">Нажмите на карточку для деталей</div></div>
+  <div><div class="hdr-title">${esc(title)}</div></div>
+  <div class="hdr-tip">Нажмите на карточку</div>
 </div>
-<div class="body" id="body">
-  <div id="stage"><svg id="svg-lines"></svg></div>
-</div>
+<div class="body" id="body"><div id="stage"><svg id="svg-lines"></svg></div></div>
 <div class="dp" id="dp">
   <div class="dp-bar" id="dp-bar"></div>
   <div class="dp-head">
     <button class="dp-x" onclick="closeDP()"><svg viewBox="0 0 10 10"><path d="M1.5 1.5l7 7M8.5 1.5l-7 7"/></svg></button>
-    <div class="dp-role" id="dp-role"></div>
-    <div class="dp-dept" id="dp-dept"></div>
+    <div class="dp-role" id="dp-role"></div><div class="dp-dept" id="dp-dept"></div>
     <div class="dp-sched"><span class="dp-sd" id="dp-sd"></span><span id="dp-st"></span></div>
   </div>
-  <div class="dp-body">
-    <div class="dp-slb">Обязанности</div><div id="dp-duties"></div>
-    <div class="dp-slb">Сотрудники</div><div id="dp-emps"></div>
-  </div>
+  <div class="dp-body"><div class="dp-slb">Обязанности</div><div id="dp-duties"></div><div class="dp-slb">Сотрудники</div><div id="dp-emps"></div></div>
 </div>
 </div>
 <script>
-var NODES=${nodesJ};
-var CONNS=${connsJ};
+var NODES=${NODES_J};var CONNS=${CONNS_J};
+var REDDY_IC='${REDDY}';
 var activeId=null;
-function ha(hex,a){try{var r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return 'rgba('+r+','+g+','+b+','+a+')'}catch(e){return hex}}
+function ha(h,a){try{var r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);return'rgba('+r+','+g+','+b+','+a+')'}catch(e){return h}}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
 function init(){
   NODES.forEach(function(d){
-    var el=document.createElement('div');
-    el.className='onode';el.id=d.id;
-    el.style.left=d.x+'px';el.style.top=d.y+'px';
-    el.style.setProperty('--nc',d.color);
-    var c1=ha(d.color,.5),c2=ha(d.color,.92);
-    el.innerHTML='<div class="on-head" style="background:linear-gradient(135deg,'+c1+','+c2+')">'
-      +'<div class="on-texts"><div class="on-role">'+esc(d.role)+'</div>'
-      +'<div class="on-dept">'+esc(d.dept)+' \u00b7 '+esc(d.sched)+'</div></div>'
-      +'<div class="on-arr"><svg viewBox="0 0 8 8" fill="none"><path d="M2 1.5l3.5 3L2 7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>'
-      +'</div>';
-    el.addEventListener('click',function(e){e.stopPropagation();openNode(d.id)});
+    var el=document.createElement('div');el.className='onode';el.id=d.id;
+    el.style.left=d.x+'px';el.style.top=d.y+'px';el.style.setProperty('--nc',d.color);
+    var c1=ha(d.color,.5),c2=ha(d.color,.93);
+    el.innerHTML='<div class="on-head" style="background:linear-gradient(135deg,'+c1+','+c2+')"><div class="on-texts"><div class="on-role">'+esc(d.role)+'</div><div class="on-dept">'+esc(d.dept)+' \u00b7 '+esc(d.sched)+'</div></div><div class="on-arr"><svg viewBox="0 0 8 8" fill="none"><path d="M2 1.5l3.5 3L2 7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>';
+    el.addEventListener('click',function(e){e.stopPropagation();openNode(d.id);});
     document.getElementById('stage').appendChild(el);
   });
   drawLines();
 }
 function openNode(id){
   if(activeId===id){closeDP();return;}
-  document.querySelectorAll('.onode.active').forEach(function(n){n.classList.remove('active')});
-  document.getElementById(id).classList.add('active');
-  activeId=id;
-  var d=NODES.find(function(n){return n.id===id});
-  if(!d)return;
+  document.querySelectorAll('.onode.active').forEach(function(n){n.classList.remove('active');});
+  document.getElementById(id).classList.add('active');activeId=id;
+  var d=NODES.find(function(n){return n.id===id});if(!d)return;
   document.getElementById('dp-bar').style.background=d.color;
   document.getElementById('dp-role').textContent=d.role;
   document.getElementById('dp-dept').textContent=d.dept;
   document.getElementById('dp-sd').style.background=d.color;
   document.getElementById('dp-st').textContent='График '+d.sched;
-  document.getElementById('dp-duties').innerHTML=
-    d.duties&&d.duties.length
-      ?d.duties.map(function(t){return '<div class="dp-duty"><span class="dp-dd" style="background:'+d.color+'"></span>'+esc(t)+'</div>'}).join('')
-      :'<div class="dp-none">—</div>';
-  document.getElementById('dp-emps').innerHTML=
-    (!d.emps||!d.emps.length)
-      ?'<div class="dp-none">Список уточняется</div>'
-      :d.emps.map(function(e){
-        var ini=(e.name||'').split(' ').map(function(w){return w[0]||''}).join('').slice(0,2).toUpperCase();
-        return '<div class="dp-emp"><div class="dp-av" style="background:'+ha(d.color,.13)+';color:'+d.color+'">'+(e.avatar?'<img src="'+e.avatar+'" alt="">':ini)+'</div>'
-          +'<div><div class="dp-en">'+esc(e.name||'')+'</div>'
-          +(e.reddy?'<div class="dp-eid"><img src="data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAG3AbsDASIAAhEBAxEB/8QAHQABAAIBBQEAAAAAAAAAAAAAAAcIAQMEBQYJAv/EAEwQAQACAQICBgUHBwoDCAMAAAABAgMEBQYRBwgSITFRQWFxgZETFCIyNnSyN0JSdaGxsxUjQ1NiY3KCkqIWwcIXJDM0ZHOT0dLh8P/EABwBAQABBQEBAAAAAAAAAAAAAAAEAgMFBgcBCP/EADkRAQABAgMEBggGAgIDAAAAAAABAgMEBREGITFBEjJRYXGRByI1gaGxwdETFFKy4fAjQhVigsLS/9oADAMBAAIRAxEAPwCKgGJfTYAAAAAAAAAAAAADPZt5T8Ds28p+DADPZt5T8Ds28p+DADPKfKWAAAAAAAAAAAAAAAAABnlPlJ2beU/BgBns28p+BMTHolgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACZiPF2rhLo7404q7N9l4f1ebBbw1GSvyWH/XblE+7mREzwWr+ItYejp3aopjtmdI+Lqon7h3qy75niuTfuItFoYnvnHpcVs1o9XOezH73edq6tvA2mrWddrd41948e1nrjrPurXn+1eixXPJreJ2zyixOkXOlP8A1iZ+O6PiqQLr6XoM6MMFYieG/lvXl1ea0/ia9uhXovmOX/Cenj2Z83/5qvy1bGz6Qcuid1FflT/9KQi5uu6AejPUxPye1avSzPpw63J3f6pmHVt66smwZotbZ+I9y0dvRXUY6Zq/s7MvJw9cJVnbrKrk6VTVT4x9plVsS/xP1eePNqrbLtvzHesUd/LT5fk8nL/DflHwmUXb1tG67JrJ0e8bbq9v1Ef0eoxTSZ9nPx9y1VRVTxhseDzTB42NcPcirwnf5cWxAUpwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADc7XoNduu44Nu23SZtXq89+xiw4q9q159UDyqqKYmZnSIbZI3Rn0O8W8bRj1dMEbXtNu/wCe6qsx24/u6eN/b3R60z9DvQJt2x1w7xxlTDuO6Ryvj0f1tPp59f8AWW9vdHr8U5ViK1itYiIiOURHoSreH131Oc55t1TbmbOXxrP6p4e6OfjO7ulHHAPQtwRwnGPPOgjdtwr3/OtdEX5T51p9WvwmfWkiIisRERERHdEQCXTTFO6HNcXjcRjK/wAS/XNU9/8AdwA9RQAAABsd72fat70NtDvG3aXX6a3jjz4ovX9vhPrb4FVNdVFUVUzpMIA6ROrhtesrk1vBetnbtR3z8y1Npvgt6q277U9/aj2K68V8Nb7wtultt3/bc+h1EfVi8fRvHnW0d1o9cPQlxPFfDeycU7Tk2vftvw63TX8IvH0qT+lW3jWfXCPcw9NW+nc3bJtt8XhJi3iv8lHb/tHv5+/zeeolnpn6F924JnLu20Tl3PYOfO2Tlzy6WPLJEeNf7Ue/kiZCqpmmdJdXwOPw+Psxew9XSpn4d09kgDxMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAamlwZ9VqcWl02G+bPmvGPHjpHO17TPKIiPTMyEzERrLecO7NufEG86bZ9o0t9VrdTfs48df2zM+iIjvmfRC5vQz0W7T0f7XGW0Y9ZvmenLU62a+H9jHz+rX9s+M+iI23QN0Y6bgLYY1Wtpjy7/raROqyx3/JR4xirPlHpn0z6ohJidZs9HfPFxzavairH1zhcNOlqOM/q/js7ePZoASGjgAAAAAAAAAAAPnJSmTHbHkpW9LRNbVtHOJifGJhV3rCdC/8AItc/FfCOmmdt776zQ0jnOn870j9Dzj832eFpGLVras1tEWrMcpiY7phRctxXGksvk2c4jKb8XbM7uccpj+8J5POATP1kuiyOE9xniXYsExsesycsuKsd2kyz6PVS3o8p7vJDDHVUzTOku7ZdmFnMcPTiLM7p+E84nvgAUpwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAsd1TOjut+fHu74OcRNse10vHutm/fWPfPkhLo44X1PGXGm3cPaftVrqMnPPkj+jxV772+Hh65hfba9Dpds23TbdocNcOl02KuLDjr4VrWOUQkYe3rPSloW3OdThbEYO1PrV8e6n+flq3ICc5CAAAAAAAAAAAAAAAA2e97Zod62jVbTuWnrqNHqsU4s2O3has/8/X6JUT6UODtZwNxlq9i1U2yYqz8ppc0x/42Gfq29von1xK/CJes9wRHFHAl920eHtbps0Wz4+zH0smH+kp8I7UeuvrWL9vpU6xxht+x2dTl+MizXP8Ajubp7p5T9J7vBTkI745iA7YAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA+seO+XJXFirNsl7RWlY9Mz3RALPdTnhWNNsm48X6nH/O62/wA10szHhipP05j227v8iwDhOA9jxcNcG7TsWKIiNFpaY7cvTflztPvtMz73Nsnbp6NMQ+ec7zCcwx9zEcpnd4Ruj4ACtigAAAAbfcdbo9t0ObX6/U4tLpcFJvly5bRWtKx6ZmVd+kjrIWrmy6DgbRUtSszX+UdXSeVvXTH5eu3wUV3KaOLKZXk2MzSvo4ejXTjPCI8Z+nFZAUH33pD453vJa+48VbreLTz7GPPOKkeytOUOIwb9vuny/K4N73TFf9KmsyRP71j81HY3K36O780+vfiJ7omfjrHyeh4pNwn02dIfD+ana3m266eJ+lg3CPlYmPLt914+KxnRP0y8O8dWpt+WP5K3qY/8pmvE1y+fyd/zvZPKfVPiuUX6a9zA5tslmGXUTcmIrojnTy8Y4/TvSaAvNXAAAAGL1res1tWLVmOUxMc4mGQFDemHhf8A4P6Rd12WlJrpYy/LaT/2b/SrHu76/wCV1FZXrn8PxbS7JxRip9Kl7aHPaPKed6fti/xVqYy7T0aph9A7PZhOYZdavVT62mk+Mbp8+PvAFDNAAAAAAAAAAAAAAAAAAAAAAAAAAAADuXQjtMb10r8O6G1O3jjWVz5Inw7OOJyT+F01MfVD0UanpWyamY5/NNty5I9U2tSn7rSqtxrVEMXnd+cPl1+5HGKZ89NIW9AZR88AAAAD5yXpjx2yZL1pSsTa1rTyiIjxmX0iTrU8VZOH+je23aXLOPV7zl+axMTymMURzyT745V/zKaqujEym5dgq8diqMPRxqnT7z7o3oN6fulHVccb3k2zbc98fDujyTGGlZ5fObR/S284/Rj0R3+MosBjKqpqnWX0HgcDZwNimxZjSmP7rPfIA8Sx9YsmTDlpmw5L48lLRal6TytWY8JiY8JfIHFcHq4dKF+NNpvse95onfdBjiZyT3fOsXh2/wDFHdFvbE+nul9598B8RanhPi/beINLa0W0meLZKxP18c916z7azMPQDSZ8Wq0uLVYLxfFmpXJS0emsxzifgn2LnSp0nk4ptlktGXYuLlmNKLms6dkxxjw5x5cmoAvtPAAAAR/1iNpjd+h/fsUU7WTTYY1eP1TjtFp/2xaPeo+9EOJdHG4cO7loLRzjU6TLhmP8VJj/AJvO+ImsdmfGO6ULFR60S6z6PL81YW9Z/TVE+cfwAIzoQAAAAAAAAAAAAAAAAAAAAAAAAAAAAnrqXUieMN/yemu30r8cn/6QKn3qW/aniL7li/HK5Z68Ne2snTJ7/hHzhaMBknBQAAABVrroay9+L9h0Han5PDoL5oj13ycv+iFpVTuuV+Ubav1TX+LkWMR1G3bD0xOb0TPKKvkhABAdtAAAAF7eg7W5Nf0R8M6nLabX+YUxzM+nsc6f9KiU90c18OhTQZNt6J+GtJlrNbxoMeS0T6Jv9P8A6knC9aXP/SH0fyVrXj0vpOv0dwATXJAAAACYiYmJ8Jec+51im56ukeFc+Sse60vRe0xWs2nwiObzn3G8ZNx1WSPC+e9o99pRMVydM9HOvSxH/j/7NABEdPAAAAAAAAAAAAAAAAAAAAAAAAAAAAE+9S37U8RfcsX45QEn3qW/aniL7li/HK5Z68Nd2s9j3/CP3QtGAyTgwAAAAqd1yvyjbV+qa/xci2Kp3XK/KNtX6pr/ABcixiOo3DYb2tT4VfJCACA7WAAA19BpNVr9bh0Wh0+XU6rPeKYsOKs2te0+EREDyZiI1lznRpwvqOMeN9t2DBW00z5YtqLRH1MNe+9vh3e2YX6w4seHDTDipFMeOsVrWPCIjuiEZdX/AKMacBbFfWblFMm/a+sfObVnnGCnjGKs/tmfTPqiEoJ9i30Kd/FxLa/O6MzxcUWp1t0bontnnP0jw15gC+1IAAABxvFetjbuF913C0xWNNos2bn/AIaTP/J54VmZiJnxnxXc6yO7xtHQ9vUxfs5NZWmjx+ucloif9vaUkQsVPrRDrXo8w804S7en/aqI8o/kARnQQAAAAAAAAAAAAAAAAAAAAAAAAAAABPvUt+1PEX3LF+OUBJ96lv2p4i+5YvxyuWevDXdrPY9/wj90LRgMk4MAAAAKndcr8o21fqmv8XItiqd1yvyjbV+qa/xcixiOo3DYb2tT4VfJCA7X0Z8Bb5x9vn8n7TjjHgx8p1WryRPyeCs+fnafRWO+fVHet10cdFPCPBGDHfRaGms3KI+nr9VWLZZn+z6KR6o98yi27NVfg6Pnm1GEyn1KvWufpj6zy+fcpPtm07ruluztm167XT/6fT3yfhiXN6fo7491Fori4N32Zn9LRXrHxmIhfgX4wsdrTrnpEvzPqWIjxmZ+kKecJ9Xzjvd8tLbrj0ux6afrWz5IyZOXqpSZ7/bMLE9GHRZwxwDi+V2/DbV7navZya/URE5Jj0xWPCkeqPfMu9C7RZpo3w1vNdqMwzOmbdyro0dlO6Pfznz0AF1roAAAADQ3DV6fb9BqNdrMtcWn0+K2XLe3hWtY5zPwgexE1TpCunXO4gi2TZOFsN++va12orE+2mPn/vVxc5x5xDn4r4x3TiDUc4nWZ5vSsz9THHdSvurEQ4NjLlXSqmX0HkWXf8dgLeHnjEaz4zvn7AChlwAAAAAAAAAAAAAAAAAAAAAAAAAAABPvUt+1PEX3LF+OUBJ96lv2p4i+5YvxyuWevDXdrPY9/wAI/dC0YDJODAAAACr3Wn2fXcQdMnDuy7bj+U1et2/HixRPhEzmyc5n1RHOZ9ULQukW4fprOm+eI81ItG37FjwYJn0ZMubLzmPXFazH+Zbu09KNGd2ezCMvxNWJ5001aeM7o+LlujzhLbOCuFtLsW2Ujs447WbNMcrZ8k/Wvb1z+yOUeh2EFcRERpDDXr1d+5Ny5OtU75kAerYAAAAAAAAgbrccc127YcXBegzf973GIy63sz30wRPdWf8AFMfCs+aWukDivbeDOFdXv253/m8NeWLFE8rZsk/VpX1zPwjnPoUR4q3zcOJeIdbvu6ZflNXrMs5L8vCseiseURHKI9iPiLnRjow3nYnJJxeJ/N3I9Sid3fVy8uPk4wBBdiAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE+9S37U8RfcsX45QEn3qW/aniL7li/HK5Z68Nd2s9j3/AAj90LRgMk4MAAAANOmLHXU5M0RHbvWtbeyOfL98tRwOn3en/aBrdhvf+c/kvBrMdfOPlctLfup8Xkyu27dVcVdHlGvxhzwD1aAAAAAAAAG13fcdDtG2ajc9y1WPS6PTUnJmy5J5VrWGjxDvW18P7Rn3beNbi0ejwV53yZJ5R7I85n0RHfKnfTd0r7h0ga/5npIyaPYNPfng00zytmtHhkycvT5V8I9vetXbsUR3tgyDZ+/m97SN1uONX0jtn+y2XTb0j6zpB4k+Vp8pg2bSTNdDp7d08vTktH6Vv2R3efPoAMfVVNU6y7nhMJawdmmxZjSmngAPEgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAT71LftTxF9yxfjlASfepb9qeIvuWL8crlnrw13az2Pf8I/dC0YDJODAAAACvfTdxdfgnrB8Nb5PanS12quHWUr42w2y5It7ZjutHrqsIqd1yvyjbV+qa/wAXIs35mKNYbVsdYoxGY/g3I1pqpqiffC1mi1On1ujw6zSZqZtPnpGTFkpPOt6zHOJifKYaqp/V26YP+Gb4eFeJc8zsuS/LS6m08/mdpn6s/wB3M/6fZ4Wvx3pkx1yY7VvS0RNbVnnExPhMSqt3IrjWGOzvJb+U4ibVzfTPVnlMffthkBcYYAAAAABFXWK6N9dx1sOHVbRrM0bjt0Wti0dskxh1ET4xy8Iv5W90+cU41ODPpdTl02pw5MOfFeaZMeSs1tS0TymJifCXo4hzrAdEGHjDTZOIOH8WPDxBipzvSPo11lYj6s+V/K3un0TEa/Z6XrQ3/ZHamMHpg8VP+PlP6de3u7+XhwqENTU4M+l1OXTanDkw58V5pkx5KzW1LRPKYmJ8JaaE65ExMawAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJ96lv2p4i+5YvxygJPvUt+1PEX3LF+OVyz14a7tZ7Hv8AhH7oWjAZJwYAAAAVO65X5Rtq/VNf4uRbFU7rlflG2r9U1/i5FjEdRuGw3tanwq+SEE5dXrpkvw7kwcLcU6i19ntMU0uqvPOdJM+FbT/V/h9nhBohUVzROsOuZlluHzLDzYvxrE+cT2x3vR/HemTHXJjtW9LRE1tWecTE+mGVUer10yX4dyYOFuKdRa+z2mKaXVXnnOkmfCtp/q/w+zwtbjvTJjrkx2reloia2rPOJifCYlkbdyK41hwvOslxGU4j8K7vieE8pj79scmQFbDgAAAAAIc6f+h/BxhpsnEHD+LHh4gxU+nSOVa6ysfmz5X8re6fRMVG1ODPpdTl02pw5MOfFeaZMeSs1tS0TymJifCXo4hzrAdEGDjDTZOIOH8WPDxBip9OkfRrrKx+bPlfyt7p9ExFvWdfWpdB2U2rnCzGDxk+p/rV+nunu+XhwqENTUYc2nz5NPqMV8ObFaaZMd68rUtE8piY9ExLTQ3WonXfAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAn3qW/aniL7li/HKAk+9S37U8RfcsX45XLPXhru1nse/4R+6FowGScGAAAAFTuuV+Ubav1TX+LkWxVO65X5Rtq/VNf4uRYxHUbhsN7Wp8KvkhABAdrE5dXrpkvw7kwcLcU6i19ntMU0uqvPOdJM/m2n+r/AA+zwg0VUVzROsIGZZbh8yw82L8axPnE9sd70fx3pkx1yY7VvS0RNbVnnExPhMSyqj1eumS/DuTBwtxTqLX2e0xTS6q8850kz+bb+7/D7PC1uO9MmOuTHat6WiJras84mJ8JiWRt3IrjWHC86yXEZTiPwru+J4TymPv2xyZAVsOAAAAAArT1ueAsWnvh462zBFIy3rg3KtY7ptPdTL7/AKs/5VdXoH0hbLj4i4H3nZctYt860eSlPVflzpPutET7nn5ymO60cpjxhAxFHRq1jm7NsNmdeLwM2bk6zbnT3Tw8t8eGgAsN1AAAAAAAAAAAAAAAAAAAAAAAAAAAAE+dS20RxZxBTn3zoMcx7sk//cIDSp1Wd8ps/S1pdPmvFMW56fJo5mfDtTyvT4zTl71dqdK4YPaWzVeyq/RTx6Ovlv8AouYAybgAAAAAqb1ybVt0k7ZWJ767TTn/APLkWyUl6yG94986Xt3vhv28Oi7GipMT3c8cfS/3zZHxM+o3XYKzVXmc1xwppn46QjkBBdmAAE5dXrpkvw7kwcLcU6m19ntMU0uqvPOdJM+FbT/V/h9nhBoqormidYQMyy3D5lh5sX41ifOJ7Y73o/jvTJjrkx2reloia2rPOJifCYllVHq9dMl+HcmDhbinUWvs9p7Gl1V55zpJnwrb+7/D7PC1uO9MmOuTHat6WiJras84mJ9MMjbuRXGsOF51kuIynEfhXd8TwnlMfftjkyArYcAAAAnlynn4POfcuz/KWr7H1fl8nL2dqV+ekbe8fDnAu9b1kv2fmukvbH68kxypHvtMQ8/o58u+ec+lDxU74h1H0dWaoov3eUzTHlrM/OABFdKAAAAAAAAAAAAAAAAAAAAAAAAAAAAGtotTqNFrMGs0mW2LUYMlcuLJXxras84n4w0QeTETGkr59E3Gui474O0u8ae1K6qsRi1uCJ78OaI749k+MeqXbVCOjPjneeAuIa7rtV4vivyrqtLef5vUU8p8pj0T6PjC4/Rv0jcMcd6CuXadZXHrK155tDmmK5sU+nu/Oj+1HOE+zeiuNJ4uJ7TbM3stu1XbNOtqeE/p7p+k/V3ABfaiA6R0ndJ3DPAejv8AP9VXVblNeeHb8FonLefR2v0K+ufdzeTMUxrK/hsLexVyLVmmaqp5Qx01cdabgPgvUa+MlJ3LUROHb8M+Nssx9bl+jXxn3R6VGcuTJly3y5b2yZL2m17WnnNpmeczPvdg6QuMd5444iybzvOWJtMdjBgpz+TwY/RSsfvnxmXXWPu3OnPc7hszkMZRhtK99yrfVPyiPD5gC02QAAAATn1eumS/DuTBwtxTqLX2e0xTS6q8850kz+baf6v8Ps8IMFVFc0TrCBmWW4fMsPNi/GsT5xPbHe9H8d6ZMdcmO1b0tETW1Z5xMT6YZVK6CemvNwnjxcPcTzm1WyRPZwZ4+lk0nq5eNqerxj0c/BajZd22zetuxbjtOu0+u0mWOdMuG8WrPw8J9TIW7kVxucNzrIsVlN2absa08quU/ae5vQFxhQfOS9MWO2TJetKVjna1p5REecygXpq6edDt2mz7FwRqaazcLRNMu4U78Wn8+xP59/X4R61FdcURrLI5blWJzK9FrD069s8o75n+9zgOtvx9i1upxcDbXni+PTZIzbles905I+pi93PtT6+XlKvT6y5MmXLfLlyWyZL2m172nna0z3zMz6ZfLHV1zXVrLvGUZZbyzCU4a3y4z2zzn+8gBSyQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA1NNnz6bUU1GmzZMGbHPapkx3mtqz5xMd8NMCY1jSUmcOdOnSNs2KuG27YtzxV8K6/DGS3+uOVp98y7JPWY4z+T7MbJsMW5fW7GX93bQeK4u1xzYa9s7ld6rpV2KdfDT5aJI4l6b+kbfMV8E7zXbsNu6aaDFGKeX+Pvt8JR1myZM2a+bNkvly3ntXve02tafOZnvl8Cmapq4yn4XA4bCU9GxbimO6IgAeJQAAAAAAAA5XhviPfuG9X862Hd9Xt2WfrThyTFb/4q+FvfDigidFFy3RcpmiuNYnlO+Ew7T1i+kHR44pq67TuPL87Npppaf9Foj9jc67rJ8c58U00+3bHpbT+fXDkvMfG/JCor/Fr7WHnZvKpq6U2KfL6cHaOMOkHjLiyJx77v2q1GCZ5/N6TGPD/oryiffzdXBRMzPFlrFi1Yo6FqmKY7IjSPgAC6AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMxWZrNuU8o5Rz9f/APc2Gec8uXPu8QYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjvAGezbyn4HZt5T8AYGezbyn4HZt5T8AYGezbyn4HZt5T8AYGezbyn4HZt5T8AYGezbyn4HZt5T8AYGezbyn4HZt5T8AYGezbyn4HZt5T8AYGeU+UsAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPAAegAAAAAAAAAAAAAAAAAAAAAD//Z" class="reddy-icon" alt="Reddy">'+esc(e.reddy)+'</div>':'')
-          +'</div></div>';
-      }).join('');
-  posDP(id);
-  document.getElementById('dp').classList.add('open');
-  drawLines();
+  document.getElementById('dp-duties').innerHTML=d.duties&&d.duties.length?d.duties.map(function(t){return'<div class="dp-duty"><span class="dp-dd" style="background:'+d.color+'"></span>'+esc(t)+'</div>';}).join(''):'<div class="dp-none">—</div>';
+  document.getElementById('dp-emps').innerHTML=(!d.emps||!d.emps.length)?'<div class="dp-none">Список уточняется</div>':d.emps.map(function(e){
+    var ini=(e.name||'').split(' ').map(function(w){return w[0]||'';}).join('').slice(0,2).toUpperCase();
+    var avHtml=e.avatar?'<img src="'+e.avatar+'" alt="">':ini;
+    var reddyHtml=e.reddy?'<div class="dp-eid"><img class="reddy-ic" src="'+REDDY_IC+'" alt="Reddy">'+esc(e.reddy)+'</div>':'';
+    return'<div class="dp-emp"><div class="dp-av" style="background:'+ha(d.color,.13)+';color:'+d.color+'">'+avHtml+'</div><div><div class="dp-en">'+esc(e.name||'')+'</div>'+reddyHtml+'</div></div>';
+  }).join('');
+  posDP(id);document.getElementById('dp').classList.add('open');drawLines();
 }
-function posDP(id){
-  var el=document.getElementById(id);if(!el)return;
-  var nr=el.getBoundingClientRect();
-  var left=nr.right+12;
-  if(left+320>window.innerWidth-8)left=nr.left-328;
-  left=Math.max(8,left);
-  var top=Math.max(60,Math.min(nr.top,window.innerHeight-200));
-  var dp=document.getElementById('dp');
-  dp.style.left=left+'px';dp.style.top=top+'px';
-  dp.style.maxHeight=Math.min(580,window.innerHeight-top-16)+'px';
-}
-function closeDP(){
-  document.getElementById('dp').classList.remove('open');
-  document.querySelectorAll('.onode.active').forEach(function(n){n.classList.remove('active')});
-  activeId=null;drawLines();
-}
-document.getElementById('body').addEventListener('click',function(e){
-  if(!e.target.closest('.onode')&&!e.target.closest('.dp'))closeDP();
-});
-document.addEventListener('keydown',function(e){if(e.key==='Escape')closeDP()});
-function nbox(id){
-  var el=document.getElementById(id);
-  var d=NODES.find(function(n){return n.id===id});
-  if(!el||!d)return null;
-  return{cx:d.x+100,top:d.y,bot:d.y+el.offsetHeight};
-}
+function posDP(id){var el=document.getElementById(id);if(!el)return;var nr=el.getBoundingClientRect();var left=nr.right+12;if(left+320>window.innerWidth-8)left=nr.left-328;left=Math.max(8,left);var top=Math.max(60,Math.min(nr.top,window.innerHeight-200));var dp=document.getElementById('dp');dp.style.left=left+'px';dp.style.top=top+'px';dp.style.maxHeight=Math.min(580,window.innerHeight-top-16)+'px';}
+function closeDP(){document.getElementById('dp').classList.remove('open');document.querySelectorAll('.onode.active').forEach(function(n){n.classList.remove('active');});activeId=null;drawLines();}
+document.getElementById('body').addEventListener('click',function(e){if(!e.target.closest('.onode')&&!e.target.closest('.dp'))closeDP();});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeDP();});
+function nbox(id){var el=document.getElementById(id);var d=NODES.find(function(n){return n.id===id});if(!el||!d)return null;return{cx:d.x+100,top:d.y,bot:d.y+el.offsetHeight};}
 function drawLines(){
-  var svg=document.getElementById('svg-lines');
-  var stage=document.getElementById('stage');
+  var svg=document.getElementById('svg-lines');var stage=document.getElementById('stage');
   svg.setAttribute('width',stage.offsetWidth);svg.setAttribute('height',stage.offsetHeight);
-  var aSet=new Set();
-  if(activeId)CONNS.forEach(function(c){if(c.from===activeId||c.to===activeId)aSet.add(c.from+'>'+c.to)});
-  var seen=new Set();
-  var out='<defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M1 1.5L8 5L1 8.5" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="context-stroke"/></marker></defs>';
+  var dark=window.matchMedia('(prefers-color-scheme:dark)').matches;
+  var defSt=dark?'rgba(255,255,255,0.28)':'rgba(0,0,0,0.15)';
+  var aSet=new Set();if(activeId)CONNS.forEach(function(c){if(c.from===activeId||c.to===activeId)aSet.add(c.from+'>'+c.to);});
+  var seen=new Set();var defs='<defs>';var paths='';var gi=0;
+  defs+='<marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M1 1.5L8 5L1 8.5" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="context-stroke"/></marker>';
   CONNS.forEach(function(c){
     var k=c.from+'>'+c.to;if(seen.has(k))return;seen.add(k);
     var p=nbox(c.from),ch=nbox(c.to);if(!p||!ch)return;
-    var my=(p.bot+ch.top)/2;
-    var isA=aSet.has(k);
-    out+='<path d="M'+p.cx+','+p.bot+' C'+p.cx+','+my+' '+ch.cx+','+my+' '+ch.cx+','+ch.top+'"'
-      +' fill="none" stroke="'+(isA?'#3b82f6':'rgba(0,0,0,0.15)')+'" stroke-width="'+(isA?2.5:1.5)+'"'
-      +' stroke-linecap="round" marker-end="url(#ah)"/>';
+    var my=(p.bot+ch.top)/2;var isA=aSet.has(k);
+    if(isA){
+      var sc=NODES.find(function(n){return n.id===c.from})?.color||'#3b82f6';
+      var tc=NODES.find(function(n){return n.id===c.to})?.color||'#3b82f6';
+      var gid='g'+gi++;
+      defs+='<linearGradient id="'+gid+'" x1="'+p.cx+'" y1="'+p.bot+'" x2="'+ch.cx+'" y2="'+ch.top+'" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="'+sc+'"/><stop offset="100%" stop-color="'+tc+'"/></linearGradient>';
+      defs+='<marker id="ah-'+gid+'" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M1 1.5L8 5L1 8.5" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke="'+tc+'"/></marker>';
+      paths+='<path d="M'+p.cx+','+p.bot+' C'+p.cx+','+my+' '+ch.cx+','+my+' '+ch.cx+','+ch.top+'" fill="none" stroke="url(#'+gid+')" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-'+gid+')"/>';
+    } else {
+      var st=c.color||defSt;
+      paths+='<path d="M'+p.cx+','+p.bot+' C'+p.cx+','+my+' '+ch.cx+','+my+' '+ch.cx+','+ch.top+'" fill="none" stroke="'+st+'" stroke-width="1.5" stroke-linecap="round" marker-end="url(#ah)"/>';
+    }
   });
-  svg.innerHTML=out;
+  svg.innerHTML=defs+'</defs>'+paths;
 }
-var rf;function sd(){cancelAnimationFrame(rf);rf=requestAnimationFrame(drawLines)}
-window.addEventListener('resize',sd);
-window.addEventListener('load',function(){init();setTimeout(drawLines,100)});
+var rf;function sd(){cancelAnimationFrame(rf);rf=requestAnimationFrame(drawLines);}
+window.addEventListener('resize',sd);document.getElementById('body').addEventListener('scroll',sd);
+window.addEventListener('load',function(){init();setTimeout(drawLines,100);});
 <\/script>
-</body>
-</html>`;
+</body></html>`;
 }
 
-// ─── TOAST ────────────────────────────────────────────────
+// toast
 let toastT;
-function toast(msg) {
-  const el = document.getElementById('toast');
-  el.textContent = msg; el.classList.add('show');
-  clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove('show'), 2200);
-}
+function toast(m){const el=document.getElementById('toast');el.textContent=m;el.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),2200);}
 
-// init transform
-applyTransform();
+// initial snapshot
+snapshot(); updateUndoUI();
 </script>
 </body>
 </html>
