@@ -144,6 +144,7 @@ input[type=text]:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,1
   <div class="btn-icon" id="btn-redo" onclick="redo()" title="Повторить (Ctrl+Y)">↪</div>
   <div class="hdr-right">
     <button class="btn" onclick="fitView()"><svg viewBox="0 0 13 13"><rect x="1" y="1" width="4" height="4" rx=".8"/><rect x="8" y="1" width="4" height="4" rx=".8"/><rect x="1" y="8" width="4" height="4" rx=".8"/><rect x="8" y="8" width="4" height="4" rx=".8"/></svg>Вписать</button>
+    <button class="btn" onclick="openImport()"><svg viewBox="0 0 13 13"><path d="M6.5 10V2M4 7.5l2.5 3L9 7.5"/><path d="M1 11h11"/></svg>Импорт</button>
     <button class="btn" onclick="loadExample()">Пример</button>
     <button class="btn" onclick="clearAll()">Очистить</button>
     <button class="btn primary" onclick="openExport()"><svg viewBox="0 0 13 13"><path d="M2 9.5v2h9v-2M6.5 1v7.5M4 6l2.5 3L9 6"/></svg>Экспорт</button>
@@ -177,6 +178,20 @@ input[type=text]:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,1
   <button onclick="changeZoom(-.1)">−</button>
 </div>
 
+<div class="modal-ov" id="imp-modal" onclick="closeImpBg(event)">
+  <div class="modal">
+    <div class="modal-head"><div class="modal-title">Импорт HTML</div><button class="btn" onclick="closeImp()">✕</button></div>
+    <div class="modal-body">
+      <p style="font-size:12px;color:var(--t2);margin-bottom:10px">Вставьте код ранее экспортированного HTML-файла. Редактор извлечёт все блоки и связи.</p>
+      <textarea id="imp-code" style="width:100%;height:200px;padding:10px;background:#0f1117;border:1px solid var(--b2);border-radius:10px;color:#a5d6ff;font-family:'Geist Mono',monospace;font-size:11px;line-height:1.6;resize:vertical;outline:none" placeholder="Вставьте HTML сюда..."></textarea>
+      <div id="imp-err" style="font-size:12px;color:#dc2626;margin-top:8px;display:none"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeImp()">Отмена</button>
+      <button class="btn primary" onclick="doImport()">Импортировать</button>
+    </div>
+  </div>
+</div>
 <div class="modal-ov" id="exp-modal" onclick="closeExpBg(event)">
   <div class="modal">
     <div class="modal-head"><div class="modal-title">Экспорт HTML</div><button class="btn" onclick="closeExp()">✕</button></div>
@@ -293,7 +308,7 @@ function addNode(data) {
   nodes[id] = { id, x: data?.x??Math.round(cx-NW/2), y: data?.y??Math.round(cy-NH/2),
     role: data?.role??'Новая должность', dept: data?.dept??'Команда · Направление',
     sched: data?.sched??'5/2', color: data?.color??COLORS[nc%COLORS.length],
-    duties: data?.duties??[], emps: data?.emps??[] };
+    duties: data?.duties??[], emps: data?.emps!==undefined ? data.emps : [] };
   renderNode(id); select(id); drawLines(); snapshot(); return id;
 }
 function renderNode(id) {
@@ -536,7 +551,7 @@ function renderSidebar(id) {
   const cBtns=COLORS.map(c=>`<div class="cp ${c===d.color?'sel':''}" style="background:${c}" title="${c}" onclick="setColor('${id}','${c}')"></div>`).join('');
   const lcBtns=LINE_COLORS.map(c=>`<div class="cp ${c===connLineColor?'sel':''}" style="background:${c}" title="${c}" onclick="setLC('${c}')"></div>`).join('');
   const dRows=d.duties.map((t,i)=>`<div style="display:flex;gap:4px;margin-bottom:4px"><input type="text" value="${esc(t)}" placeholder="Обязанность" oninput="setDuty('${id}',${i},this.value)"><div class="xb" onclick="remDuty('${id}',${i})">×</div></div>`).join('');
-  const eRows=d.emps.map((e,i)=>`<div class="emp-item"><div class="av-btn" onclick="pickAv('${id}',${i})">${e.avatar?`<img src="${e.avatar}">`:'📷'}</div><input type="text" value="${esc(e.name||'')}" placeholder="Имя" oninput="setEN('${id}',${i},this.value)"><input type="text" value="${esc(e.reddy||'')}" style="width:76px" placeholder="ID Reddy" oninput="setER('${id}',${i},this.value)"><div class="xb" onclick="remEmp('${id}',${i})">×</div></div>`).join('');
+  const eRows=(d.emps||[]).map((e,i)=>`<div class="emp-item"><div class="av-btn" onclick="pickAv('${id}',${i})">${e.avatar?`<img src="${e.avatar}">`:'📷'}</div><input type="text" value="${esc(e.name||'')}" placeholder="Имя" oninput="setEN('${id}',${i},this.value)"><input type="text" value="${esc(e.reddy||'')}" style="width:76px" placeholder="ID Reddy" oninput="setER('${id}',${i},this.value)"><div class="xb" onclick="remEmp('${id}',${i})">×</div></div>`).join('');
   const cConns=conns.map((c,i)=>{if(c.from!==id&&c.to!==id)return'';const out=c.from===id;const other=nodes[out?c.to:c.from];return`<div class="conn-chip"><span class="lbl">${out?'→':'←'} ${esc(other?.role||'')}</span><div class="xb" style="font-size:13px" onclick="removeConn(${i})">×</div></div>`;}).join('');
   document.getElementById('sb-body').innerHTML=`
     <div class="fl">Должность</div><input type="text" value="${esc(d.role)}" oninput="setF('${id}','role',this.value)">
@@ -548,8 +563,7 @@ function renderSidebar(id) {
     <div class="custom-c"><input type="color" id="lc-pick" value="${connLineColor}" oninput="setLC(this.value)"><input type="text" id="lc-text" value="${connLineColor}" oninput="setLC(this.value)"></div>
     <div class="fl">Обязанности</div><div id="duties-${id}">${dRows}</div>
     <button class="btn" style="width:100%;justify-content:center;margin-top:4px" onclick="addDuty('${id}')">+ Добавить</button>
-    <div class="fl">Сотрудники</div><div id="emps-${id}">${eRows}</div>
-    <button class="btn" style="width:100%;justify-content:center;margin-top:4px" onclick="addEmp('${id}')">+ Добавить</button>
+    ${d.emps!==null?`<div class="fl" style="display:flex;align-items:center;justify-content:space-between"><span>Сотрудники</span><button class="btn" style="padding:2px 8px;font-size:11px;border-radius:6px" onclick="toggleEmps('${id}')">✕ Скрыть</button></div><div id="emps-${id}">${eRows}</div><button class="btn" style="width:100%;justify-content:center;margin-top:4px" onclick="addEmp('${id}')">+ Добавить</button>`:`<div class="fl" style="display:flex;align-items:center;justify-content:space-between"><span style="color:var(--t3)">Сотрудники скрыты</span><button class="btn" style="padding:2px 8px;font-size:11px;border-radius:6px" onclick="toggleEmps('${id}')">＋ Показать</button></div>`}
     <div class="fl">Связи</div><div id="cc-${id}">${cConns||'<div style="font-size:11.5px;color:var(--t3);font-style:italic">Нет связей</div>'}</div>
     <div style="height:8px"></div>
     <button class="btn danger" style="width:100%;justify-content:center" onclick="deleteSelected()">Удалить блок</button>`;
@@ -560,7 +574,12 @@ function setLC(c){connLineColor=c;const p=document.getElementById('lc-pick');con
 function addDuty(id){nodes[id].duties.push('');renderNode(id);renderSidebar(id);}
 function remDuty(id,i){nodes[id].duties.splice(i,1);renderNode(id);renderSidebar(id);}
 function setDuty(id,i,v){if(nodes[id])nodes[id].duties[i]=v;}
-function addEmp(id){nodes[id].emps.push({name:'',reddy:'',avatar:''});renderNode(id);renderSidebar(id);}
+function toggleEmps(id){
+  if(!nodes[id])return;
+  nodes[id].emps = nodes[id].emps===null ? [] : null;
+  renderNode(id);renderSidebar(id);snapshot();
+}
+function addEmp(id){if(nodes[id].emps===null)nodes[id].emps=[];nodes[id].emps.push({name:'',reddy:'',avatar:''});renderNode(id);renderSidebar(id);}
 function remEmp(id,i){nodes[id].emps.splice(i,1);renderNode(id);renderSidebar(id);}
 function setEN(id,i,v){if(nodes[id]?.emps[i])nodes[id].emps[i].name=v;renderNode(id);}
 function setER(id,i,v){if(nodes[id]?.emps[i])nodes[id].emps[i].reddy=v;}
@@ -701,8 +720,8 @@ html,body{height:100%;font-family:'Geist',system-ui,sans-serif;background:var(--
 .hdr-mark svg{width:12px;height:12px;fill:var(--bg)}
 .hdr-title{font-size:13px;font-weight:700;letter-spacing:-.02em}
 .hdr-tip{margin-left:auto;font-size:11px;color:var(--t3)}
-.body{flex:1;overflow:auto;display:flex;align-items:center;justify-content:center;padding:40px}
-#stage{position:relative;width:${W}px;height:${H}px;flex-shrink:0}
+.body{flex:1;overflow:hidden;position:relative;background:var(--bg);display:flex;align-items:flex-start;justify-content:flex-start}
+#stage{position:absolute;width:${W}px;height:${H}px;transform-origin:top left}
 #svg-lines{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:visible;z-index:1}
 .onode{position:absolute;width:200px;border-radius:14px;background:var(--bg);border:1.5px solid var(--b1);box-shadow:var(--sh);cursor:pointer;overflow:hidden;transition:transform .18s cubic-bezier(.34,1.4,.64,1),box-shadow .18s,border-color .18s}
 .onode:hover{transform:translateY(-2px);box-shadow:0 4px 20px rgba(0,0,0,.12)}
@@ -714,17 +733,17 @@ html,body{height:100%;font-family:'Geist',system-ui,sans-serif;background:var(--
 .on-arr{width:20px;height:20px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .25s cubic-bezier(.4,0,.2,1),background .15s}
 .on-arr svg{width:8px;height:8px;stroke:#fff;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .onode.active .on-arr{transform:rotate(90deg);background:rgba(255,255,255,.35)}
-.dp{position:fixed;z-index:200;width:308px;background:var(--bg);border:1px solid var(--b2);border-radius:18px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.14);pointer-events:none;opacity:0;transform:scale(.96) translateX(-6px);transition:opacity .2s,transform .22s cubic-bezier(.34,1.2,.64,1)}
+.dp{position:fixed;z-index:200;width:308px;background:var(--bg);border:1px solid var(--b2);border-radius:18px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.14);pointer-events:none;opacity:0;transform:scale(.96) translateX(-6px);transition:opacity .2s,transform .22s cubic-bezier(.34,1.2,.64,1);display:flex;flex-direction:column}
 .dp.open{opacity:1;transform:scale(1) translateX(0);pointer-events:auto}
-.dp-bar{height:4px}
-.dp-head{padding:15px 16px 11px;position:relative}
+.dp-bar{height:4px;flex-shrink:0}
+.dp-head{padding:15px 16px 11px;position:relative;flex-shrink:0}
 .dp-x{position:absolute;top:12px;right:12px;width:24px;height:24px;border-radius:7px;background:var(--bg2);border:1px solid var(--b1);display:flex;align-items:center;justify-content:center;cursor:pointer}
 .dp-x svg{width:10px;height:10px;stroke:var(--t2);fill:none;stroke-width:2;stroke-linecap:round}
 .dp-role{font-size:14.5px;font-weight:700;letter-spacing:-.02em;color:var(--t1);padding-right:28px;line-height:1.3}
 .dp-dept{font-size:11.5px;color:var(--t2);margin-top:3px}
 .dp-sched{display:inline-flex;align-items:center;gap:5px;margin-top:8px;padding:3px 10px;border-radius:20px;background:var(--bg2);border:1px solid var(--b1);font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--t3)}
 .dp-sd{width:5px;height:5px;border-radius:50%;flex-shrink:0;display:inline-block}
-.dp-body{padding:2px 16px 18px;max-height:calc(100vh - 200px);overflow-y:auto;scrollbar-width:thin}
+.dp-body{padding:2px 16px 18px;overflow-y:auto;scrollbar-width:thin;flex:1;min-height:0}
 .dp-slb{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--t3);margin:13px 0 7px}
 .dp-duty{display:flex;gap:9px;padding:5px 0;border-bottom:1px solid var(--b1);font-size:12px;color:var(--t2);line-height:1.5}
 .dp-duty:last-of-type{border-bottom:none}
@@ -737,6 +756,9 @@ html,body{height:100%;font-family:'Geist',system-ui,sans-serif;background:var(--
 .dp-eid{font-size:11px;color:var(--t2);margin-top:3px;display:flex;align-items:center;gap:5px}
 .reddy-ic{width:16px;height:16px;border-radius:50%;object-fit:cover;flex-shrink:0}
 .dp-none{font-size:11.5px;color:var(--t3);font-style:italic;padding:6px 0}
+.zoom-ctrl{position:fixed;bottom:20px;right:20px;z-index:100;display:flex;flex-direction:column;gap:4px}
+.zoom-ctrl button{width:32px;height:32px;border-radius:8px;font-size:16px;font-weight:600;background:var(--bg);border:1px solid var(--b2);color:var(--t1);cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.1)}
+.zoom-ctrl button:hover{background:var(--bg2)}
 </style>
 </head>
 <body>
@@ -747,6 +769,7 @@ html,body{height:100%;font-family:'Geist',system-ui,sans-serif;background:var(--
   <div class="hdr-tip">Нажмите на карточку</div>
 </div>
 <div class="body" id="body"><div id="stage"><svg id="svg-lines"></svg></div></div>
+<div class="zoom-ctrl" id="zoom-ctrl"><button onclick="chgZ(.1)">+</button><div id="zlbl" style="font-size:10px;font-weight:600;color:var(--t3);text-align:center">100%</div><button onclick="chgZ(-.1)">−</button><button onclick="fitV()" style="font-size:10px;padding:0 4px">⊡</button></div>
 <div class="dp" id="dp">
   <div class="dp-bar" id="dp-bar"></div>
   <div class="dp-head">
@@ -754,13 +777,61 @@ html,body{height:100%;font-family:'Geist',system-ui,sans-serif;background:var(--
     <div class="dp-role" id="dp-role"></div><div class="dp-dept" id="dp-dept"></div>
     <div class="dp-sched"><span class="dp-sd" id="dp-sd"></span><span id="dp-st"></span></div>
   </div>
-  <div class="dp-body"><div class="dp-slb">Обязанности</div><div id="dp-duties"></div><div class="dp-slb">Сотрудники</div><div id="dp-emps"></div></div>
+  <div class="dp-body"><div class="dp-slb">Обязанности</div><div id="dp-duties"></div><div class="dp-slb" id="dp-slb-emps">Сотрудники</div><div id="dp-emps"></div></div>
 </div>
 </div>
 <script>
 var NODES=${NODES_J};var CONNS=${CONNS_J};
 var REDDY_IC='${REDDY}';
 var activeId=null;
+var vx=0,vy=0,zoom=1;
+var body=document.getElementById('body');
+var stage=document.getElementById('stage');
+function applyT(){stage.style.transform='translate('+vx+'px,'+vy+'px) scale('+zoom+')';}
+function fitV(){
+  var W=${W},H=${H};
+  var padX=40,padTop=24,padBottom=60;
+  var r=body.getBoundingClientRect();
+  var availW=r.width-padX*2;
+  var availH=r.height-padTop-padBottom;
+  zoom=Math.min(1.5,Math.max(.1,Math.min(availW/W,availH/H)));
+  vx=(r.width-W*zoom)/2;
+  vy=padTop;
+  applyT();document.getElementById('zlbl').textContent=Math.round(zoom*100)+'%';
+}
+function chgZ(d){var r=body.getBoundingClientRect();var nz=Math.min(3,Math.max(.15,zoom+d));var sc=nz/zoom;vx=r.width/2-sc*(r.width/2-vx);vy=r.height/2-sc*(r.height/2-vy);zoom=nz;applyT();document.getElementById('zlbl').textContent=Math.round(zoom*100)+'%';}
+var panning=false,panSX=0,panSY=0,spaceDown=false;
+document.addEventListener('keydown',function(e){if(e.code==='Space'&&!e.target.matches('input')){spaceDown=true;body.style.cursor='grab';e.preventDefault();}if(e.key==='Escape')closeDP();});
+document.addEventListener('keyup',function(e){if(e.code==='Space'){spaceDown=false;body.style.cursor='';}});
+body.addEventListener('mousedown',function(e){if(e.button===1||(e.button===0&&spaceDown)){panning=true;panSX=e.clientX-vx;panSY=e.clientY-vy;body.style.cursor='grabbing';e.preventDefault();}});
+document.addEventListener('mousemove',function(e){
+  if(panning){
+    var r=body.getBoundingClientRect();
+    var newVx=e.clientX-panSX, newVy=e.clientY-panSY;
+    var minVx=r.width-${W}*zoom-60, minVy=r.height-${H}*zoom-60;
+    vx=Math.min(60,Math.max(minVx,newVx));
+    vy=Math.min(60,Math.max(minVy,newVy));
+    applyT();
+  }
+});
+document.addEventListener('mouseup',function(){if(panning){panning=false;body.style.cursor=spaceDown?'grab':'';}});
+body.addEventListener('wheel',function(e){
+  e.preventDefault();
+  var r=body.getBoundingClientRect();
+  if(e.ctrlKey||e.metaKey){
+    var nz=Math.min(3,Math.max(.1,zoom+(e.deltaY>0?-.1:.1)));
+    var cx=e.clientX-r.left,cy=e.clientY-r.top;
+    var sc=nz/zoom;vx=cx-sc*(cx-vx);vy=cy-sc*(cy-vy);zoom=nz;
+    applyT();document.getElementById('zlbl').textContent=Math.round(zoom*100)+'%';
+  } else {
+    var newVx=vx-e.deltaX,newVy=vy-e.deltaY;
+    var pad=40,W=${W},H=${H};
+    var minVx=r.width-W*zoom-pad,minVy=r.height-H*zoom-pad;
+    vx=Math.min(pad,Math.max(minVx,newVx));
+    vy=Math.min(pad,Math.max(minVy,newVy));
+    applyT();
+  }
+},{passive:false});
 function ha(h,a){try{var r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);return'rgba('+r+','+g+','+b+','+a+')'}catch(e){return h}}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
 function init(){
@@ -785,7 +856,8 @@ function openNode(id){
   document.getElementById('dp-sd').style.background=d.color;
   document.getElementById('dp-st').textContent='График '+d.sched;
   document.getElementById('dp-duties').innerHTML=d.duties&&d.duties.length?d.duties.map(function(t){return'<div class="dp-duty"><span class="dp-dd" style="background:'+d.color+'"></span>'+esc(t)+'</div>';}).join(''):'<div class="dp-none">—</div>';
-  document.getElementById('dp-emps').innerHTML=(!d.emps||!d.emps.length)?'<div class="dp-none">Список уточняется</div>':d.emps.map(function(e){
+  document.getElementById('dp-slb-emps').style.display=(d.emps===null||d.emps===undefined)?'none':'block';
+  document.getElementById('dp-emps').innerHTML=(d.emps===null||d.emps===undefined)?'':(!d.emps.length)?'<div class="dp-none">Список уточняется</div>':d.emps.map(function(e){
     var ini=(e.name||'').split(' ').map(function(w){return w[0]||'';}).join('').slice(0,2).toUpperCase();
     var avHtml=e.avatar?'<img src="'+e.avatar+'" alt="">':ini;
     var reddyHtml=e.reddy?'<div class="dp-eid"><img class="reddy-ic" src="'+REDDY_IC+'" alt="Reddy">'+esc(e.reddy)+'</div>':'';
@@ -793,11 +865,20 @@ function openNode(id){
   }).join('');
   posDP(id);document.getElementById('dp').classList.add('open');drawLines();
 }
-function posDP(id){var el=document.getElementById(id);if(!el)return;var nr=el.getBoundingClientRect();var left=nr.right+12;if(left+320>window.innerWidth-8)left=nr.left-328;left=Math.max(8,left);var top=Math.max(60,Math.min(nr.top,window.innerHeight-200));var dp=document.getElementById('dp');dp.style.left=left+'px';dp.style.top=top+'px';dp.style.maxHeight=Math.min(580,window.innerHeight-top-16)+'px';}
+function posDP(id){
+  var d=NODES.find(function(n){return n.id===id});if(!d)return;
+  var r=body.getBoundingClientRect();
+  var nx=(d.x+200)*zoom+vx+r.left, ny=d.y*zoom+vy+r.top;
+  var left=nx+12; if(left+320>window.innerWidth-8)left=nx-200*zoom-328; left=Math.max(8,left);
+  var top=Math.max(r.top+8,Math.min(ny,window.innerHeight-120));
+  var maxH=window.innerHeight-top-16;
+  var dp=document.getElementById('dp');
+  dp.style.left=left+'px';dp.style.top=top+'px';dp.style.maxHeight=maxH+'px';
+}
 function closeDP(){document.getElementById('dp').classList.remove('open');document.querySelectorAll('.onode.active').forEach(function(n){n.classList.remove('active');});activeId=null;drawLines();}
 document.getElementById('body').addEventListener('click',function(e){if(!e.target.closest('.onode')&&!e.target.closest('.dp'))closeDP();});
 document.addEventListener('keydown',function(e){if(e.key==='Escape')closeDP();});
-function nbox(id){var el=document.getElementById(id);var d=NODES.find(function(n){return n.id===id});if(!el||!d)return null;return{cx:d.x+100,top:d.y,bot:d.y+el.offsetHeight};}
+function nbox(id){var d=NODES.find(function(n){return n.id===id});var el=document.getElementById(id);if(!el||!d)return null;return{cx:d.x+100,top:d.y,bot:d.y+el.offsetHeight};}
 function drawLines(){
   var svg=document.getElementById('svg-lines');var stage=document.getElementById('stage');
   svg.setAttribute('width',stage.offsetWidth);svg.setAttribute('height',stage.offsetHeight);
@@ -826,9 +907,44 @@ function drawLines(){
 }
 var rf;function sd(){cancelAnimationFrame(rf);rf=requestAnimationFrame(drawLines);}
 window.addEventListener('resize',sd);document.getElementById('body').addEventListener('scroll',sd);
-window.addEventListener('load',function(){init();setTimeout(drawLines,100);});
+window.addEventListener('load',function(){init();setTimeout(function(){drawLines();fitV();},100);});
 <\/script>
 </body></html>`;
+}
+
+// ═══════════════════════════ IMPORT ═════════════════════════
+function openImport(){document.getElementById('imp-modal').classList.add('open');document.getElementById('imp-code').value='';document.getElementById('imp-err').style.display='none';}
+function closeImp(){document.getElementById('imp-modal').classList.remove('open');}
+function closeImpBg(e){if(e.target===document.getElementById('imp-modal'))closeImp();}
+function doImport(){
+  const code=document.getElementById('imp-code').value.trim();
+  const errEl=document.getElementById('imp-err');
+  errEl.style.display='none';
+  if(!code){errEl.textContent='Вставьте HTML-код';errEl.style.display='block';return;}
+  try{
+    // extract NODES and CONNS JSON from exported file
+    const nm=code.match(/var NODES=(\[[\s\S]*?\]);/);
+    const cm=code.match(/var CONNS=(\[[\s\S]*?\]);/);
+    if(!nm||!cm){errEl.textContent='Не найдены данные блоков. Убедитесь что вы вставили экспортированный HTML.';errEl.style.display='block';return;}
+    const importedNodes=JSON.parse(nm[1]);
+    const importedConns=JSON.parse(cm[1]);
+    clearAll(true);
+    // find max nc to avoid id collisions
+    importedNodes.forEach(d=>{
+      const nnum=parseInt((d.id||'').match(/^n(\d+)/)?.[1]||0);
+      if(nnum>nc)nc=nnum;
+      // handle emps null
+      if(d.emps===undefined)d.emps=[];
+      nodes[d.id]=d;
+      renderNode(d.id);
+    });
+    // restore conns (ids already correct)
+    conns=importedConns;
+    clearMulti();deselect();drawLines();
+    setTimeout(fitView,50);
+    snapshot();toast('Импортировано: '+importedNodes.length+' блоков, '+importedConns.length+' связей');
+    closeImp();
+  } catch(e){errEl.textContent='Ошибка разбора: '+e.message;errEl.style.display='block';}
 }
 
 // toast
