@@ -137,6 +137,7 @@ input[type=text]:focus, textarea:focus { border-color: var(--accent); box-shadow
 .onode.sel { border-color: var(--accent) !important; box-shadow: var(--sh2), 0 0 0 3px rgba(59,130,246,.2) !important; }
 .onode.conn-src { border-color: #f59e0b !important; box-shadow: 0 0 0 3px rgba(245,158,11,.2) !important; }
 .onode.conn-tgt { border-color: #22c55e !important; box-shadow: 0 0 0 3px rgba(34,197,94,.2) !important; cursor: crosshair !important; }
+.onode.multi { border-color: #f59e0b !important; box-shadow: 0 0 0 3px rgba(245,158,11,.18) !important; }
 .on-head { padding: 11px 12px 10px; display: flex; align-items: center; gap: 8px; }
 .on-texts { flex: 1; min-width: 0; }
 .on-role { font-size: 12.5px; font-weight: 700; color: #fff; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -272,7 +273,8 @@ input[type=text]:focus, textarea:focus { border-color: var(--accent); box-shadow
 <script>
 // ─── STATE ────────────────────────────────────────────────
 let nodes  = {};   // id → {id,x,y,role,dept,sched,color,duties,emps}
-let conns  = [];   // [{from,to}]
+let conns  = [];   // [{from,to,color}]
+let connLineColor = '#8b8b8b'; // default line color for new connections
 let selId  = null;
 let connMode = false;
 let connFrom = null;
@@ -412,6 +414,12 @@ function renderNode(id) {
     el.addEventListener('click', e => {
       e.stopPropagation();
       if (connMode) { handleConn(id); return; }
+      if (e.shiftKey) {
+        if (multiSel.has(id)) { multiSel.delete(id); el.classList.remove('multi'); }
+        else { multiSel.add(id); el.classList.add('multi'); }
+        updateMultiUI(); return;
+      }
+      clearMulti();
       select(id);
     });
   }
@@ -456,7 +464,10 @@ function makeDraggable(el) {
     drawLines();
   });
   document.addEventListener('mouseup', () => {
-    if (dragging) { dragging = false; el.style.cursor = 'grab'; }
+    if (dragging) {
+      dragging = false; el.style.cursor = 'grab';
+      resolveCollisions(); drawLines();
+    }
   });
 }
 
@@ -533,6 +544,23 @@ function renderSidebar(id) {
     <div class="fl">Сотрудники</div>
     <div id="emps-${id}">${empRows}</div>
     <button class="btn" style="width:100%;justify-content:center;margin-top:4px" onclick="addEmp('${id}')">+ Добавить</button>
+    <div class="fl">Выравнивание</div>
+    <div style="display:flex;gap:4px;flex-wrap:wrap">
+      <button class="btn" style="flex:1;justify-content:center;font-size:11px" onclick="alignSel('left')" title="По левому краю">⬛ Лево</button>
+      <button class="btn" style="flex:1;justify-content:center;font-size:11px" onclick="alignSel('center')" title="По центру X">↔ Центр</button>
+      <button class="btn" style="flex:1;justify-content:center;font-size:11px" onclick="alignSel('right')" title="По правому краю">⬛ Право</button>
+      <button class="btn" style="flex:1;justify-content:center;font-size:11px" onclick="alignSel('top')" title="По верхнему краю">↕ Верх</button>
+      <button class="btn" style="flex:1;justify-content:center;font-size:11px" onclick="alignSel('middle')" title="По центру Y">↕ Середина</button>
+      <button class="btn" style="flex:1;justify-content:center;font-size:11px" onclick="alignSel('bottom')" title="По нижнему краю">↕ Низ</button>
+      <button class="btn" style="flex:1;justify-content:center;font-size:11px" onclick="distributeH()" title="Равномерно по горизонтали">⇔ Распред.</button>
+    </div>
+    <div style="font-size:11px;color:var(--t3);margin-top:4px">Удерживайте Shift и кликайте на блоки для группового выравнивания</div>
+    <div class="fl">Цвет новых линий</div>
+    <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px" id="line-color-presets"></div>
+    <div style="display:flex;gap:5px;align-items:center">
+      <input type="color" id="line-color-pick" value="#8b8b8b" oninput="setLineColor(this.value)" style="width:34px;height:30px;padding:2px;border-radius:6px;cursor:pointer;border:1px solid var(--b2);flex-shrink:0">
+      <input type="text" id="line-color-text" value="#8b8b8b" oninput="setLineColor(this.value)" placeholder="#8b8b8b">
+    </div>
     <div class="fl">Связи</div>
     <div id="conns-${id}">${nodeConns || '<div style="font-size:11.5px;color:var(--t3);font-style:italic">Нет связей</div>'}</div>
     <div style="height:10px"></div>
@@ -583,7 +611,7 @@ function handleConn(id) {
     document.querySelectorAll('.onode:not(.conn-src)').forEach(n => n.classList.add('conn-tgt'));
   } else if (connFrom !== id) {
     if (!conns.some(c => c.from === connFrom && c.to === id)) {
-      conns.push({ from: connFrom, to: id }); toast('Связь добавлена');
+      conns.push({ from: connFrom, to: id, color: connLineColor }); toast('Связь добавлена');
     } else { toast('Связь уже существует'); }
     document.getElementById(connFrom)?.classList.remove('conn-src');
     document.querySelectorAll('.onode').forEach(n => n.classList.remove('conn-tgt'));
@@ -608,7 +636,6 @@ function nodeBox(id) {
 
 function drawLines() {
   const svg = document.getElementById('svg-lines');
-  // Expand SVG to cover all nodes
   const ns = Object.values(nodes);
   if (!ns.length) { svg.innerHTML = ''; return; }
   const pad = 200;
@@ -623,9 +650,14 @@ function drawLines() {
 
   const actPairs = new Set();
   if (selId) conns.forEach(c => { if (c.from === selId || c.to === selId) actPairs.add(c.from + '>' + c.to); });
+  // dark mode detection
+  const dark = window.matchMedia('(prefers-color-scheme:dark)').matches;
+  const defaultStroke = dark ? 'rgba(255,255,255,0.28)' : 'rgba(0,0,0,0.18)';
 
   const seen = new Set();
-  let out = `<defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M1 1.5L8 5L1 8.5" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="context-stroke"/></marker></defs>`;
+  let defs = `<defs>`;
+  let paths = '';
+  let gradIdx = 0;
 
   conns.forEach(c => {
     const k = c.from + '>' + c.to;
@@ -634,11 +666,178 @@ function drawLines() {
     if (!p || !ch) return;
     const my = (p.bot + ch.top) / 2;
     const isA = actPairs.has(k);
-    const stroke = isA ? '#3b82f6' : 'rgba(0,0,0,0.18)';
-    out += `<path d="M${p.cx},${p.bot} C${p.cx},${my} ${ch.cx},${my} ${ch.cx},${ch.top}" fill="none" stroke="${stroke}" stroke-width="${isA ? 2.5 : 1.5}" stroke-linecap="round" marker-end="url(#ah)"/>`;
+    const lineColor = c.color || defaultStroke;
+
+    if (isA) {
+      // gradient from source color to target color
+      const srcColor = nodes[c.from]?.color || '#3b82f6';
+      const tgtColor = nodes[c.to]?.color   || '#3b82f6';
+      const gid = 'lg' + gradIdx++;
+      const vertical = Math.abs(ch.top - p.bot) > Math.abs(ch.cx - p.cx);
+      defs += `<linearGradient id="${gid}" x1="${p.cx}" y1="${p.bot}" x2="${ch.cx}" y2="${ch.top}" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stop-color="${srcColor}"/>
+        <stop offset="100%" stop-color="${tgtColor}"/>
+      </linearGradient>`;
+      // marker for active
+      defs += `<marker id="ah-${gid}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M1 1.5L8 5L1 8.5" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="${tgtColor}"/></marker>`;
+      paths += `<path d="M${p.cx},${p.bot} C${p.cx},${my} ${ch.cx},${my} ${ch.cx},${ch.top}" fill="none" stroke="url(#${gid})" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-${gid})"/>`;
+    } else {
+      const mid = `<marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M1 1.5L8 5L1 8.5" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="context-stroke"/></marker>`;
+      if (!defs.includes('id="ah"')) defs += mid;
+      const stroke = c.color || defaultStroke;
+      paths += `<path d="M${p.cx},${p.bot} C${p.cx},${my} ${ch.cx},${my} ${ch.cx},${ch.top}" fill="none" stroke="${stroke}" stroke-width="1.5" stroke-linecap="round" marker-end="url(#ah)"/>`;
+    }
   });
 
-  svg.innerHTML = out;
+  defs += '</defs>';
+  svg.innerHTML = defs + paths;
+}
+
+// ─── LINE COLOR ───────────────────────────────────────────
+const LINE_COLORS = ['#8b8b8b','#b0b0b0','#3b82f6','#8b5cf6','#22c55e','#ef4444','#f59e0b','#06b6d4','#ec4899'];
+function setLineColor(v) {
+  connLineColor = v;
+  const pick = document.getElementById('line-color-pick');
+  const text = document.getElementById('line-color-text');
+  if (pick) pick.value = v; if (text) text.value = v;
+  renderLineColorPresets();
+}
+function renderLineColorPresets() {
+  const el = document.getElementById('line-color-presets'); if (!el) return;
+  el.innerHTML = LINE_COLORS.map(c =>
+    `<div class="cp ${c===connLineColor?'sel':''}" style="background:${c}" title="${c}" onclick="setLineColor('${c}')"></div>`
+  ).join('');
+}
+// call after sidebar renders
+const _origRenderSidebar = renderSidebar;
+
+// ─── MULTI-SELECT ─────────────────────────────────────────
+let multiSel = new Set(); // ids
+
+document.addEventListener('keydown', e => {
+  // Shift+click handled in node click
+});
+
+// Patch node click to support Shift
+function patchNodeClick(el, id) {
+  el.addEventListener('click', e => {
+    e.stopPropagation();
+    if (connMode) { handleConn(id); return; }
+    if (e.shiftKey) {
+      if (multiSel.has(id)) { multiSel.delete(id); el.classList.remove('multi'); }
+      else { multiSel.add(id); el.classList.add('multi'); }
+      updateMultiUI(); return;
+    }
+    // normal select - clear multi
+    clearMulti();
+    select(id);
+  }, true); // capture phase so it runs before existing
+}
+
+function clearMulti() {
+  multiSel.forEach(id => document.getElementById(id)?.classList.remove('multi'));
+  multiSel.clear(); updateMultiUI();
+}
+
+function updateMultiUI() {
+  const sb = document.getElementById('sb-body');
+  const head = document.getElementById('sb-head');
+  if (multiSel.size >= 2) {
+    head.textContent = `Выбрано: ${multiSel.size} блока`;
+    sb.innerHTML = `
+      <div style="font-size:12px;color:var(--t2);margin-bottom:10px">Удерживайте Shift для выбора нескольких блоков</div>
+      <div class="fl">Выравнивание</div>
+      <div style="display:flex;gap:4px;flex-wrap:wrap">
+        <button class="btn" style="flex:1;justify-content:center;font-size:11px" onclick="alignSel('left')">⬛ Лево</button>
+        <button class="btn" style="flex:1;justify-content:center;font-size:11px" onclick="alignSel('center')">↔ Центр</button>
+        <button class="btn" style="flex:1;justify-content:center;font-size:11px" onclick="alignSel('right')">⬛ Право</button>
+        <button class="btn" style="flex:1;justify-content:center;font-size:11px" onclick="alignSel('top')">↕ Верх</button>
+        <button class="btn" style="flex:1;justify-content:center;font-size:11px" onclick="alignSel('middle')">↕ Середина</button>
+        <button class="btn" style="flex:1;justify-content:center;font-size:11px" onclick="alignSel('bottom')">↕ Низ</button>
+        <button class="btn" style="flex:1;justify-content:center;font-size:11px" onclick="distributeH()">⇔ Распред. H</button>
+        <button class="btn" style="flex:1;justify-content:center;font-size:11px" onclick="distributeV()">⇕ Распред. V</button>
+      </div>
+      <div style="height:8px"></div>
+      <button class="btn danger" style="width:100%;justify-content:center" onclick="deleteMulti()">Удалить выбранные</button>
+    `;
+  }
+}
+
+// ─── ALIGN ────────────────────────────────────────────────
+const NODE_W = 196;
+function getSelIds() { return multiSel.size >= 2 ? [...multiSel] : (selId ? [selId] : []); }
+
+function alignSel(dir) {
+  const ids = getSelIds(); if (ids.length < 2) { toast('Выберите 2+ блока (Shift+клик)'); return; }
+  const ns = ids.map(id => nodes[id]).filter(Boolean);
+  if (dir === 'left') { const minX = Math.min(...ns.map(n=>n.x)); ns.forEach(n=>{n.x=minX;}); }
+  if (dir === 'right') { const maxX = Math.max(...ns.map(n=>n.x+NODE_W)); ns.forEach(n=>{n.x=maxX-NODE_W;}); }
+  if (dir === 'center') { const cx = (Math.min(...ns.map(n=>n.x))+Math.max(...ns.map(n=>n.x+NODE_W)))/2; ns.forEach(n=>{n.x=Math.round(cx-NODE_W/2);}); }
+  if (dir === 'top') { const minY = Math.min(...ns.map(n=>n.y)); ns.forEach(n=>{n.y=minY;}); }
+  if (dir === 'bottom') { const maxY = Math.max(...ns.map(n=>n.y+60)); ns.forEach(n=>{n.y=maxY-60;}); }
+  if (dir === 'middle') { const cy = (Math.min(...ns.map(n=>n.y))+Math.max(...ns.map(n=>n.y+60)))/2; ns.forEach(n=>{n.y=Math.round(cy-30);}); }
+  ids.forEach(id => { const el=document.getElementById(id); if(el&&nodes[id]){el.style.left=nodes[id].x+'px';el.style.top=nodes[id].y+'px';} });
+  resolveCollisions(); drawLines();
+}
+
+function distributeH() {
+  const ids = getSelIds().sort((a,b)=>nodes[a].x-nodes[b].x); if(ids.length<3){toast('Нужно 3+ блока');return;}
+  const minX=nodes[ids[0]].x, maxX=nodes[ids[ids.length-1]].x;
+  const step=(maxX-minX)/(ids.length-1);
+  ids.forEach((id,i)=>{nodes[id].x=Math.round(minX+step*i);const el=document.getElementById(id);if(el)el.style.left=nodes[id].x+'px';});
+  resolveCollisions(); drawLines();
+}
+
+function distributeV() {
+  const ids = getSelIds().sort((a,b)=>nodes[a].y-nodes[b].y); if(ids.length<3){toast('Нужно 3+ блока');return;}
+  const minY=nodes[ids[0]].y, maxY=nodes[ids[ids.length-1]].y;
+  const step=(maxY-minY)/(ids.length-1);
+  ids.forEach((id,i)=>{nodes[id].y=Math.round(minY+step*i);const el=document.getElementById(id);if(el)el.style.top=nodes[id].y+'px';});
+  drawLines();
+}
+
+function deleteMulti() {
+  [...multiSel].forEach(id => {
+    document.getElementById(id)?.remove();
+    delete nodes[id];
+    conns = conns.filter(c=>c.from!==id&&c.to!==id);
+  });
+  clearMulti(); selId=null; drawLines();
+  document.getElementById('sb-head').textContent='Свойства';
+  document.getElementById('sb-body').innerHTML='<div class="sb-empty">Выберите блок для редактирования</div>';
+}
+
+// ─── ANTI-COLLISION ───────────────────────────────────────
+const NODE_H = 68; // approx card height
+const MARGIN = 12; // minimum gap between nodes
+
+function resolveCollisions() {
+  const ns = Object.values(nodes);
+  let changed = true, passes = 0;
+  while (changed && passes < 20) {
+    changed = false; passes++;
+    for (let i = 0; i < ns.length; i++) {
+      for (let j = i+1; j < ns.length; j++) {
+        const a = ns[i], b = ns[j];
+        const overlapX = (a.x + NODE_W + MARGIN) - b.x;
+        const overlapY = (a.y + NODE_H + MARGIN) - b.y;
+        if (overlapX <= 0 || overlapY <= 0) continue;
+        // push apart on smaller axis
+        if (overlapX < overlapY) {
+          const half = overlapX / 2;
+          a.x = Math.round(a.x - half); b.x = Math.round(b.x + half);
+        } else {
+          const half = overlapY / 2;
+          a.y = Math.round(a.y - half); b.y = Math.round(b.y + half);
+        }
+        changed = true;
+      }
+    }
+  }
+  ns.forEach(n => {
+    const el = document.getElementById(n.id);
+    if (el) { el.style.left = n.x+'px'; el.style.top = n.y+'px'; }
+  });
 }
 
 // ─── DELETE ───────────────────────────────────────────────
@@ -782,7 +981,7 @@ html,body{height:100%;font-family:'Geist',system-ui,sans-serif;background:var(--
 .dp-av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;overflow:hidden}
 .dp-av img{width:100%;height:100%;object-fit:cover}
 .dp-en{font-size:12.5px;font-weight:600;color:var(--t1)}
-.dp-eid{font-size:10.5px;color:var(--t3);font-family:'Geist Mono',monospace;margin-top:1px}
+.dp-eid{font-size:11px;color:var(--t2);margin-top:3px;display:flex;align-items:center;gap:5px}.reddy-icon{width:16px;height:16px;border-radius:50%;object-fit:cover;flex-shrink:0}
 .dp-none{font-size:11.5px;color:var(--t3);font-style:italic;padding:6px 0}
 </style>
 </head>
@@ -854,7 +1053,9 @@ function openNode(id){
       :d.emps.map(function(e){
         var ini=(e.name||'').split(' ').map(function(w){return w[0]||''}).join('').slice(0,2).toUpperCase();
         return '<div class="dp-emp"><div class="dp-av" style="background:'+ha(d.color,.13)+';color:'+d.color+'">'+(e.avatar?'<img src="'+e.avatar+'" alt="">':ini)+'</div>'
-          +'<div><div class="dp-en">'+esc(e.name||'')+'</div><div class="dp-eid">'+esc(e.reddy||'')+'</div></div></div>';
+          +'<div><div class="dp-en">'+esc(e.name||'')+'</div>'
+          +(e.reddy?'<div class="dp-eid"><img src="data:image/png;base64,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" class="reddy-icon" alt="Reddy">'+esc(e.reddy)+'</div>':'')
+          +'</div></div>';
       }).join('');
   posDP(id);
   document.getElementById('dp').classList.add('open');
