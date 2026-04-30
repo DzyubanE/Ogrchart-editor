@@ -198,20 +198,16 @@ input[type=text]:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,1
     <div class="modal-body">
       <p style="font-size:12px;color:var(--t2);margin-bottom:10px">Полностью автономный файл — вставьте в сайт или скачайте.</p>
       <div style="background:var(--s2);border:1px solid var(--b1);border-radius:10px;padding:12px 14px;margin-bottom:12px">
-        <div style="font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--t3);margin-bottom:6px">Аватарки сотрудников</div>
-        <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px">
-          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12.5px;font-weight:500">
-            <input type="radio" name="av-mode" value="inline" id="av-inline" checked onchange="updateExpCode()"> Встроить в файл (base64)
-          </label>
-          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12.5px;font-weight:500">
-            <input type="radio" name="av-mode" value="url" id="av-url" onchange="updateExpCode()"> Ссылки на репозиторий
-          </label>
+        <div style="font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--t3);margin-bottom:8px">Аватарки сотрудников</div>
+        <div style="display:flex;gap:6px;margin-bottom:10px">
+          <button id="av-btn-inline" onclick="setAvMode('inline')" class="btn primary" style="font-size:12px">Встроить в файл</button>
+          <button id="av-btn-url" onclick="setAvMode('url')" class="btn" style="font-size:12px">Ссылки на GitHub</button>
         </div>
         <div id="av-url-wrap" style="display:none">
-          <div style="font-size:11.5px;color:var(--t2);margin-bottom:6px">Базовый URL папки с аватарками в репозитории:</div>
-          <input type="text" id="av-base-url" value="https://raw.githubusercontent.com/username/repo/main/avatars/" placeholder="https://raw.githubusercontent.com/..." oninput="updateExpCode()" style="margin-bottom:6px">
-          <div style="font-size:11px;color:var(--t3)">Файлы будут названы: <code>emp_ИМЯ.jpg</code>. Загрузите их в указанную папку репозитория.</div>
-          <div id="av-file-list" style="margin-top:8px;font-size:11.5px;color:var(--t2)"></div>
+          <div style="font-size:11.5px;color:var(--t2);margin-bottom:6px">URL папки с аватарками в репозитории:</div>
+          <input type="text" id="av-base-url" value="https://raw.githubusercontent.com/username/repo/main/avatars" placeholder="https://raw.githubusercontent.com/user/repo/main/avatars" oninput="updateExpCode()" style="margin-bottom:6px">
+          <div style="font-size:11px;color:var(--t3);line-height:1.5">Файлы называются <code style="background:var(--b1);padding:1px 4px;border-radius:4px">emp_имя.jpg</code> — загрузите их в указанную папку.</div>
+          <div id="av-file-list" style="margin-top:8px"></div>
         </div>
       </div>
       <div class="code-out" id="exp-code"></div>
@@ -728,17 +724,24 @@ function loadExample(){
 // ═══════════════════════════ EXPORT ══════════════════════════
 function openExport(){
   document.getElementById('exp-modal').classList.add('open');
-  // reset to inline mode
-  document.getElementById('av-inline').checked=true;
-  document.getElementById('av-url-wrap').style.display='none';
+  setAvMode('inline');
+}
+let _avMode='inline';
+function setAvMode(mode){
+  _avMode=mode;
+  const btnI=document.getElementById('av-btn-inline');
+  const btnU=document.getElementById('av-btn-url');
+  if(btnI){btnI.className=mode==='inline'?'btn primary':'btn';btnI.style.fontSize='12px';}
+  if(btnU){btnU.className=mode==='url'?'btn primary':'btn';btnU.style.fontSize='12px';}
+  document.getElementById('av-url-wrap').style.display=mode==='url'?'block':'none';
   updateExpCode();
 }
 function updateExpCode(){
-  const mode=document.querySelector('input[name=av-mode]:checked')?.value||'inline';
-  document.getElementById('av-url-wrap').style.display=mode==='url'?'block':'none';
-  const code=buildExport(mode);
-  document.getElementById('exp-code').textContent=code;
-  if(mode==='url') renderAvFileList();
+  try{
+    const code=buildExport(_avMode);
+    document.getElementById('exp-code').textContent=code;
+    if(_avMode==='url') renderAvFileList();
+  }catch(e){document.getElementById('exp-code').textContent='Ошибка: '+e.message;}
 }
 function renderAvFileList(){
   const baseUrl=document.getElementById('av-base-url').value.trim().replace(/\/$/,'');
@@ -774,11 +777,11 @@ function buildExport(avatarMode){
   const W=maxX-minX+padX*2, H=maxY-minY+padTop+padBottom;
   const shifted=ns.map(n=>({...n,x:n.x-minX+padX,y:n.y-minY+padTop}));
   // handle avatar mode
-  const avMode=avatarMode||'inline';
+  const avMode=avatarMode||_avMode||'inline';
   const baseUrl=avMode==='url'?(document.getElementById('av-base-url')?.value||'').trim().replace(/\/$/,''):'';
   const shiftedForExport=shifted.map(n=>({
     ...n,
-    emps:(n.emps||[]).map(e=>({
+    emps: n.emps===null ? null : (n.emps||[]).map(e=>({
       ...e,
       avatar: avMode==='url'&&e.avatar&&e.name
         ? baseUrl+'/'+avFilename(e.name)
