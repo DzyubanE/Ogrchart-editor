@@ -197,6 +197,23 @@ input[type=text]:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,1
     <div class="modal-head"><div class="modal-title">Экспорт HTML</div><button class="btn" onclick="closeExp()">✕</button></div>
     <div class="modal-body">
       <p style="font-size:12px;color:var(--t2);margin-bottom:10px">Полностью автономный файл — вставьте в сайт или скачайте.</p>
+      <div style="background:var(--s2);border:1px solid var(--b1);border-radius:10px;padding:12px 14px;margin-bottom:12px">
+        <div style="font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--t3);margin-bottom:6px">Аватарки сотрудников</div>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px">
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12.5px;font-weight:500">
+            <input type="radio" name="av-mode" value="inline" id="av-inline" checked onchange="updateExpCode()"> Встроить в файл (base64)
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12.5px;font-weight:500">
+            <input type="radio" name="av-mode" value="url" id="av-url" onchange="updateExpCode()"> Ссылки на репозиторий
+          </label>
+        </div>
+        <div id="av-url-wrap" style="display:none">
+          <div style="font-size:11.5px;color:var(--t2);margin-bottom:6px">Базовый URL папки с аватарками в репозитории:</div>
+          <input type="text" id="av-base-url" value="https://raw.githubusercontent.com/username/repo/main/avatars/" placeholder="https://raw.githubusercontent.com/..." oninput="updateExpCode()" style="margin-bottom:6px">
+          <div style="font-size:11px;color:var(--t3)">Файлы будут названы: <code>emp_ИМЯ.jpg</code>. Загрузите их в указанную папку репозитория.</div>
+          <div id="av-file-list" style="margin-top:8px;font-size:11.5px;color:var(--t2)"></div>
+        </div>
+      </div>
       <div class="code-out" id="exp-code"></div>
     </div>
     <div class="modal-foot">
@@ -583,7 +600,31 @@ function addEmp(id){if(nodes[id].emps===null)nodes[id].emps=[];nodes[id].emps.pu
 function remEmp(id,i){nodes[id].emps.splice(i,1);renderNode(id);renderSidebar(id);}
 function setEN(id,i,v){if(nodes[id]?.emps[i])nodes[id].emps[i].name=v;renderNode(id);}
 function setER(id,i,v){if(nodes[id]?.emps[i])nodes[id].emps[i].reddy=v;}
-function pickAv(id,i){const inp=document.createElement('input');inp.type='file';inp.accept='image/*';inp.onchange=()=>{const r=new FileReader();r.onload=e=>{nodes[id].emps[i].avatar=e.target.result;renderNode(id);renderSidebar(id);};r.readAsDataURL(inp.files[0]);};inp.click();}
+function pickAv(id,i){
+  const inp=document.createElement('input');inp.type='file';inp.accept='image/*';
+  inp.onchange=()=>{
+    const file=inp.files[0];if(!file)return;
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      const img=new Image();
+      img.onload=()=>{
+        const SIZE=68; // 2x for retina, stored at 68px
+        const c=document.createElement('canvas');c.width=SIZE;c.height=SIZE;
+        const ctx=c.getContext('2d');
+        // crop square from center
+        const s=Math.min(img.width,img.height);
+        const sx=(img.width-s)/2,sy=(img.height-s)/2;
+        ctx.drawImage(img,sx,sy,s,s,0,0,SIZE,SIZE);
+        const dataUrl=c.toDataURL('image/jpeg',0.75);
+        nodes[id].emps[i].avatar=dataUrl;
+        renderNode(id);renderSidebar(id);
+      };
+      img.src=ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  };
+  inp.click();
+}
 
 // ═══════════════════════════ CONNECTIONS ═════════════════════
 function toggleConn(){connMode=!connMode;connFrom=null;document.getElementById('conn-banner').classList.toggle('show',connMode);document.getElementById('btn-conn').classList.toggle('active',connMode);if(!connMode){document.querySelectorAll('.onode').forEach(n=>n.classList.remove('conn-src','conn-tgt-ok'));document.getElementById('conn-text').textContent='Кликните на источник';}}
@@ -685,13 +726,46 @@ function loadExample(){
 }
 
 // ═══════════════════════════ EXPORT ══════════════════════════
-function openExport(){document.getElementById('exp-code').textContent=buildExport();document.getElementById('exp-modal').classList.add('open');}
+function openExport(){
+  document.getElementById('exp-modal').classList.add('open');
+  // reset to inline mode
+  document.getElementById('av-inline').checked=true;
+  document.getElementById('av-url-wrap').style.display='none';
+  updateExpCode();
+}
+function updateExpCode(){
+  const mode=document.querySelector('input[name=av-mode]:checked')?.value||'inline';
+  document.getElementById('av-url-wrap').style.display=mode==='url'?'block':'none';
+  const code=buildExport(mode);
+  document.getElementById('exp-code').textContent=code;
+  if(mode==='url') renderAvFileList();
+}
+function renderAvFileList(){
+  const baseUrl=document.getElementById('av-base-url').value.trim().replace(/\/$/,'');
+  const empsWithAv=[];
+  Object.values(nodes).forEach(n=>{
+    (n.emps||[]).forEach(e=>{
+      if(e.avatar&&e.name) empsWithAv.push({name:e.name,filename:avFilename(e.name)});
+    });
+  });
+  const el=document.getElementById('av-file-list');
+  if(!empsWithAv.length){el.textContent='';return;}
+  el.innerHTML='<div style="font-size:11px;font-weight:600;color:var(--t2);margin-bottom:4px">Загрузите в репозиторий:</div>'
+    +empsWithAv.map(e=>`<div style="font-family:'Geist Mono',monospace;font-size:10.5px;color:var(--accent)">📁 ${e.filename}</div>`).join('');
+}
+function avFilename(name){return 'emp_'+name.toLowerCase().replace(/[^a-zа-яё0-9]/gi,'_').replace(/_+/g,'_')+'.jpg';}
 function closeExp(){document.getElementById('exp-modal').classList.remove('open');}
 function closeExpBg(e){if(e.target===document.getElementById('exp-modal'))closeExp();}
 function copyExp(){navigator.clipboard.writeText(document.getElementById('exp-code').textContent).then(()=>toast('Скопировано!'));}
-function downloadExp(){const a=document.createElement('a');a.href='data:text/html;charset=utf-8,'+encodeURIComponent(document.getElementById('exp-code').textContent);a.download='orgchart.html';a.click();toast('Скачано');}
+function downloadExp(){
+  const a=document.createElement('a');
+  const code=document.getElementById('exp-code').textContent;
+  a.href='data:text/html;charset=utf-8,'+encodeURIComponent(code);
+  a.download='orgchart.html';a.click();toast('Скачано');
+}
 
-function buildExport(){
+
+function buildExport(avatarMode){
   const ns=Object.values(nodes);if(!ns.length)return'<!-- нет карточек -->';
   const title=document.getElementById('chart-title').value||'Org Chart';
   const padX=40, padTop=16, padBottom=40;
@@ -699,7 +773,19 @@ function buildExport(){
   const maxX=Math.max(...ns.map(n=>n.x+200)),maxY=Math.max(...ns.map(n=>n.y+70));
   const W=maxX-minX+padX*2, H=maxY-minY+padTop+padBottom;
   const shifted=ns.map(n=>({...n,x:n.x-minX+padX,y:n.y-minY+padTop}));
-  const NODES_J=JSON.stringify(shifted);
+  // handle avatar mode
+  const avMode=avatarMode||'inline';
+  const baseUrl=avMode==='url'?(document.getElementById('av-base-url')?.value||'').trim().replace(/\/$/,''):'';
+  const shiftedForExport=shifted.map(n=>({
+    ...n,
+    emps:(n.emps||[]).map(e=>({
+      ...e,
+      avatar: avMode==='url'&&e.avatar&&e.name
+        ? baseUrl+'/'+avFilename(e.name)
+        : (e.avatar||'')
+    }))
+  }));
+  const NODES_J=JSON.stringify(shiftedForExport);
   const CONNS_J=JSON.stringify(conns);
   const REDDY=REDDY_ICON;
 
