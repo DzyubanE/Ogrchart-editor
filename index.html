@@ -1104,16 +1104,21 @@ function toast(m){const el=document.getElementById('toast');el.textContent=m;el.
 // ═══════════════════════════ SUPABASE ════════════════════
 const SB_URL = 'https://ivctluihkskhtsuopzwz.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2Y3RsdWloa3NraHRzdW9wend6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgyMzA1NDAsImV4cCI6MjA5MzgwNjU0MH0.geomdYuAul2xCv8gVNz4NLuWLbZfLyksXAiEE_iYVQY';
+const sb = supabase.createClient(SB_URL, SB_KEY);
 let SB_SESSION = null;
 let DIAGRAM_ID = new URLSearchParams(window.location.search).get('id');
 let saveTimer = null;
 let lastSaved = null;
 
 async function sbFetch(path, opts={}) {
+  // Always get fresh session from SDK
+  const { data: { session } } = await sb.auth.getSession();
+  const token = session?.access_token || SB_SESSION?.access_token || '';
+  if (token) SB_SESSION = session;
   const headers = {
     'apikey': SB_KEY,
     'Content-Type': 'application/json',
-    ...(SB_SESSION ? {'Authorization': 'Bearer ' + SB_SESSION.access_token} : {}),
+    ...(token ? {'Authorization': 'Bearer ' + token} : {}),
     ...opts.headers
   };
   const r = await fetch(SB_URL + path, {...opts, headers});
@@ -1126,22 +1131,9 @@ async function sbFetch(path, opts={}) {
 }
 
 async function initSession() {
-  const stored = JSON.parse(localStorage.getItem('sb_session')||'null');
-  if (!stored) { window.location.href = 'dashboard.html'; return false; }
-  try {
-    const r = await fetch(SB_URL + '/auth/v1/token?grant_type=refresh_token', {
-      method: 'POST',
-      headers: {'apikey': SB_KEY, 'Content-Type': 'application/json'},
-      body: JSON.stringify({refresh_token: stored.refresh_token})
-    });
-    if (r.ok) {
-      const s = await r.json();
-      localStorage.setItem('sb_session', JSON.stringify(s));
-      SB_SESSION = s;
-    } else {
-      SB_SESSION = stored;
-    }
-  } catch(e) { SB_SESSION = stored; }
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) { window.location.href = 'dashboard.html'; return false; }
+  SB_SESSION = session;
   return true;
 }
 
@@ -1239,5 +1231,6 @@ function snapshot(noSave) { _sbOrigSnap(); if(!noSave && DIAGRAM_ID) scheduleSav
   else { snapshot(); updateUndoUI(); }
 })();
 </script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </body>
 </html>
