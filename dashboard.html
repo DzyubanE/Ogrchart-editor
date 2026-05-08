@@ -308,20 +308,24 @@ a{text-decoration:none;color:inherit}
 
 <div class="share-toast" id="toast"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 const SB_URL = 'https://ivctluihkskhtsuopzwz.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2Y3RsdWloa3NraHRzdW9wend6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgyMzA1NDAsImV4cCI6MjA5MzgwNjU0MH0.geomdYuAul2xCv8gVNz4NLuWLbZfLyksXAiEE_iYVQY';
+const sb = supabase.createClient(SB_URL, SB_KEY);
 
 let currentUser = null;
 let diagrams = [];
 let renameId = null;
 
+// sbFetch kept for compatibility but uses SDK session
 async function sbFetch(path, opts={}) {
-  const session = JSON.parse(localStorage.getItem('sb_session')||'null');
+  const { data: { session } } = await sb.auth.getSession();
+  const token = session?.access_token || '';
   const headers = {
     'apikey': SB_KEY,
     'Content-Type': 'application/json',
-    ...(session ? {'Authorization': 'Bearer ' + session.access_token} : {}),
+    ...(token ? {'Authorization': 'Bearer ' + token} : {}),
     ...opts.headers
   };
   const r = await fetch(SB_URL + path, {...opts, headers});
@@ -334,56 +338,22 @@ async function sbFetch(path, opts={}) {
 }
 
 async function signInGoogle() {
-  const redirectTo = encodeURIComponent('https://dzyubane.github.io/Ogrchart-editor/dashboard.html');
-  window.location.href = SB_URL + '/auth/v1/authorize?provider=google&redirect_to=' + redirectTo;
+  const { error } = await sb.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: 'https://dzyubane.github.io/Ogrchart-editor/dashboard.html'
+    }
+  });
+  if (error) toast('Ошибка входа: ' + error.message);
 }
 
 async function signOut() {
-  try { await sbFetch('/auth/v1/logout', {method:'POST'}); } catch(e) {}
-  localStorage.removeItem('sb_session');
+  await sb.auth.signOut();
   currentUser = null;
   showAuth();
 }
 
-async function getSession() {
-  // Check URL hash for OAuth callback tokens
-  const hash = window.location.hash;
-  if (hash.includes('access_token')) {
-    const params = new URLSearchParams(hash.slice(1));
-    const session = {
-      access_token: params.get('access_token'),
-      refresh_token: params.get('refresh_token'),
-      token_type: params.get('token_type'),
-    };
-    localStorage.setItem('sb_session', JSON.stringify(session));
-    window.location.hash = '';
-    return session;
-  }
-  const stored = JSON.parse(localStorage.getItem('sb_session')||'null');
-  if (!stored) return null;
-  // Refresh if needed
-  try {
-    const r = await fetch(SB_URL + '/auth/v1/token?grant_type=refresh_token', {
-      method: 'POST',
-      headers: {'apikey': SB_KEY, 'Content-Type': 'application/json'},
-      body: JSON.stringify({refresh_token: stored.refresh_token})
-    });
-    if (r.ok) {
-      const s = await r.json();
-      localStorage.setItem('sb_session', JSON.stringify(s));
-      return s;
-    }
-  } catch(e) {}
-  return stored;
-}
-
-async function getUser(session) {
-  const r = await fetch(SB_URL + '/auth/v1/user', {
-    headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + session.access_token}
-  });
-  if (!r.ok) return null;
-  return r.json();
-}
+// Session handled by Supabase SDK
 
 function showAuth() {
   document.getElementById('auth-view').style.display = 'flex';
