@@ -129,6 +129,7 @@ input[type=text]:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,1
 ::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-thumb{background:var(--b2);border-radius:3px}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
 <div class="app">
@@ -850,6 +851,7 @@ html,body{height:100%;font-family:'Geist',system-ui,sans-serif;background:var(--
 .zoom-ctrl button{width:32px;height:32px;border-radius:8px;font-size:16px;font-weight:600;background:var(--bg);border:1px solid var(--b2);color:var(--t1);cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.1)}
 .zoom-ctrl button:hover{background:var(--bg2)}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
 <div class="app">
@@ -1227,10 +1229,13 @@ function snapshot(noSave) { _sbOrigSnap(); if(!noSave && DIAGRAM_ID) scheduleSav
 (async()=>{
   const ok = await initSession();
   if (!ok) return;
-  if (DIAGRAM_ID) loadDiagram();
-  else { snapshot(); updateUndoUI(); }
+  if (DIAGRAM_ID) {
+    await loadDiagram();
+  } else {
+    // No diagram ID - go to dashboard
+    window.location.href = 'dashboard.html';
+  }
 })();
 </script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </body>
 </html>

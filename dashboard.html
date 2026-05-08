@@ -211,6 +211,7 @@ a{text-decoration:none;color:inherit}
 ::-webkit-scrollbar{width:5px}
 ::-webkit-scrollbar-thumb{background:var(--b2);border-radius:3px}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
 
@@ -308,7 +309,6 @@ a{text-decoration:none;color:inherit}
 
 <div class="share-toast" id="toast"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 const SB_URL = 'https://ivctluihkskhtsuopzwz.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2Y3RsdWloa3NraHRzdW9wend6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgyMzA1NDAsImV4cCI6MjA5MzgwNjU0MH0.geomdYuAul2xCv8gVNz4NLuWLbZfLyksXAiEE_iYVQY';
@@ -547,11 +547,11 @@ document.getElementById('rename-input').addEventListener('keydown',e=>{
   if(e.key==='Escape') closeRename();
 });
 
-// INIT
+// INIT — Supabase SDK handles OAuth callback automatically
 (async()=>{
-  const session = await getSession();
+  const { data: { session } } = await sb.auth.getSession();
   if (!session) { showAuth(); return; }
-  const user = await getUser(session);
+  const { data: { user } } = await sb.auth.getUser();
   if (!user) { showAuth(); return; }
   showApp(user);
 })();
