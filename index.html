@@ -1100,8 +1100,144 @@ function doImport(){
 let toastT;
 function toast(m){const el=document.getElementById('toast');el.textContent=m;el.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),2200);}
 
+
+// ═══════════════════════════ SUPABASE ════════════════════
+const SB_URL = 'https://ivctluihkskhtsuopzwz.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2Y3RsdWloa3NraHRzdW9wend6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgyMzA1NDAsImV4cCI6MjA5MzgwNjU0MH0.geomdYuAul2xCv8gVNz4NLuWLbZfLyksXAiEE_iYVQY';
+let SB_SESSION = null;
+let DIAGRAM_ID = new URLSearchParams(window.location.search).get('id');
+let saveTimer = null;
+let lastSaved = null;
+
+async function sbFetch(path, opts={}) {
+  const headers = {
+    'apikey': SB_KEY,
+    'Content-Type': 'application/json',
+    ...(SB_SESSION ? {'Authorization': 'Bearer ' + SB_SESSION.access_token} : {}),
+    ...opts.headers
+  };
+  const r = await fetch(SB_URL + path, {...opts, headers});
+  if (!r.ok) {
+    const e = await r.json().catch(()=>({}));
+    throw new Error(e.message || r.statusText);
+  }
+  if (r.status === 204) return null;
+  return r.json();
+}
+
+async function initSession() {
+  const stored = JSON.parse(localStorage.getItem('sb_session')||'null');
+  if (!stored) { window.location.href = 'dashboard.html'; return false; }
+  try {
+    const r = await fetch(SB_URL + '/auth/v1/token?grant_type=refresh_token', {
+      method: 'POST',
+      headers: {'apikey': SB_KEY, 'Content-Type': 'application/json'},
+      body: JSON.stringify({refresh_token: stored.refresh_token})
+    });
+    if (r.ok) {
+      const s = await r.json();
+      localStorage.setItem('sb_session', JSON.stringify(s));
+      SB_SESSION = s;
+    } else {
+      SB_SESSION = stored;
+    }
+  } catch(e) { SB_SESSION = stored; }
+  return true;
+}
+
+async function loadDiagram() {
+  if (!DIAGRAM_ID) return;
+  try {
+    const data = await sbFetch('/rest/v1/diagrams?id=eq.'+DIAGRAM_ID+'&select=title,nodes,conns');
+    if (!data || !data.length) { toast('Схема не найдена'); return; }
+    const d = data[0];
+    document.getElementById('chart-title').value = d.title || 'Без названия';
+    // restore nodes
+    document.querySelectorAll('.onode').forEach(n=>n.remove());
+    nodes = {}; conns = d.conns || []; nc = 0;
+    Object.values(d.nodes||{}).forEach(nd => {
+      const nnum = parseInt((nd.id||'').match(/^n(\d+)/)?.[1]||0);
+      if (nnum > nc) nc = nnum;
+      nodes[nd.id] = nd;
+      renderNode(nd.id);
+    });
+    clearMulti(); deselect(); drawLines();
+    setTimeout(fitView, 80);
+    snapshot();
+    updateSaveStatus('saved');
+    toast('Схема загружена');
+  } catch(e) { toast('Ошибка загрузки: '+e.message); }
+}
+
+function scheduleSave() {
+  updateSaveStatus('unsaved');
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveDiagram, 1800);
+}
+
+async function saveDiagram() {
+  if (!DIAGRAM_ID || !SB_SESSION) return;
+  updateSaveStatus('saving');
+  try {
+    await sbFetch('/rest/v1/diagrams?id=eq.'+DIAGRAM_ID, {
+      method: 'PATCH',
+      body: JSON.stringify({
+        title: document.getElementById('chart-title').value || 'Без названия',
+        nodes: nodes,
+        conns: conns,
+      })
+    });
+    updateSaveStatus('saved');
+    lastSaved = new Date();
+  } catch(e) {
+    updateSaveStatus('error');
+    toast('Ошибка сохранения: '+e.message);
+  }
+}
+
+function updateSaveStatus(status) {
+  const el = document.getElementById('save-status');
+  if (!el) return;
+  if (status==='saving') { el.textContent='Сохраняю...'; el.style.color='var(--t3)'; }
+  else if (status==='saved') { el.textContent='Сохранено'; el.style.color='#16a34a'; }
+  else if (status==='unsaved') { el.textContent='Не сохранено'; el.style.color='var(--t3)'; }
+  else if (status==='error') { el.textContent='Ошибка сохранения'; el.style.color='#dc2626'; }
+}
+
+async function shareCurrentDiagram() {
+  if (!DIAGRAM_ID) return;
+  try {
+    let shares = await sbFetch('/rest/v1/shares?diagram_id=eq.'+DIAGRAM_ID+'&select=token');
+    if (!shares || !shares.length) {
+      shares = await sbFetch('/rest/v1/shares', {
+        method:'POST', headers:{'Prefer':'return=representation'},
+        body: JSON.stringify({diagram_id: DIAGRAM_ID})
+      });
+    }
+    const token = shares[0]?.token;
+    const url = 'https://dzyubane.github.io/Ogrchart-editor/view.html?t=' + token;
+    await navigator.clipboard.writeText(url).catch(()=>{});
+    toast('Ссылка скопирована!');
+  } catch(e) { toast('Ошибка: '+e.message); }
+}
+
 // initial snapshot
 snapshot(); updateUndoUI();
+
+// auto-save on title change
+document.getElementById('chart-title').addEventListener('input', ()=>{ if(DIAGRAM_ID) scheduleSave(); });
+// patch history to trigger save
+const _sbOrigSnap = snapshot;
+window._patchedSnap = true;
+function snapshot(noSave) { _sbOrigSnap(); if(!noSave && DIAGRAM_ID) scheduleSave(); }
+
+// BOOT
+(async()=>{
+  const ok = await initSession();
+  if (!ok) return;
+  if (DIAGRAM_ID) loadDiagram();
+  else { snapshot(); updateUndoUI(); }
+})();
 </script>
 </body>
 </html>
