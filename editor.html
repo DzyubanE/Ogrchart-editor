@@ -149,36 +149,123 @@ input[type=text]:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,1
 ::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-thumb{background:var(--b2);border-radius:3px}
 
-/* MOBILE */
+/* ═══════════════ MOBILE ═══════════════ */
 @media(max-width:768px){
-  .sb{display:none !important}
-  .hdr{padding:0 8px;gap:3px;overflow-x:auto}
-  .logo{font-size:11.5px}
-  #chart-title{min-width:70px;font-size:11px;padding:2px 4px}
-  .sep{display:none}
-  .btn{padding:4px 7px;font-size:11px;gap:3px}
-  .btn svg{width:11px;height:11px}
-  .btn-icon{width:26px;height:26px}
-  #btn-del{display:none !important}
-  .zoom-ctrl{bottom:16px;right:10px}
-  .zoom-ctrl button{width:36px;height:36px}
-  .mobile-props-btn{
-    position:fixed;bottom:80px;right:12px;z-index:200;
-    width:44px;height:44px;border-radius:50%;
-    background:var(--accent);color:#fff;border:none;
-    display:flex;align-items:center;justify-content:center;
-    box-shadow:0 4px 16px rgba(59,130,246,.4);cursor:pointer;
-    font-size:18px;
+
+  /* Hide desktop sidebar completely */
+  .sb { display:none !important; }
+
+  /* Minimal header — just logo, title, menu */
+  .hdr {
+    height:52px; padding:0 14px; gap:8px;
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
   }
-  .mobile-sb-overlay{
-    position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:149;display:none;
+  .logo { font-size:12.5px; }
+  #chart-title {
+    font-size:12px; padding:3px 6px;
+    max-width:100px; min-width:60px;
   }
-  .mobile-sb-overlay.open{display:block}
-  .sb.mobile-open{
-    display:flex !important;position:fixed;left:0;top:0;bottom:0;
-    width:280px;z-index:150;box-shadow:4px 0 24px rgba(0,0,0,.2);
+  /* Hide all header buttons except undo/redo */
+  .btn.primary[onclick="addNode()"],
+  .btn[id="btn-conn"],
+  .btn.danger[id="btn-del"],
+  .sep,
+  .hdr-right { display:none !important; }
+  .btn-icon { width:30px; height:30px; font-size:13px; }
+
+  /* Canvas fills screen below header, above bottom bar */
+  .body { padding-top:52px; padding-bottom:68px; }
+  .cv-wrap { height:100%; }
+
+  /* Hide desktop zoom controls */
+  .zoom-ctrl { display:none !important; }
+
+  /* Bottom toolbar */
+  .mob-toolbar {
+    position:fixed; bottom:0; left:0; right:0; height:64px; z-index:100;
+    background:var(--surface); border-top:1px solid var(--b1);
+    display:flex; align-items:center; justify-content:space-around; padding:0 8px;
+    -webkit-backdrop-filter:blur(16px); backdrop-filter:blur(16px);
   }
+  .mob-tb-btn {
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:3px; flex:1; height:52px; border-radius:12px; border:none;
+    background:transparent; color:var(--t2); cursor:pointer;
+    font-family:'Geist',sans-serif; font-size:10px; font-weight:500;
+    transition:background .15s, color .15s;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .mob-tb-btn:active { background:var(--s2); }
+  .mob-tb-btn.active { color:var(--accent); }
+  .mob-tb-btn svg { width:22px; height:22px; flex-shrink:0; }
+
+  /* Bottom sheet for properties */
+  .mob-sheet-ov {
+    position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:200;
+    opacity:0; pointer-events:none; transition:opacity .25s;
+  }
+  .mob-sheet-ov.open { opacity:1; pointer-events:auto; }
+  .mob-sheet {
+    position:fixed; left:0; right:0; bottom:0; z-index:201;
+    background:var(--surface); border-radius:20px 20px 0 0;
+    transform:translateY(100%); transition:transform .32s cubic-bezier(.4,0,.2,1);
+    max-height:85vh; display:flex; flex-direction:column;
+    padding-bottom:env(safe-area-inset-bottom,0);
+  }
+  .mob-sheet.open { transform:translateY(0); }
+  .mob-sheet-handle {
+    width:36px; height:4px; border-radius:2px; background:var(--b2);
+    margin:10px auto 4px; flex-shrink:0;
+  }
+  .mob-sheet-head {
+    padding:8px 18px 12px; display:flex; align-items:center;
+    justify-content:space-between; flex-shrink:0;
+    border-bottom:1px solid var(--b1);
+  }
+  .mob-sheet-title { font-size:14px; font-weight:700; color:var(--t1); }
+  .mob-sheet-close {
+    width:28px; height:28px; border-radius:8px; border:1px solid var(--b1);
+    background:var(--s2); display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+  }
+  .mob-sheet-body {
+    flex:1; overflow-y:auto; padding:14px 18px 24px;
+    scrollbar-width:thin;
+  }
+
+  /* Zoom controls as overlay pills */
+  .mob-zoom {
+    position:fixed; right:14px; bottom:80px; z-index:150;
+    display:flex; flex-direction:column; gap:6px;
+  }
+  .mob-zoom-btn {
+    width:44px; height:44px; border-radius:14px;
+    background:var(--surface); border:1px solid var(--b2);
+    box-shadow:0 2px 12px rgba(0,0,0,.15);
+    display:flex; align-items:center; justify-content:center;
+    font-size:20px; font-weight:600; color:var(--t1); cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .mob-zoom-btn:active { background:var(--s2); }
+  .mob-zoom-pct {
+    font-size:10px; font-weight:600; color:var(--t3);
+    text-align:center;
+  }
+
+  /* Selected node highlight label at top */
+  .mob-sel-bar {
+    position:fixed; top:60px; left:50%; transform:translateX(-50%);
+    background:var(--accent); color:#fff;
+    padding:5px 14px; border-radius:20px; font-size:12px; font-weight:600;
+    z-index:150; display:none; white-space:nowrap;
+    box-shadow:0 4px 16px rgba(59,130,246,.35);
+  }
+
+  /* Conn mode banner tweak */
+  .conn-banner { top:60px !important; font-size:12px !important; }
 }
+
 </style>
 </head>
 <body>
@@ -222,8 +309,6 @@ input[type=text]:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,1
 </div>
 </div>
 
-<button class="mobile-props-btn" id="mobile-props-btn" onclick="toggleMobileSB()" title="Свойства" style="display:none">⚙</button>
-<div class="mobile-sb-overlay" id="mobile-sb-overlay" onclick="closeMobileSB()"></div>
 <div class="conn-banner" id="conn-banner">
   <span id="conn-text">Кликните на источник</span>
   <button class="btn" onclick="toggleConn()">Отмена</button>
@@ -1154,25 +1239,6 @@ function doImport(){
 }
 
 // toast
-// Mobile sidebar
-function isMobile(){ return window.innerWidth <= 768; }
-function toggleMobileSB(){
-  const sb = document.querySelector('.sb');
-  const ov = document.getElementById('mobile-sb-overlay');
-  if(sb.classList.contains('mobile-open')){ closeMobileSB(); }
-  else { sb.classList.add('mobile-open'); ov.classList.add('open'); }
-}
-function closeMobileSB(){
-  document.querySelector('.sb').classList.remove('mobile-open');
-  document.getElementById('mobile-sb-overlay').classList.remove('open');
-}
-function updateMobileBtn(){
-  const btn = document.getElementById('mobile-props-btn');
-  if(btn) btn.style.display = isMobile() ? 'flex' : 'none';
-}
-window.addEventListener('resize', updateMobileBtn);
-updateMobileBtn();
-
 let toastT;
 function toast(m){const el=document.getElementById('toast');el.textContent=m;el.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),2200);}
 
@@ -1318,6 +1384,191 @@ const _origRenderNode = renderNode;
 const _origSnapshot = snapshot;
 snapshot = function() { _origSnapshot(); scheduleSave(); };
 
+</script>
+
+<!-- ═══════ MOBILE UI ═══════ -->
+<div class="mob-sheet-ov" id="mob-sheet-ov" onclick="closeMobSheet()"></div>
+<div class="mob-sheet" id="mob-sheet">
+  <div class="mob-sheet-handle"></div>
+  <div class="mob-sheet-head">
+    <div class="mob-sheet-title" id="mob-sheet-title">Свойства блока</div>
+    <div class="mob-sheet-close" onclick="closeMobSheet()">
+      <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="var(--t2)" stroke-width="2" stroke-linecap="round"><path d="M1.5 1.5l7 7M8.5 1.5l-7 7"/></svg>
+    </div>
+  </div>
+  <div class="mob-sheet-body" id="mob-sheet-body"></div>
+</div>
+
+<div class="mob-toolbar" id="mob-toolbar">
+  <button class="mob-tb-btn" onclick="addNode()" title="Добавить блок">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><path d="M17.5 14v6M14.5 17h6"/></svg>
+    Блок
+  </button>
+  <button class="mob-tb-btn" id="mob-conn-btn" onclick="toggleConn()" title="Связать">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="5" cy="5" r="2.5"/><circle cx="19" cy="19" r="2.5"/><path d="M7 7l10 10"/></svg>
+    Связать
+  </button>
+  <button class="mob-tb-btn" id="mob-props-btn" onclick="openMobSheet()" title="Свойства">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg>
+    Свойства
+  </button>
+  <button class="mob-tb-btn" onclick="fitView()" title="Вписать">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    Вписать
+  </button>
+  <button class="mob-tb-btn" onclick="openExport()" title="Экспорт">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v12M8 11l4 4 4-4M5 19h14"/></svg>
+    Экспорт
+  </button>
+</div>
+
+<div class="mob-zoom" id="mob-zoom">
+  <button class="mob-zoom-btn" onclick="changeZoom(.12)">+</button>
+  <div class="mob-zoom-pct" id="mob-zoom-pct">100%</div>
+  <button class="mob-zoom-btn" onclick="changeZoom(-.12)">−</button>
+</div>
+
+<div class="mob-sel-bar" id="mob-sel-bar">Блок выбран · нажми Свойства</div>
+
+<script>
+// ═══════════════ MOBILE JS ═══════════════
+function isMobile(){ return window.innerWidth <= 768; }
+
+// Sync desktop zoom label → mobile
+const _origZoomAt = typeof zoomAt === 'function' ? zoomAt : null;
+function syncMobZoom(){
+  const lbl = document.getElementById('mob-zoom-pct');
+  if(lbl) lbl.textContent = Math.round(zoom * 100) + '%';
+}
+
+// Bottom sheet
+function openMobSheet(){
+  if(!isMobile()) return;
+  const body = document.getElementById('mob-sheet-body');
+  const title = document.getElementById('mob-sheet-title');
+  if(selId && nodes[selId]){
+    title.textContent = nodes[selId].role || 'Свойства блока';
+    // Clone sidebar content into sheet
+    const sbContent = document.getElementById('sb-body');
+    body.innerHTML = sbContent ? sbContent.innerHTML : '<p style="color:var(--t3);font-size:13px;padding:8px 0">Выберите блок на холсте</p>';
+  } else if(multiSel && multiSel.size >= 2){
+    title.textContent = 'Выбрано: ' + multiSel.size;
+    const sbContent = document.getElementById('sb-body');
+    body.innerHTML = sbContent ? sbContent.innerHTML : '';
+  } else {
+    title.textContent = 'Свойства';
+    body.innerHTML = '<p style="color:var(--t3);font-size:13px;padding:8px 0;text-align:center">Нажмите на блок чтобы выбрать его</p>';
+  }
+  document.getElementById('mob-sheet').classList.add('open');
+  document.getElementById('mob-sheet-ov').classList.add('open');
+}
+function closeMobSheet(){
+  document.getElementById('mob-sheet').classList.remove('open');
+  document.getElementById('mob-sheet-ov').classList.remove('open');
+}
+
+// Show/hide mobile sel bar
+function updateMobSelBar(){
+  if(!isMobile()) return;
+  const bar = document.getElementById('mob-sel-bar');
+  if(!bar) return;
+  bar.style.display = (selId || (multiSel && multiSel.size > 0)) ? 'block' : 'none';
+  if(selId && nodes[selId]) bar.textContent = nodes[selId].role + ' · Свойства ↓';
+  else if(multiSel && multiSel.size > 0) bar.textContent = 'Выбрано: ' + multiSel.size + ' · Свойства ↓';
+}
+// Tap mob-sel-bar opens sheet
+document.addEventListener('DOMContentLoaded', function(){
+  const bar = document.getElementById('mob-sel-bar');
+  if(bar) bar.addEventListener('click', openMobSheet);
+});
+
+// Show/hide mobile elements based on screen size
+function applyMobileMode(){
+  const m = isMobile();
+  const toolbar = document.getElementById('mob-toolbar');
+  const mzoom = document.getElementById('mob-zoom');
+  if(toolbar) toolbar.style.display = m ? 'flex' : 'none';
+  if(mzoom) mzoom.style.display = m ? 'flex' : 'none';
+  if(!m) closeMobSheet();
+}
+window.addEventListener('resize', applyMobileMode);
+applyMobileMode();
+
+// Patch select/deselect to update mob sel bar
+const _mobOrigSelect = select;
+select = function(id){
+  _mobOrigSelect(id);
+  setTimeout(updateMobSelBar, 0);
+  // sync sheet title if open
+  if(isMobile() && document.getElementById('mob-sheet').classList.contains('open')){
+    openMobSheet();
+  }
+};
+
+// Patch toggleConn to update mob button
+const _mobOrigToggleConn = toggleConn;
+toggleConn = function(){
+  _mobOrigToggleConn();
+  const btn = document.getElementById('mob-conn-btn');
+  if(btn) btn.classList.toggle('active', connMode);
+};
+
+// Sync zoom label on any zoom change
+const _origChangeZoom = changeZoom;
+changeZoom = function(d){
+  _origChangeZoom(d);
+  syncMobZoom();
+};
+
+// Touch pinch zoom
+(function(){
+  let lastDist = 0;
+  cvWrap.addEventListener('touchstart', function(e){
+    if(e.touches.length === 2){
+      lastDist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+    }
+  }, {passive:true});
+  cvWrap.addEventListener('touchmove', function(e){
+    if(e.touches.length === 2){
+      e.preventDefault();
+      const dist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      if(lastDist > 0){
+        const delta = (dist - lastDist) * 0.008;
+        const cx = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+        const cy = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+        const r = cvWrap.getBoundingClientRect();
+        zoomAt(cx - r.left, cy - r.top, delta);
+        syncMobZoom();
+      }
+      lastDist = dist;
+    }
+  }, {passive:false});
+  cvWrap.addEventListener('touchend', function(){ lastDist = 0; }, {passive:true});
+
+  // Single-touch pan on empty area
+  let mobPan = false, mobPX = 0, mobPY = 0;
+  cvWrap.addEventListener('touchstart', function(e){
+    if(e.touches.length === 1 && e.target === cvWrap || e.target === world || e.target.id === 'svg-lines'){
+      mobPan = true;
+      mobPX = e.touches[0].clientX - vx;
+      mobPY = e.touches[0].clientY - vy;
+    }
+  }, {passive:true});
+  cvWrap.addEventListener('touchmove', function(e){
+    if(mobPan && e.touches.length === 1){
+      vx = e.touches[0].clientX - mobPX;
+      vy = e.touches[0].clientY - mobPY;
+      applyT();
+    }
+  }, {passive:true});
+  cvWrap.addEventListener('touchend', function(){ mobPan = false; }, {passive:true});
+})();
 </script>
 </body>
 </html>
