@@ -185,22 +185,63 @@ input[type=text]:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,1
   /* Hide desktop zoom controls */
   .zoom-ctrl { display:none !important; }
 
-  /* Top nav bar (below hdr) */
+  /* iOS-style navigation bar */
   .mob-topbar {
     position:fixed; top:52px; left:0; right:0; height:48px; z-index:99;
     background:var(--surface); border-bottom:1px solid var(--b1);
-    display:flex; align-items:center; justify-content:space-around; padding:0 4px;
-    -webkit-backdrop-filter:blur(16px); backdrop-filter:blur(16px);
+    display:flex; align-items:center; padding:0 4px 0 2px;
+    -webkit-backdrop-filter:blur(20px); backdrop-filter:blur(20px);
   }
-  .mob-top-btn {
-    display:flex; flex-direction:column; align-items:center; justify-content:center;
-    gap:2px; flex:1; height:44px; border-radius:8px; border:none;
-    background:transparent; color:var(--t2); cursor:pointer;
-    font-family:'Geist',sans-serif; font-size:9.5px; font-weight:500;
+  .mob-nav-back {
+    display:flex; align-items:center; gap:2px;
+    padding:6px 10px; border:none; background:transparent;
+    color:var(--accent); font-family:'Geist',sans-serif;
+    font-size:16px; font-weight:500; cursor:pointer;
+    -webkit-tap-highlight-color:transparent; flex-shrink:0;
+  }
+  .mob-nav-back svg { width:18px; height:18px; }
+  .mob-nav-title {
+    flex:1; text-align:center; font-size:14px; font-weight:600;
+    color:var(--t1); letter-spacing:-.01em;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    padding:0 4px;
+  }
+  .mob-nav-more {
+    display:flex; align-items:center; justify-content:center;
+    width:38px; height:38px; border-radius:50%; border:none;
+    background:transparent; color:var(--accent); cursor:pointer;
+    -webkit-tap-highlight-color:transparent; flex-shrink:0;
+  }
+  .mob-nav-more svg { width:22px; height:22px; }
+  .mob-nav-more:active, .mob-nav-back:active { opacity:.5; }
+
+  /* Dropdown menu */
+  .mob-menu-ov {
+    position:fixed; inset:0; z-index:300; display:none;
+  }
+  .mob-menu {
+    position:fixed; top:96px; right:8px; z-index:301;
+    background:var(--surface); border:1px solid var(--b1);
+    border-radius:14px; min-width:220px;
+    box-shadow:0 8px 40px rgba(0,0,0,.18), 0 2px 8px rgba(0,0,0,.08);
+    overflow:hidden; opacity:0; transform:scale(.9) translateY(-8px);
+    transform-origin:top right;
+    transition:opacity .18s ease, transform .18s cubic-bezier(.34,1.3,.64,1);
+    pointer-events:none;
+  }
+  .mob-menu.open { opacity:1; transform:scale(1) translateY(0); pointer-events:auto; }
+  .mob-menu-item {
+    display:flex; align-items:center; gap:12px;
+    padding:14px 16px; font-size:15px; font-weight:400;
+    color:var(--t1); cursor:pointer;
     -webkit-tap-highlight-color:transparent;
+    transition:background .1s;
   }
-  .mob-top-btn:active { background:var(--s2); }
-  .mob-top-btn svg { width:18px; height:18px; flex-shrink:0; }
+  .mob-menu-item:active { background:var(--s2); }
+  .mob-menu-item svg { width:20px; height:20px; flex-shrink:0; color:var(--accent); stroke:var(--accent); }
+  .mob-menu-item.danger { color:#ef4444; }
+  .mob-menu-item.danger svg { stroke:#ef4444; }
+  .mob-menu-sep { height:1px; background:var(--b1); margin:0 16px; }
 
   /* Bottom toolbar */
   .mob-toolbar {
@@ -1362,6 +1403,10 @@ async function loadDiagram() {
     drawLines();
     setTimeout(fitView, 80);
     updateSaveStatus('saved');
+    // Reset history so loaded state is the baseline (can't undo past it)
+    history = [JSON.stringify({ nodes, conns })];
+    histIdx = 0;
+    updateUndoUI();
   } catch (e) {
     toast('Ошибка загрузки: ' + e.message);
   }
@@ -1465,24 +1510,43 @@ snapshot = function() { _origSnapshot(); if(!_undoRedoing && DIAGRAM_ID) schedul
   <div class="mob-sheet-body" id="mob-sheet-body"></div>
 </div>
 
-<!-- TOP bar: navigation actions -->
+<!-- iOS-style navigation bar -->
 <div class="mob-topbar" id="mob-topbar">
-  <button class="mob-top-btn" onclick="window.location.href='dashboard.html'">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-    Мои схемы
+  <button class="mob-nav-back" onclick="window.location.href='dashboard.html'">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    Схемы
   </button>
-  <button class="mob-top-btn" onclick="shareCurrentDiagram()">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.4 13.4l7.2 4.2M15.6 6.4L8.4 10.6"/></svg>
+  <div class="mob-nav-title" id="mob-nav-title">Загрузка...</div>
+  <button class="mob-nav-more" id="mob-nav-more" onclick="toggleMobMenu()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>
+  </button>
+</div>
+
+<!-- Dropdown menu -->
+<div class="mob-menu-ov" id="mob-menu-ov" onclick="closeMobMenu()"></div>
+<div class="mob-menu" id="mob-menu">
+  <div class="mob-menu-item" onclick="shareCurrentDiagram();closeMobMenu()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.4 13.4l7.2 4.2M15.6 6.4L8.4 10.6"/></svg>
     Поделиться
-  </button>
-  <button class="mob-top-btn" onclick="openImport()">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M8 13l4 4 4-4"/><path d="M4 19h16"/></svg>
-    Импорт
-  </button>
-  <button class="mob-top-btn" onclick="openExport()">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M8 11l4 4 4-4M5 20h14"/></svg>
-    Экспорт
-  </button>
+  </div>
+  <div class="mob-menu-sep"></div>
+  <div class="mob-menu-item" onclick="openImport();closeMobMenu()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M8 13l4 4 4-4"/><path d="M4 19h16"/></svg>
+    Импортировать HTML
+  </div>
+  <div class="mob-menu-item" onclick="openExport();closeMobMenu()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M8 11l4 4 4-4M5 20h14"/></svg>
+    Экспортировать HTML
+  </div>
+  <div class="mob-menu-sep"></div>
+  <div class="mob-menu-item" onclick="loadExample();closeMobMenu()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="6" rx="1.5"/><rect x="14" y="3" width="7" height="6" rx="1.5"/><rect x="8" y="15" width="8" height="6" rx="1.5"/><path d="M12 9v6"/></svg>
+    Загрузить пример
+  </div>
+  <div class="mob-menu-item danger" onclick="clearAll();closeMobMenu()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>
+    Очистить холст
+  </div>
 </div>
 
 <!-- BOTTOM toolbar: editing actions -->
@@ -1499,9 +1563,13 @@ snapshot = function() { _origSnapshot(); if(!_undoRedoing && DIAGRAM_ID) schedul
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg>
     Свойства
   </button>
-  <button class="mob-tb-btn" onclick="undo()">
+  <button class="mob-tb-btn" onclick="undo()" id="mob-undo-btn">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M3 13A9 9 0 1 0 5.7 5.3"/></svg>
     Отменить
+  </button>
+  <button class="mob-tb-btn" onclick="redo()" id="mob-redo-btn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 7v6h-6"/><path d="M21 13A9 9 0 1 1 18.3 5.3"/></svg>
+    Вернуть
   </button>
   <button class="mob-tb-btn" onclick="fitView()">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
@@ -1578,8 +1646,47 @@ function applyMobileMode(){
   if(toolbar) toolbar.style.display = m ? 'flex' : 'none';
   if(topbar) topbar.style.display = m ? 'flex' : 'none';
   if(mzoom) mzoom.style.display = m ? 'flex' : 'none';
-  if(!m) closeMobSheet();
+  if(!m) { closeMobSheet(); closeMobMenu(); }
 }
+
+function toggleMobMenu(){
+  const menu = document.getElementById('mob-menu');
+  const ov = document.getElementById('mob-menu-ov');
+  const isOpen = menu.classList.contains('open');
+  if(isOpen){ closeMobMenu(); }
+  else {
+    ov.style.display = 'block';
+    menu.classList.add('open');
+  }
+}
+function closeMobMenu(){
+  const menu = document.getElementById('mob-menu');
+  const ov = document.getElementById('mob-menu-ov');
+  if(menu) menu.classList.remove('open');
+  if(ov) ov.style.display = 'none';
+}
+
+// Sync nav title with chart title
+function syncMobNavTitle(){
+  const el = document.getElementById('mob-nav-title');
+  const titleEl = document.getElementById('chart-title');
+  if(el && titleEl) el.textContent = titleEl.value || 'Редактор';
+}
+document.addEventListener('DOMContentLoaded', function(){
+  const titleEl = document.getElementById('chart-title');
+  if(titleEl) titleEl.addEventListener('input', syncMobNavTitle);
+  syncMobNavTitle();
+});
+
+// Update mob undo/redo button opacity
+const _origUpdateUndoUI = updateUndoUI;
+updateUndoUI = function(){
+  _origUpdateUndoUI();
+  const u = document.getElementById('mob-undo-btn');
+  const r = document.getElementById('mob-redo-btn');
+  if(u) u.style.opacity = histIdx <= 0 ? '0.35' : '1';
+  if(r) r.style.opacity = histIdx >= history.length - 1 ? '0.35' : '1';
+};
 window.addEventListener('resize', applyMobileMode);
 applyMobileMode();
 
