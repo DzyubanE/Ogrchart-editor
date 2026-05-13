@@ -166,13 +166,18 @@ input[type=text]:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,1
     font-size:12px; padding:3px 6px;
     max-width:100px; min-width:60px;
   }
-  /* Hide all header buttons except undo/redo */
-  .btn.primary[onclick="addNode()"],
-  .btn[id="btn-conn"],
-  .btn.danger[id="btn-del"],
-  .sep,
-  .hdr-right { display:none !important; }
-  .btn-icon { width:30px; height:30px; font-size:13px; }
+  /* Compact header on mobile — show all buttons but smaller */
+  .sep { display:none; }
+  .hdr { flex-wrap:nowrap; overflow-x:auto; -webkit-overflow-scrolling:touch; gap:4px; }
+  .hdr::-webkit-scrollbar { display:none; }
+  .btn { padding:5px 8px; font-size:11px; gap:3px; white-space:nowrap; }
+  .btn svg { width:11px; height:11px; }
+  .btn-icon { width:28px; height:28px; font-size:13px; }
+  #chart-title { max-width:90px; font-size:11px; padding:2px 5px; }
+  .logo { font-size:11px; }
+  /* Only hide delete (covered by toolbar) */
+  .btn.danger[id="btn-del"] { display:none !important; }
+  #save-status { display:none; }
 
   /* Canvas fills screen below header, above bottom bar */
   .body { padding-top:52px; padding-bottom:68px; }
@@ -385,17 +390,24 @@ function snapshot() {
   histIdx = history.length - 1;
   updateUndoUI();
 }
+let _undoRedoing = false;
 function undo() {
   if (histIdx <= 0) return;
   histIdx--;
+  _undoRedoing = true;
   loadSnapshot(history[histIdx]);
+  _undoRedoing = false;
   updateUndoUI();
+  if (DIAGRAM_ID) scheduleSave();
 }
 function redo() {
   if (histIdx >= history.length - 1) return;
   histIdx++;
+  _undoRedoing = true;
   loadSnapshot(history[histIdx]);
+  _undoRedoing = false;
   updateUndoUI();
+  if (DIAGRAM_ID) scheduleSave();
 }
 function loadSnapshot(s) {
   const state = JSON.parse(s);
@@ -529,6 +541,43 @@ function makeDrag(el) {
     };
     document.addEventListener('mousemove', mm);
     document.addEventListener('mouseup', mu);
+
+  // Touch drag support
+  el.addEventListener('touchstart', function(te) {
+    if (te.touches.length !== 1 || connMode || spaceDown) return;
+    te.stopPropagation();
+    const t = te.touches[0];
+    moved = false;
+    const wp = worldPt(t.clientX, t.clientY);
+    startX = wp.x; startY = wp.y;
+    const isInGroup = multiSel.has(el.id);
+    if (!isInGroup) { clearMulti(); select(el.id); }
+    const dragIds = (multiSel.size > 0 && multiSel.has(el.id)) ? [...multiSel] : [el.id];
+    startPositions = {};
+    dragIds.forEach(function(id) { startPositions[id] = { x: nodes[id].x, y: nodes[id].y }; });
+
+    function tmm(te2) {
+      if (te2.touches.length !== 1) return;
+      const t2 = te2.touches[0];
+      const wp2 = worldPt(t2.clientX, t2.clientY);
+      const dx = wp2.x - startX, dy = wp2.y - startY;
+      moved = true;
+      dragIds.forEach(function(id) {
+        nodes[id].x = Math.round(startPositions[id].x + dx);
+        nodes[id].y = Math.round(startPositions[id].y + dy);
+        const nel = document.getElementById(id);
+        if (nel) { nel.style.left = nodes[id].x + 'px'; nel.style.top = nodes[id].y + 'px'; }
+      });
+      drawLines();
+    }
+    function tmu() {
+      document.removeEventListener('touchmove', tmm);
+      document.removeEventListener('touchend', tmu);
+      if (moved) { resolveCollisions(); drawLines(); snapshot(); }
+    }
+    document.addEventListener('touchmove', tmm, { passive: true });
+    document.addEventListener('touchend', tmu);
+  }, { passive: true });
   });
 }
 
@@ -1382,7 +1431,7 @@ const _origAddNode = addNode;
 addNode = function(d) { const r = _origAddNode(d); scheduleSave(); return r; };
 const _origRenderNode = renderNode;
 const _origSnapshot = snapshot;
-snapshot = function() { _origSnapshot(); scheduleSave(); };
+snapshot = function() { _origSnapshot(); if(!_undoRedoing && DIAGRAM_ID) scheduleSave(); };
 
 </script>
 
