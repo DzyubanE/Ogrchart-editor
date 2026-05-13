@@ -18,6 +18,24 @@
   --sh:0 1px 3px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.08);
   --sh2:0 2px 8px rgba(0,0,0,.1),0 12px 32px rgba(0,0,0,.14);
 }
+@media(prefers-color-scheme:dark){
+  :root{
+    --bg:#1d2125;--surface:#252a2f;--s2:#2c3138;
+    --b1:rgba(255,255,255,.07);--b2:rgba(255,255,255,.13);--b3:rgba(255,255,255,.22);
+    --t1:#e6e4de;--t2:#9a9790;--t3:#5a5855;
+    --accent:#3b82f6;
+    --sh:0 1px 3px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.3);
+    --sh2:0 2px 8px rgba(0,0,0,.4),0 12px 32px rgba(0,0,0,.4);
+  }
+  /* canvas grid in dark */
+  .cv-wrap{
+    background-image:
+      linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px),
+      linear-gradient(rgba(255,255,255,.08) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(255,255,255,.08) 1px,transparent 1px);
+  }
+}
 html,body{height:100%;font-family:'Geist',system-ui,sans-serif;background:var(--bg);color:var(--t1);overflow:hidden;font-size:13px}
 .app{display:flex;flex-direction:column;height:100vh}
 
