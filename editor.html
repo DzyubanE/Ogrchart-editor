@@ -130,6 +130,37 @@ input[type=text]:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,1
 
 ::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-thumb{background:var(--b2);border-radius:3px}
+
+/* MOBILE */
+@media(max-width:768px){
+  .sb{display:none !important}
+  .hdr{padding:0 8px;gap:3px;overflow-x:auto}
+  .logo{font-size:11.5px}
+  #chart-title{min-width:70px;font-size:11px;padding:2px 4px}
+  .sep{display:none}
+  .btn{padding:4px 7px;font-size:11px;gap:3px}
+  .btn svg{width:11px;height:11px}
+  .btn-icon{width:26px;height:26px}
+  #btn-del{display:none !important}
+  .zoom-ctrl{bottom:16px;right:10px}
+  .zoom-ctrl button{width:36px;height:36px}
+  .mobile-props-btn{
+    position:fixed;bottom:80px;right:12px;z-index:200;
+    width:44px;height:44px;border-radius:50%;
+    background:var(--accent);color:#fff;border:none;
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 4px 16px rgba(59,130,246,.4);cursor:pointer;
+    font-size:18px;
+  }
+  .mobile-sb-overlay{
+    position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:149;display:none;
+  }
+  .mobile-sb-overlay.open{display:block}
+  .sb.mobile-open{
+    display:flex !important;position:fixed;left:0;top:0;bottom:0;
+    width:280px;z-index:150;box-shadow:4px 0 24px rgba(0,0,0,.2);
+  }
+}
 </style>
 </head>
 <body>
@@ -173,6 +204,8 @@ input[type=text]:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,1
 </div>
 </div>
 
+<button class="mobile-props-btn" id="mobile-props-btn" onclick="toggleMobileSB()" title="Свойства" style="display:none">⚙</button>
+<div class="mobile-sb-overlay" id="mobile-sb-overlay" onclick="closeMobileSB()"></div>
 <div class="conn-banner" id="conn-banner">
   <span id="conn-text">Кликните на источник</span>
   <button class="btn" onclick="toggleConn()">Отмена</button>
@@ -1103,6 +1136,25 @@ function doImport(){
 }
 
 // toast
+// Mobile sidebar
+function isMobile(){ return window.innerWidth <= 768; }
+function toggleMobileSB(){
+  const sb = document.querySelector('.sb');
+  const ov = document.getElementById('mobile-sb-overlay');
+  if(sb.classList.contains('mobile-open')){ closeMobileSB(); }
+  else { sb.classList.add('mobile-open'); ov.classList.add('open'); }
+}
+function closeMobileSB(){
+  document.querySelector('.sb').classList.remove('mobile-open');
+  document.getElementById('mobile-sb-overlay').classList.remove('open');
+}
+function updateMobileBtn(){
+  const btn = document.getElementById('mobile-props-btn');
+  if(btn) btn.style.display = isMobile() ? 'flex' : 'none';
+}
+window.addEventListener('resize', updateMobileBtn);
+updateMobileBtn();
+
 let toastT;
 function toast(m){const el=document.getElementById('toast');el.textContent=m;el.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),2200);}
 
