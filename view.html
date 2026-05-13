@@ -70,6 +70,15 @@ html,body{height:100%;font-family:'Geist',system-ui,sans-serif;background:var(--
 .err{display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:12px;color:var(--t3);padding:20px;text-align:center}
 .err-title{font-size:18px;font-weight:700;color:var(--t1)}
 .err-sub{font-size:13px}
+
+@media(max-width:640px){
+  .hdr{padding:0 14px}
+  .hdr-title{font-size:12px}
+  .hdr-right{display:none}
+  .zoom-ctrl{top:60px;right:10px}
+  .zoom-ctrl button{width:30px;height:30px;font-size:14px}
+  .dp{width:calc(100vw - 16px);left:8px !important;right:8px}
+}
 </style>
 </head>
 <body>
