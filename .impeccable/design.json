@@ -1,14 +1,17 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-07-07T00:00:00Z",
+  "generatedAt": "2026-07-07T15:40:00Z",
   "title": "Design System: OrgChart Editor",
   "extensions": {
     "colorMeta": {
       "indigo-primary": { "role": "primary", "displayName": "Indigo", "canonical": "#3730a3", "tonalRamp": ["#181454", "#221c78", "#2c2490", "#3730a3", "#5850c8", "#6366f1", "#9092f0", "#c7c8fa"] },
       "danger": { "role": "semantic", "displayName": "Danger Red", "canonical": "#dc2626", "tonalRamp": ["#450a0a", "#7f1d1d", "#991b1b", "#dc2626", "#ef4444", "#f87171", "#fca5a5", "#fecaca"] },
+      "danger-hover": { "role": "semantic", "displayName": "Danger Red Hover", "canonical": "#b91c1c", "tonalRamp": ["#450a0a", "#7f1d1d", "#991b1b", "#b91c1c", "#dc2626", "#ef4444", "#f87171", "#fca5a5"] },
       "neutral-bg": { "role": "neutral", "displayName": "Warm Paper", "canonical": "#f0efeb", "tonalRamp": ["#1d2125", "#2c3138", "#3c4148", "#6b6f74", "#a9a7a1", "#d4d2cc", "#e8e6e1", "#f0efeb"] },
       "neutral-surface": { "role": "neutral", "displayName": "Surface White", "canonical": "#ffffff", "tonalRamp": ["#252a2f", "#2c3138", "#3c4148", "#8a8d90", "#c8c9ca", "#e5e5e5", "#f5f5f5", "#ffffff"] },
-      "ink-1": { "role": "neutral", "displayName": "Ink Primary", "canonical": "#111111", "tonalRamp": ["#e6e4de", "#c9c7c1", "#9a9790", "#5a5855", "#3a3835", "#252320", "#181614", "#111111"] }
+      "ink-1": { "role": "neutral", "displayName": "Ink Primary", "canonical": "#111111", "tonalRamp": ["#e6e4de", "#c9c7c1", "#9a9790", "#5a5855", "#3a3835", "#252320", "#181614", "#111111"] },
+      "success-indicator": { "role": "semantic", "displayName": "Success Indicator Green", "canonical": "#22c55e", "tonalRamp": ["#052e16", "#14532d", "#166534", "#16a34a", "#22c55e", "#4ade80", "#86efac", "#bbf7d0"] },
+      "success-text": { "role": "semantic", "displayName": "Success Text Green", "canonical": "#15803d", "tonalRamp": ["#052e16", "#14532d", "#166534", "#15803d", "#22c55e", "#4ade80", "#86efac", "#bbf7d0"] }
     },
     "typographyMeta": {
       "display": { "displayName": "Display", "purpose": "Marketing hero headline only (index.html)." },
@@ -26,7 +29,7 @@
     ],
     "motion": [
       { "name": "ease-standard", "value": "cubic-bezier(0.4, 0, 0.2, 1)", "purpose": "Default easing for sheets and state transitions." },
-      { "name": "ease-overshoot", "value": "cubic-bezier(0.34, 1.2, 0.64, 1)", "purpose": "Dropdown-open only; the one sanctioned overshoot easing." }
+      { "name": "ease-out-expo", "value": "cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Snappy pop-in for dropdowns and popups, without overshoot/bounce." }
     ],
     "breakpoints": []
   },
@@ -37,7 +40,7 @@
       "refersTo": "button-primary",
       "description": "Main call-to-action; indigo fill, white text.",
       "html": "<button class=\"ds-btn-primary\">New Chart</button>",
-      "css": ".ds-btn-primary { background: #3730a3; color: #fff; padding: 11px 22px; border-radius: 8px; font-weight: 600; font-size: 14px; border: 1px solid transparent; transition: background .12s, border-color .12s; } .ds-btn-primary:hover { background: #5850c8; } .ds-btn-primary:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(59,130,246,.15); }"
+      "css": ".ds-btn-primary { background: #3730a3; color: #fff; padding: 11px 22px; border-radius: 8px; font-weight: 600; font-size: 14px; border: 1px solid transparent; transition: background .12s, border-color .12s; } .ds-btn-primary:hover { background: #5850c8; } .ds-btn-primary:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(55,48,163,.18); }"
     },
     {
       "name": "Secondary Button",
@@ -54,6 +57,14 @@
       "description": "Destructive ghost action (delete).",
       "html": "<button class=\"ds-btn-danger\">Delete</button>",
       "css": ".ds-btn-danger { background: transparent; color: #dc2626; padding: 5px 11px; border-radius: 8px; font-weight: 600; font-size: 12.5px; border: 1px solid rgba(220,38,38,.2); transition: background .12s; } .ds-btn-danger:hover { background: rgba(220,38,38,.08); }"
+    },
+    {
+      "name": "Danger Button (filled)",
+      "kind": "button",
+      "refersTo": "button-danger",
+      "description": "Confirm action inside a destructive-confirmation modal (e.g. delete chart, clear canvas).",
+      "html": "<button class=\"ds-btn-danger-filled\">Delete</button>",
+      "css": ".ds-btn-danger-filled { background: #dc2626; color: #fff; padding: 11px 22px; border-radius: 8px; font-weight: 600; font-size: 14px; border: 1px solid transparent; transition: background .12s; } .ds-btn-danger-filled:hover { background: #b91c1c; }"
     },
     {
       "name": "Diagram Card",
@@ -77,7 +88,7 @@
       "refersTo": null,
       "description": "The signature component: a person card on the org-chart canvas.",
       "html": "<div class=\"ds-onode\"><strong>Jane Doe</strong><span>Engineering Manager</span></div>",
-      "css": ".ds-onode { border-radius: 14px; border: 1.5px solid rgba(0,0,0,.07); box-shadow: 0 1px 3px rgba(0,0,0,.05), 0 4px 16px rgba(0,0,0,.07); background: #ffffff; padding: 12px 14px; display: flex; flex-direction: column; gap: 2px; transition: box-shadow .18s cubic-bezier(.34,1.4,.64,1); } .ds-onode:hover { box-shadow: 0 2px 8px rgba(0,0,0,.1), 0 12px 32px rgba(0,0,0,.14); } .ds-onode strong { font-size: 13.5px; font-weight: 600; color: #111111; } .ds-onode span { font-size: 12px; color: #555555; }"
+      "css": ".ds-onode { border-radius: 14px; border: 1.5px solid rgba(0,0,0,.07); box-shadow: 0 1px 3px rgba(0,0,0,.05), 0 4px 16px rgba(0,0,0,.07); background: #ffffff; padding: 12px 14px; display: flex; flex-direction: column; gap: 2px; transition: box-shadow .18s cubic-bezier(.16,1,.3,1); } .ds-onode:hover { box-shadow: 0 2px 8px rgba(0,0,0,.1), 0 12px 32px rgba(0,0,0,.14); } .ds-onode strong { font-size: 13.5px; font-weight: 600; color: #111111; } .ds-onode span { font-size: 12px; color: #555555; }"
     }
   ],
   "narrative": {
@@ -92,7 +103,7 @@
     ],
     "rules": [
       { "name": "The One Accent Rule", "body": "Indigo appears on primary actions, selection, and brand marks only. If a screen has more than one saturated color competing for attention, one of them is wrong.", "section": "colors" },
-      { "name": "The Unification Rule", "body": "The product has exactly one background family (#f0efeb warm neutral) and one accent (#3730a3 indigo). index.html's warmer #fafaf7 background and editor.html's blue #3b82f6 accent are drift, not intentional variation.", "section": "colors" },
+      { "name": "The Unification Rule", "body": "The product has exactly one background family (#f0efeb warm neutral) and one accent (#3730a3 indigo) across every surface: index, dashboard, editor, view, privacy, terms.", "section": "colors" },
       { "name": "The Single-Family Rule", "body": "Never introduce a second typeface family. Every hierarchy level is Geist at a different weight/size.", "section": "typography" },
       { "name": "The Ambient-Not-Heavy Rule", "body": "Shadow opacity never exceeds ~0.2 alpha in light mode. If a shadow reads as a hard drop-shadow rather than soft depth, the blur radius is too small or the alpha too high.", "section": "elevation" }
     ],
@@ -105,13 +116,14 @@
       "Do keep amber (tool-active state) and blue/amber/green (focus/multi-select/connect-target rings) as the only sanctioned exceptions to the one-accent rule."
     ],
     "donts": [
-      "Don't use #fafaf7 as a background anywhere outside legacy marketing copy.",
-      "Don't use editor.html's blue #3b82f6 as the primary accent.",
+      "Don't use #fafaf7 as a background anywhere; the canonical background is #f0efeb (light) / #1d2125 (dark).",
+      "Don't use #3b82f6 as the primary brand accent anywhere; the canonical accent is #3730a3 indigo.",
       "Don't use gradient-text headlines, cream/sand-as-default backgrounds, hero-metric templates, uppercase eyebrows above every section, or numbered section markers as decorative scaffolding.",
       "Don't use border-left/border-right as a colored accent stripe on cards or list items.",
       "Don't let shadow alpha exceed ~0.2 in light mode.",
-      "Don't add bounce/elastic easing to anything except the dropdown-open transition.",
-      "Don't introduce a second typeface family for variety."
+      "Don't use bounce/elastic easing anywhere; use ease-standard or ease-out-expo instead.",
+      "Don't introduce a second typeface family for variety.",
+      "Don't use the browser's native confirm()/alert() for destructive actions; use the app's own modal with a filled danger button."
     ]
   }
 }

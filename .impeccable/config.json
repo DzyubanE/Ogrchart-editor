@@ -1,0 +1,26 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "geist",
+        "reason": "User confirmed Geist is the project's pre-existing documented typeface (DESIGN.md Single-Family Rule), not a new AI-reflex choice",
+        "createdAt": "2026-07-07T15:35:02.688Z"
+      },
+      {
+        "rule": "single-font",
+        "value": "geist",
+        "reason": "Same confirmed decision as overused-font: Geist is the project's documented single-family typeface (DESIGN.md Single-Family Rule)",
+        "createdAt": "2026-07-07T15:36:33.547Z"
+      },
+      {
+        "rule": "overused-font",
+        "value": "geist mono",
+        "reason": "Same confirmed decision: Geist Mono is the project's documented mono typeface (DESIGN.md typography.mono token), not a new choice",
+        "createdAt": "2026-07-07T15:41:01.030Z"
+      }
+    ]
+  }
+}

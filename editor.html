@@ -15,7 +15,7 @@
   --bg:#f0efeb;--surface:#fff;--s2:#f5f4f1;
   --b1:rgba(0,0,0,.07);--b2:rgba(0,0,0,.13);--b3:rgba(0,0,0,.22);
   --t1:#111;--t2:#555;--t3:#999;
-  --accent:#3b82f6;
+  --accent:#3730a3;--accent2:#5850c8;
   --sh:0 1px 3px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.08);
   --sh2:0 2px 8px rgba(0,0,0,.1),0 12px 32px rgba(0,0,0,.14);
 }
@@ -24,7 +24,7 @@
     --bg:#1d2125;--surface:#252a2f;--s2:#2c3138;
     --b1:rgba(255,255,255,.07);--b2:rgba(255,255,255,.13);--b3:rgba(255,255,255,.22);
     --t1:#e6e4de;--t2:#9a9790;--t3:#5a5855;
-    --accent:#3b82f6;
+    --accent:#3730a3;--accent2:#5850c8;
     --sh:0 1px 3px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.3);
     --sh2:0 2px 8px rgba(0,0,0,.4),0 12px 32px rgba(0,0,0,.4);
   }
@@ -51,9 +51,11 @@ html,body{height:100%;font-family:'Geist',system-ui,sans-serif;background:var(--
 .btn{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:8px;font-size:12px;font-weight:600;border:1px solid var(--b2);background:var(--surface);color:var(--t1);cursor:pointer;transition:background .12s,border-color .12s;font-family:'Geist',sans-serif;white-space:nowrap;line-height:1}
 .btn:hover{background:var(--s2)}
 .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
-.btn.primary:hover{background:#2563eb}
+.btn.primary:hover{background:var(--accent2)}
 .btn.danger{color:#dc2626;border-color:rgba(220,38,38,.2)}
 .btn.danger:hover{background:rgba(220,38,38,.08)}
+.btn.danger.filled{background:#dc2626;border-color:#dc2626;color:#fff}
+.btn.danger.filled:hover{background:#b91c1c}
 .btn.active{background:#fef3c7;border-color:#f59e0b;color:#92400e}
 .btn svg{width:13px;height:13px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .btn-icon{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;border:1px solid var(--b2);background:var(--surface);cursor:pointer;transition:background .12s;font-size:14px;flex-shrink:0}
@@ -72,7 +74,7 @@ html,body{height:100%;font-family:'Geist',system-ui,sans-serif;background:var(--
 .fl{font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--t3);margin:13px 0 5px}
 .fl:first-child{margin-top:0}
 input[type=text],select{width:100%;padding:7px 9px;background:var(--s2);border:1px solid var(--b1);border-radius:8px;color:var(--t1);font-family:'Geist',sans-serif;font-size:12.5px;outline:none;transition:border-color .15s,box-shadow .15s}
-input[type=text]:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.1)}
+input[type=text]:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(55,48,163,.1)}
 .color-row{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px}
 .cp{width:22px;height:22px;border-radius:6px;cursor:pointer;border:2px solid transparent;transition:transform .1s;flex-shrink:0}
 .cp:hover{transform:scale(1.15)}
@@ -99,16 +101,16 @@ input[type=text]:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,1
 #svg-lines{position:absolute;top:0;left:0;overflow:visible;pointer-events:none}
 /* snap guides */
 .guide{position:absolute;pointer-events:none;z-index:999;opacity:0;transition:opacity .1s}
-.guide.h{left:-9999px;right:-9999px;height:1px;background:#3b82f6}
-.guide.v{top:-9999px;bottom:-9999px;width:1px;background:#3b82f6}
+.guide.h{left:-9999px;right:-9999px;height:1px;background:var(--accent)}
+.guide.v{top:-9999px;bottom:-9999px;width:1px;background:var(--accent)}
 .guide.show{opacity:1}
 /* snap label */
-.snap-lbl{position:absolute;pointer-events:none;z-index:1000;font-size:10px;font-weight:700;font-family:'Geist Mono',monospace;color:#3b82f6;background:rgba(255,255,255,.9);border:1px solid #3b82f6;border-radius:4px;padding:1px 5px;white-space:nowrap;display:none}
+.snap-lbl{position:absolute;pointer-events:none;z-index:1000;font-size:10px;font-weight:700;font-family:'Geist Mono',monospace;color:var(--accent);background:rgba(255,255,255,.9);border:1px solid var(--accent);border-radius:6px;padding:1px 5px;white-space:nowrap;display:none}
 
 /* NODE */
 .onode{position:absolute;width:196px;border-radius:14px;overflow:hidden;background:var(--surface);border:1.5px solid var(--b1);box-shadow:var(--sh);cursor:grab;user-select:none;transition:box-shadow .15s,border-color .15s}
 .onode:hover{box-shadow:var(--sh2)}
-.onode.sel{border-color:var(--accent)!important;box-shadow:var(--sh2),0 0 0 3px rgba(59,130,246,.18)!important}
+.onode.sel{border-color:var(--accent)!important;box-shadow:var(--sh2),0 0 0 3px rgba(55,48,163,.18)!important}
 .onode.multi-sel{border-color:#f59e0b!important;box-shadow:var(--sh2),0 0 0 3px rgba(245,158,11,.18)!important}
 .onode.conn-src{border-color:#f59e0b!important;box-shadow:0 0 0 3px rgba(245,158,11,.25)!important}
 .onode.conn-tgt-ok{border-color:#22c55e!important;box-shadow:0 0 0 3px rgba(34,197,94,.2)!important;cursor:crosshair!important}
@@ -131,7 +133,7 @@ input[type=text]:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,1
 .zoom-label{font-size:10px;font-weight:600;color:var(--t3);text-align:center}
 
 /* selection box */
-#sel-box{position:absolute;border:1.5px solid var(--accent);background:rgba(59,130,246,.06);pointer-events:none;display:none;z-index:5}
+#sel-box{position:absolute;border:1.5px solid var(--accent);background:rgba(55,48,163,.06);pointer-events:none;display:none;z-index:5}
 
 /* MODAL */
 .modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:500;display:none;align-items:center;justify-content:center;padding:20px}
@@ -148,7 +150,7 @@ input[type=text]:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,1
 .toast.show{opacity:1}
 
 ::-webkit-scrollbar{width:5px;height:5px}
-::-webkit-scrollbar-thumb{background:var(--b2);border-radius:3px}
+::-webkit-scrollbar-thumb{background:var(--b2);border-radius:50%}
 
 /* Mobile elements hidden by default on all screen sizes */
 .mob-toolbar,.mob-topbar,.mob-zoom,.mob-sel-bar{display:none}
@@ -230,7 +232,7 @@ input[type=text]:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,1
     box-shadow:0 8px 40px rgba(0,0,0,.18), 0 2px 8px rgba(0,0,0,.08);
     overflow:hidden; opacity:0; transform:scale(.9) translateY(-8px);
     transform-origin:top right;
-    transition:opacity .18s ease, transform .18s cubic-bezier(.34,1.3,.64,1);
+    transition:opacity .18s ease, transform .18s cubic-bezier(.16,1,.3,1);
     pointer-events:none;
   }
   .mob-menu.open { opacity:1; transform:scale(1) translateY(0); pointer-events:auto; }
@@ -282,7 +284,7 @@ input[type=text]:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,1
   }
   .mob-sheet.open { transform:translateY(0); }
   .mob-sheet-handle {
-    width:36px; height:4px; border-radius:2px; background:var(--b2);
+    width:36px; height:4px; border-radius:50%; background:var(--b2);
     margin:10px auto 4px; flex-shrink:0;
   }
   .mob-sheet-head {
@@ -326,7 +328,7 @@ input[type=text]:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,1
     background:var(--accent); color:#fff;
     padding:5px 14px; border-radius:20px; font-size:12px; font-weight:600;
     z-index:150; display:none; white-space:nowrap;
-    box-shadow:0 4px 16px rgba(59,130,246,.35);
+    box-shadow:0 4px 16px rgba(55,48,163,.2);
   }
 
   /* Conn mode banner tweak */
@@ -387,6 +389,16 @@ input[type=text]:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,1
   <button onclick="changeZoom(-.1)">−</button>
 </div>
 
+<div class="modal-ov" id="clear-modal" onclick="closeClearModalBg(event)">
+  <div class="modal" style="max-width:360px">
+    <div class="modal-head"><div class="modal-title">Очистить схему?</div><button class="btn" onclick="closeClearModal()">✕</button></div>
+    <div class="modal-body"><p style="font-size:12px;color:var(--t2)">Все блоки и связи будут удалены. Это нельзя отменить.</p></div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeClearModal()">Отмена</button>
+      <button class="btn danger filled" onclick="confirmClear()">Очистить</button>
+    </div>
+  </div>
+</div>
 <div class="modal-ov" id="imp-modal" onclick="closeImpBg(event)">
   <div class="modal">
     <div class="modal-head"><div class="modal-title">Импорт HTML</div><button class="btn" onclick="closeImp()">✕</button></div>
@@ -817,7 +829,7 @@ function renderSidebar(id) {
   const cBtns=COLORS.map(c=>`<div class="cp ${c===d.color?'sel':''}" style="background:${c}" title="${c}" onclick="setColor('${id}','${c}')"></div>`).join('');
   const lcBtns=LINE_COLORS.map(c=>`<div class="cp ${c===connLineColor?'sel':''}" style="background:${c}" title="${c}" onclick="setLC('${c}')"></div>`).join('');
   const dRows=d.duties.map((t,i)=>`<div style="display:flex;gap:4px;margin-bottom:4px"><input type="text" value="${esc(t)}" placeholder="Обязанность" oninput="setDuty('${id}',${i},this.value)"><div class="xb" onclick="remDuty('${id}',${i})">×</div></div>`).join('');
-  const eRows=(d.emps||[]).map((e,i)=>`<div class="emp-item"><div class="av-btn" onclick="pickAv('${id}',${i})">${e.avatar?`<img src="${e.avatar}">`:'📷'}</div><input type="text" value="${esc(e.name||'')}" placeholder="Имя" oninput="setEN('${id}',${i},this.value)"><input type="text" value="${esc(e.reddy||'')}" style="width:76px" placeholder="ID Reddy" oninput="setER('${id}',${i},this.value)"><div class="xb" onclick="remEmp('${id}',${i})">×</div></div>`).join('');
+  const eRows=(d.emps||[]).map((e,i)=>`<div class="emp-item"><div class="av-btn" onclick="pickAv('${id}',${i})">${e.avatar?`<img src="${e.avatar}" alt="">`:'📷'}</div><input type="text" value="${esc(e.name||'')}" placeholder="Имя" oninput="setEN('${id}',${i},this.value)"><input type="text" value="${esc(e.reddy||'')}" style="width:76px" placeholder="ID Reddy" oninput="setER('${id}',${i},this.value)"><div class="xb" onclick="remEmp('${id}',${i})">×</div></div>`).join('');
   const cConns=conns.map((c,i)=>{if(c.from!==id&&c.to!==id)return'';const out=c.from===id;const other=nodes[out?c.to:c.from];return`<div class="conn-chip"><span class="lbl">${out?'→':'←'} ${esc(other?.role||'')}</span><div class="xb" style="font-size:13px" onclick="removeConn(${i})">×</div></div>`;}).join('');
   document.getElementById('sb-body').innerHTML=`
     <div class="fl">Должность</div><input type="text" value="${esc(d.role)}" oninput="setF('${id}','role',this.value)">
@@ -947,7 +959,11 @@ document.addEventListener('keyup',e=>{if(e.code==='Space'){spaceDown=false;cvWra
 cvWrap.addEventListener('click',e=>{if(e.target===cvWrap||e.target===world){clearMulti();deselect();}});
 
 // ═══════════════════════════ CLEAR / EXAMPLE ═════════════════
-function clearAll(s){if(!s&&!confirm('Очистить?'))return;document.querySelectorAll('.onode').forEach(n=>n.remove());nodes={};conns=[];nc=0;clearMulti();deselect();drawLines();}
+function clearAll(s){if(!s){document.getElementById('clear-modal').classList.add('open');return;}doClearAll();}
+function doClearAll(){document.querySelectorAll('.onode').forEach(n=>n.remove());nodes={};conns=[];nc=0;clearMulti();deselect();drawLines();}
+function closeClearModal(){document.getElementById('clear-modal').classList.remove('open');}
+function closeClearModalBg(e){if(e.target===document.getElementById('clear-modal'))closeClearModal();}
+function confirmClear(){closeClearModal();doClearAll();}
 function loadExample(){
   clearAll(true);
   const ex=[
@@ -1059,14 +1075,14 @@ return `<!DOCTYPE html>
 html,body{height:100%;font-family:'Geist',system-ui,sans-serif;background:var(--bg);color:var(--t1);overflow:hidden}
 .app{display:flex;flex-direction:column;height:100vh}
 .hdr{height:52px;display:flex;align-items:center;padding:0 24px;gap:10px;background:var(--bg);border-bottom:1px solid var(--b1);flex-shrink:0;position:relative}
-.hdr-mark{width:28px;height:28px;border-radius:7px;background:var(--t1);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.hdr-mark{width:28px;height:28px;border-radius:8px;background:var(--t1);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .hdr-mark svg{width:12px;height:12px;fill:var(--bg)}
 .hdr-title{font-size:13px;font-weight:700;letter-spacing:-.02em}
 .hdr-tip{margin-left:auto;font-size:11px;color:var(--t3)}
 .body{flex:1;overflow:hidden;position:relative;background:var(--bg);display:flex;align-items:flex-start;justify-content:flex-start;cursor:grab}
 #stage{position:absolute;width:${W}px;height:${H}px;transform-origin:top left}
 #svg-lines{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:visible;z-index:1}
-.onode{position:absolute;width:200px;border-radius:14px;background:var(--bg);border:1.5px solid var(--b1);box-shadow:var(--sh);cursor:pointer;overflow:hidden;transition:transform .18s cubic-bezier(.34,1.4,.64,1),box-shadow .18s,border-color .18s}
+.onode{position:absolute;width:200px;border-radius:14px;background:var(--bg);border:1.5px solid var(--b1);box-shadow:var(--sh);cursor:pointer;overflow:hidden;transition:transform .18s cubic-bezier(.16,1,.3,1),box-shadow .18s,border-color .18s}
 .onode:hover{transform:translateY(-2px);box-shadow:0 4px 20px rgba(0,0,0,.12)}
 .onode.active{border-color:var(--nc,#3b82f6)!important;box-shadow:0 4px 20px rgba(0,0,0,.12),0 0 0 3px rgba(59,130,246,.15)!important}
 .on-head{padding:11px 12px 11px;display:flex;align-items:center;gap:8px}
@@ -1076,11 +1092,11 @@ html,body{height:100%;font-family:'Geist',system-ui,sans-serif;background:var(--
 .on-arr{width:20px;height:20px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .25s cubic-bezier(.4,0,.2,1),background .15s}
 .on-arr svg{width:8px;height:8px;stroke:#fff;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .onode.active .on-arr{transform:rotate(90deg);background:rgba(255,255,255,.35)}
-.dp{position:fixed;z-index:200;width:308px;background:var(--bg);border:1px solid var(--b2);border-radius:18px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.14);pointer-events:none;opacity:0;transform:scale(.96) translateX(-6px);transition:opacity .2s,transform .22s cubic-bezier(.34,1.2,.64,1)}
+.dp{position:fixed;z-index:200;width:308px;background:var(--bg);border:1px solid var(--b2);border-radius:18px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.14);pointer-events:none;opacity:0;transform:scale(.96) translateX(-6px);transition:opacity .2s,transform .22s cubic-bezier(.16,1,.3,1)}
 .dp.open{opacity:1;transform:scale(1) translateX(0);pointer-events:auto}
 .dp-bar{height:4px;flex-shrink:0}
 .dp-head{padding:15px 16px 11px;position:relative;flex-shrink:0}
-.dp-x{position:absolute;top:12px;right:12px;width:24px;height:24px;border-radius:7px;background:var(--bg2);border:1px solid var(--b1);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.dp-x{position:absolute;top:12px;right:12px;width:24px;height:24px;border-radius:8px;background:var(--bg2);border:1px solid var(--b1);display:flex;align-items:center;justify-content:center;cursor:pointer}
 .dp-x svg{width:10px;height:10px;stroke:var(--t2);fill:none;stroke-width:2;stroke-linecap:round}
 .dp-role{font-size:14.5px;font-weight:700;letter-spacing:-.02em;color:var(--t1);padding-right:28px;line-height:1.3}
 .dp-dept{font-size:11.5px;color:var(--t2);margin-top:3px}
@@ -1125,7 +1141,7 @@ html,body{height:100%;font-family:'Geist',system-ui,sans-serif;background:var(--
 <div class="dp" id="dp">
   <div class="dp-bar" id="dp-bar"></div>
   <div class="dp-head">
-    <button class="dp-x" onclick="closeDP()"><svg viewBox="0 0 10 10"><path d="M1.5 1.5l7 7M8.5 1.5l-7 7"/></svg></button>
+    <button class="dp-x" onclick="closeDP()" aria-label="Закрыть"><svg viewBox="0 0 10 10"><path d="M1.5 1.5l7 7M8.5 1.5l-7 7"/></svg></button>
     <div class="dp-role" id="dp-role"></div><div class="dp-dept" id="dp-dept"></div>
     <div class="dp-sched"><span class="dp-sd" id="dp-sd"></span><span id="dp-st"></span></div>
   </div>

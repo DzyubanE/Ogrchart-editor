@@ -11,7 +11,7 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#fff;--bg2:#f5f4f1;--b1:rgba(0,0,0,.07);--b2:rgba(0,0,0,.12);
+  --bg:#f0efeb;--bg2:#f5f4f1;--b1:rgba(0,0,0,.07);--b2:rgba(0,0,0,.13);
   --t1:#111;--t2:#555;--t3:#999;--accent:#3730a3;
   --sh:0 1px 3px rgba(0,0,0,.05),0 4px 16px rgba(0,0,0,.07);
 }
@@ -24,7 +24,7 @@
 html,body{height:100%;font-family:'Geist',system-ui,sans-serif;background:var(--bg);color:var(--t1);overflow:hidden}
 .app{display:flex;flex-direction:column;height:100vh}
 .hdr{height:52px;display:flex;align-items:center;padding:0 24px;gap:10px;background:var(--bg);border-bottom:1px solid var(--b1);flex-shrink:0;position:relative}
-.hdr-mark{width:28px;height:28px;border-radius:7px;background:var(--accent);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.hdr-mark{width:28px;height:28px;border-radius:8px;background:var(--accent);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .hdr-mark svg{width:13px;height:13px}
 .hdr-title{font-size:13px;font-weight:700;letter-spacing:-.02em}
 .hdr-right{margin-left:auto;font-size:11px;color:var(--t3)}
@@ -32,9 +32,9 @@ html,body{height:100%;font-family:'Geist',system-ui,sans-serif;background:var(--
 .body{flex:1;overflow:hidden;position:relative;background:var(--bg);cursor:grab}
 #stage{position:absolute;transform-origin:top left}
 #svg-lines{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:visible;z-index:1}
-.onode{position:absolute;width:200px;border-radius:14px;background:var(--bg);border:1.5px solid var(--b1);box-shadow:var(--sh);cursor:pointer;overflow:hidden;transition:transform .18s cubic-bezier(.34,1.4,.64,1),box-shadow .18s,border-color .18s}
+.onode{position:absolute;width:200px;border-radius:14px;background:var(--bg);border:1.5px solid var(--b1);box-shadow:var(--sh);cursor:pointer;overflow:hidden;transition:transform .18s cubic-bezier(.16,1,.3,1),box-shadow .18s,border-color .18s}
 .onode:hover{transform:translateY(-2px);box-shadow:0 4px 20px rgba(0,0,0,.12)}
-.onode.active{border-color:#3b82f6 !important;box-shadow:0 4px 20px rgba(0,0,0,.12),0 0 0 3px rgba(59,130,246,.15) !important}
+.onode.active{border-color:var(--accent) !important;box-shadow:0 4px 20px rgba(0,0,0,.12),0 0 0 3px rgba(55,48,163,.15) !important}
 .on-head{padding:11px 12px 11px;display:flex;align-items:center;gap:8px}
 .on-texts{flex:1;min-width:0}
 .on-role{font-size:12.5px;font-weight:700;color:#fff;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -42,11 +42,11 @@ html,body{height:100%;font-family:'Geist',system-ui,sans-serif;background:var(--
 .on-arr{width:20px;height:20px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .25s,background .15s}
 .on-arr svg{width:8px;height:8px;stroke:#fff;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .onode.active .on-arr{transform:rotate(90deg);background:rgba(255,255,255,.35)}
-.dp{position:fixed;z-index:200;width:308px;background:var(--bg);border:1px solid var(--b2);border-radius:18px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.14);pointer-events:none;opacity:0;transform:scale(.96) translateX(-6px);transition:opacity .2s,transform .22s cubic-bezier(.34,1.2,.64,1)}
+.dp{position:fixed;z-index:200;width:308px;background:var(--bg);border:1px solid var(--b2);border-radius:18px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.14);pointer-events:none;opacity:0;transform:scale(.96) translateX(-6px);transition:opacity .2s,transform .22s cubic-bezier(.16,1,.3,1)}
 .dp.open{opacity:1;transform:scale(1) translateX(0);pointer-events:auto}
 .dp-bar{height:4px}
 .dp-head{padding:15px 16px 11px;position:relative}
-.dp-x{position:absolute;top:12px;right:12px;width:24px;height:24px;border-radius:7px;background:var(--bg2);border:1px solid var(--b1);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.dp-x{position:absolute;top:12px;right:12px;width:24px;height:24px;border-radius:8px;background:var(--bg2);border:1px solid var(--b1);display:flex;align-items:center;justify-content:center;cursor:pointer}
 .dp-x svg{width:10px;height:10px;stroke:var(--t2);fill:none;stroke-width:2;stroke-linecap:round}
 .dp-role{font-size:14.5px;font-weight:700;letter-spacing:-.02em;color:var(--t1);padding-right:28px;line-height:1.3}
 .dp-dept{font-size:11.5px;color:var(--t2);margin-top:3px}
@@ -66,7 +66,7 @@ html,body{height:100%;font-family:'Geist',system-ui,sans-serif;background:var(--
 .reddy-ic{width:16px;height:16px;border-radius:50%;object-fit:cover;flex-shrink:0}
 .dp-none{font-size:11.5px;color:var(--t3);font-style:italic;padding:6px 0}
 .zoom-ctrl{position:fixed;top:68px;right:16px;z-index:100;display:flex;flex-direction:column;gap:4px}
-.zoom-ctrl button{width:32px;height:32px;border-radius:8px;font-size:16px;font-weight:600;background:var(--bg);border:1px solid var(--b2);color:var(--t1);cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.1)}
+.zoom-ctrl button{width:32px;height:32px;border-radius:8px;font-size:16px;font-weight:600;background:var(--bg);border:1px solid var(--b2);color:var(--t1);cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--sh)}
 .zoom-ctrl button:hover{background:var(--bg2)}
 .err{display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:12px;color:var(--t3);padding:20px;text-align:center}
 .err-title{font-size:18px;font-weight:700;color:var(--t1)}
@@ -109,7 +109,7 @@ html,body{height:100%;font-family:'Geist',system-ui,sans-serif;background:var(--
   <div class="dp" id="dp">
     <div class="dp-bar" id="dp-bar"></div>
     <div class="dp-head">
-      <button class="dp-x" onclick="closeDP()"><svg viewBox="0 0 10 10"><path d="M1.5 1.5l7 7M8.5 1.5l-7 7"/></svg></button>
+      <button class="dp-x" onclick="closeDP()" aria-label="Закрыть"><svg viewBox="0 0 10 10"><path d="M1.5 1.5l7 7M8.5 1.5l-7 7"/></svg></button>
       <div class="dp-role" id="dp-role"></div>
       <div class="dp-dept" id="dp-dept"></div>
       <div class="dp-sched"><span class="dp-sd" id="dp-sd"></span><span id="dp-st"></span></div>

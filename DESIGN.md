@@ -5,7 +5,12 @@ colors:
   indigo-primary: "#3730a3"
   indigo-hover: "#5850c8"
   indigo-tint: "#6366f1"
+  indigo-tint-text-dark: "#a5b4fc"
   danger: "#dc2626"
+  danger-hover: "#b91c1c"
+  success-text: "#15803d"
+  success-text-dark: "#4ade80"
+  success-indicator: "#22c55e"
   neutral-bg: "#f0efeb"
   neutral-surface: "#ffffff"
   neutral-surface-2: "#f5f4f1"
@@ -60,9 +65,15 @@ typography:
 rounded:
   xs: "6px"
   sm: "8px"
+  btn-marketing: "11px"
+  chip: "9px"
+  icon-tile: "10px"
+  row: "12px"
   md: "14px"
   lg: "16px"
+  frame: "18px"
   xl: "20px"
+  cta-box: "24px"
   pill: "50%"
 spacing:
   xs: "4px"
@@ -138,10 +149,17 @@ The palette is restrained: one saturated accent carrying identity, warm-tinted n
 - **Border 2** (`rgba(0,0,0,.13)` / dark `rgba(255,255,255,.13)`): emphasis borders (hover states, active inputs).
 
 ### Semantic
-- **Danger** (`#dc2626`): destructive actions only (delete buttons, error text). Fixed across light/dark; never used decoratively.
+- **Danger** (`#dc2626`, hover `#b91c1c`): destructive actions only (delete buttons, error text, destructive-confirm dialogs). Fixed across light/dark; never used decoratively.
+- **Success Indicator** (`#22c55e`): non-text positive/live signals only — the "free & open source" pulse dot, the valid-connection-target ring in the editor. Fixed across light/dark.
+- **Success Text** (`#15803d` / dark `#4ade80`): text that communicates a successful state (e.g. the editor's "Сохранено"/Saved status label). A darker/lighter pairing than the indicator green is required here — the indicator's `#22c55e` fails WCAG AA (≈3.3:1) as body text on a light surface.
+
+### Out of scope for this palette
+Three deliberate exceptions are not drift and are not expected to appear in the tokens above: (1) the editor's node-color and connector-line-color swatch pickers (`COLORS`/`LINE_COLORS` arrays in editor.html) — a wide, saturated palette is the point, since users pick their own chart colors; (2) the exported/embedded chart's standalone `<style>` block — it ships inside the user's own document and intentionally doesn't inherit the app's brand tokens; (3) the code-export modal's syntax-highlight color on its near-black background — a self-contained "terminal" treatment, not part of app chrome.
 
 ### Named Rules
 **The One Accent Rule.** Indigo appears on primary actions, selection, and brand marks only. If a screen has more than one saturated color competing for attention, one of them is wrong.
+
+**The Dark-Text Contrast Rule.** Indigo (`#3730a3`) and Indigo Hover (`#5850c8`) are both too dark to use as *text* on the dark-mode background (~1.6:1 and ~2.6:1 against `#1d2125` — both fail WCAG AA). When brand color is needed for text in dark mode (not backgrounds, borders, or rings), use Indigo Tint `#6366f1` for large text (≥18px or bold ≥14px, clears 3:1) or `#a5b4fc` for small text (clears 4.5:1+). Never assume a token that works on a light surface also works as dark-mode text without checking contrast.
 
 **The Unification Rule.** The product has exactly one background family (`#f0efeb` warm neutral) and one accent (`#3730a3` indigo). index.html's warmer `#fafaf7` background and editor.html's blue `#3b82f6` accent are drift from an earlier iteration, not intentional variation — bring both back to the canonical values (see Do's and Don'ts).
 
@@ -181,19 +199,23 @@ The system is mostly flat with shallow, ambient shadows used only to lift intera
 ## 5. Components
 
 ### Buttons
-- **Shape:** 8px radius standard (`rounded.sm`); marketing/hero CTAs on index.html use 11px.
+- **Shape:** 8px radius standard (`rounded.sm`) for dense app chrome; marketing/hero CTAs on index.html use 11px (`rounded.btn-marketing`) — a deliberately softer shape matching the brand register's larger touch targets.
 - **Primary:** indigo background (`#3730a3`), white text, `padding: 11px 22px`, weight 600, 1px transparent border. Hover: background steps to `#5850c8`; on marketing surfaces only, add `translateY(-1px)` and shadow `0 8px 24px rgba(55,48,163,.25)` — app chrome (editor/dashboard) skips the lift, just the color step.
 - **Secondary:** surface-white background, ink-1 text, `border: 1px solid` border-2. Hover: background steps to surface-tint.
-- **Danger (ghost):** transparent background, danger-red text, danger-tinted border. Hover: `background: rgba(220,38,38,.08)`.
+- **Danger (ghost):** transparent background, danger-red text, danger-tinted border. Hover: `background: rgba(220,38,38,.08)`. Used for toolbar/inline destructive actions.
+- **Danger (filled):** solid danger-red background, white text — same shape/padding as Primary. Hover steps to `#b91c1c`. Used specifically as the confirm action inside a destructive-confirmation modal (e.g. "Delete this chart?"), where it needs to read as the single emphasized action, not a quiet ghost button.
 - **Active/toggled** (editor toolbar): amber-tinted fill (`#fef3c7` bg, `#f59e0b` border, `#92400e` text) — a deliberate exception to the one-accent rule because it signals tool state, not brand.
 - **Transitions:** `all .15s` (marketing) or `background .12s, border-color .12s` (dense app chrome) — plain ease, no bounce.
 
 ### Cards / Containers
-- **Corner Style:** 14px radius (`rounded.md`) for diagram cards and chart nodes; 16px (`rounded.lg`) for feature blocks and modals.
+- **Corner Style:** 14px radius (`rounded.md`) for diagram cards and chart nodes; 16px (`rounded.lg`) for feature blocks and modals; 18px (`rounded.frame`) for the marketing hero's browser-chrome preview frame and dropdown menus; 24px (`rounded.cta-box`) for the marketing CTA box — a deliberately larger radius that marks it as the page's single highest-emphasis container.
 - **Background:** surface-white at rest.
 - **Shadow Strategy:** none at rest for list/gallery cards (border-only); Ambient shadow (`--sh`) for chart nodes at rest; Card Hover shadow + 2px lift on hover for gallery cards.
 - **Border:** 1px `border-1` at rest, stepping to `border-2` on hover.
 - **Internal Padding:** `13px 15px 14px` (gallery cards), `24px` (feature blocks).
+- **Icon tiles** (feature icons, contact-popup channel icons): 10px radius (`rounded.icon-tile`), typically 32–40px square.
+- **Chips / small badges** (pills, avatar frames, small action icons): 9px radius (`rounded.chip`).
+- **Compact list rows** (contact-popup channel rows, dense list items): 12px radius (`rounded.row`). The hero preview frame also steps down to this radius on mobile (from `rounded.frame`'s 18px) as the frame itself narrows.
 
 ### Inputs / Fields
 - **Style:** surface-tint background, `border: 1px solid border-1`, 8px radius, `padding: 7px 9px`.
@@ -206,7 +228,7 @@ The system is mostly flat with shallow, ambient shadows used only to lift intera
 ### Modals / Toasts / Dropdowns
 - **Modal overlay:** `rgba(0,0,0,.45)` scrim, centered flex.
 - **Modal:** 16px radius, `border-2` outline, Modal shadow, no entrance bounce.
-- **Dropdown:** 18px radius, opens with `opacity .2s, transform .22s cubic-bezier(.34,1.2,.64,1)` from `scale(.96) translateX(-6px)` — the one place a slight overshoot easing is allowed, since it reads as a menu "popping" into place rather than a content reveal.
+- **Dropdown:** 18px radius, opens with `opacity .2s, transform .22s cubic-bezier(.16,1,.3,1)` (ease-out-expo) from `scale(.96) translateX(-6px)`.
 - **Toast:** 10px radius, ink-1-colored background with inverted text, fades in/out over `.2s`, no slide.
 
 ## 6. Do's and Don'ts
@@ -225,5 +247,7 @@ The system is mostly flat with shallow, ambient shadows used only to lift intera
 - **Don't** use gradient-text headlines, cream/sand-as-default backgrounds, hero-metric templates, uppercase eyebrows above every section, or numbered section markers as decorative scaffolding — all rejected per PRODUCT.md's anti-references.
 - **Don't** use `border-left`/`border-right` as a colored accent stripe on cards or list items.
 - **Don't** let shadow alpha exceed ~0.2 in light mode, or let a shadow read as a hard 2014-era drop-shadow.
-- **Don't** add bounce/elastic easing to anything except the dropdown-open transition; every other transition uses plain ease or `cubic-bezier(.4,0,.2,1)`.
+- **Don't** use bounce/elastic easing (e.g. `cubic-bezier(.34,1.3,.64,1)`) anywhere. Every transition uses plain ease, `cubic-bezier(.4,0,.2,1)` (ease-in-out), or `cubic-bezier(.16,1,.3,1)` (ease-out-expo) for a "pop into place" feel without overshoot.
 - **Don't** introduce a second typeface family for "variety" — vary weight and size within Geist instead.
+- **Don't** use the browser's native `confirm()`/`alert()` for destructive actions — use the app's own modal component (see Danger filled button) so the confirmation matches the rest of the UI.
+- **Don't** assume a CDN-loaded script (Supabase JS) always loads. Guard `window.supabase` before calling it, and show a real error state with a recovery action (see auth-screen's load-error variant) instead of leaving the page blank.
