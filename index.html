@@ -5,15 +5,15 @@
 <meta charset="UTF-8">
 <meta name="google-site-verification" content="nlnwLpYrSoYrRCSrHuVlf13OFn-D3es7r97kcKvdHJM" />
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>OrgChart Editor — Создавайте организационные схемы</title>
+<title>OrgChart Editor: создавайте организационные схемы</title>
 <meta name="description" content="Бесплатный визуальный редактор организационных схем. Создавайте, сохраняйте и делитесь org-charts в облаке.">
 <meta property="og:type" content="website">
-<meta property="og:title" content="OrgChart Editor — Создавайте организационные схемы">
+<meta property="og:title" content="OrgChart Editor: создавайте организационные схемы">
 <meta property="og:description" content="Бесплатный визуальный редактор организационных схем. Создавайте, сохраняйте и делитесь org-charts в облаке.">
 <meta property="og:url" content="https://dzyubane.github.io/Ogrchart-editor/">
 <meta property="og:image" content="https://dzyubane.github.io/Ogrchart-editor/orgchart-logo.png">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="OrgChart Editor — Создавайте организационные схемы">
+<meta name="twitter:title" content="OrgChart Editor: создавайте организационные схемы">
 <meta name="twitter:description" content="Бесплатный визуальный редактор организационных схем. Создавайте, сохраняйте и делитесь org-charts в облаке.">
 <meta name="twitter:image" content="https://dzyubane.github.io/Ogrchart-editor/orgchart-logo.png">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNyIgZmlsbD0iIzM3MzBhMyIvPjxyZWN0IHg9IjEyIiB5PSI0IiB3aWR0aD0iOCIgaGVpZ2h0PSI2IiByeD0iMiIgZmlsbD0id2hpdGUiLz48cmVjdCB4PSI0IiB5PSIxNCIgd2lkdGg9IjgiIGhlaWdodD0iNiIgcng9IjIiIGZpbGw9IndoaXRlIiBvcGFjaXR5PSIwLjg1Ii8+PHJlY3QgeD0iMjAiIHk9IjE0IiB3aWR0aD0iOCIgaGVpZ2h0PSI2IiByeD0iMiIgZmlsbD0id2hpdGUiIG9wYWNpdHk9IjAuODUiLz48L3N2Zz4=">
@@ -68,7 +68,7 @@ html,body{font-family:'Geist',system-ui,sans-serif;background:var(--bg);color:va
 .cta svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
 
 /* HERO */
-.hero{padding:80px 28px 60px;text-align:center;max-width:780px;margin:0 auto}
+.hero{padding:64px 28px 48px;text-align:center;max-width:780px;margin:0 auto}
 .hero-pill{
   display:inline-flex;align-items:center;gap:6px;padding:5px 12px;
   background:var(--s2);border:1px solid var(--b1);border-radius:20px;
@@ -94,13 +94,11 @@ html,body{font-family:'Geist',system-ui,sans-serif;background:var(--bg);color:va
 }
 .btn.primary{background:var(--accent);color:#fff}
 .btn.primary:hover{background:var(--accent2);transform:translateY(-1px);box-shadow:0 8px 24px rgba(55,48,163,.25)}
-.btn.secondary{background:var(--surface);color:var(--t1);border-color:var(--b2)}
-.btn.secondary:hover{background:var(--s2)}
 .btn svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 
 /* HERO PREVIEW */
 .preview{
-  max-width:920px;margin:60px auto 0;padding:0 20px;position:relative;
+  max-width:920px;margin:48px auto 0;padding:0 20px;position:relative;
 }
 .preview-frame{
   position:relative;border-radius:18px;overflow:hidden;
@@ -116,7 +114,7 @@ html,body{font-family:'Geist',system-ui,sans-serif;background:var(--bg);color:va
 .preview-svg{width:100%;height:calc(100% - 34px);display:block;background:radial-gradient(circle,var(--b1) 1px,transparent 1px);background-size:24px 24px}
 
 /* FEATURES */
-.features-wrap{padding:80px 28px;max-width:1100px;margin:0 auto}
+.features-wrap{padding:64px 28px;max-width:1100px;margin:0 auto}
 .section-label{
   font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
   color:var(--accent2);text-align:center;margin-bottom:12px;
@@ -129,19 +127,29 @@ html,body{font-family:'Geist',system-ui,sans-serif;background:var(--bg);color:va
   .features{grid-template-columns:repeat(3,1fr)}
   .feat:first-child{grid-column:span 2}
   .feat:last-child{grid-column:span 3}
+  .feat-banner{display:flex;align-items:center;gap:24px}
+  .feat-banner .feat-icon{margin-bottom:0;flex-shrink:0}
+  .feat-banner .feat-title{margin-bottom:4px}
 }
 .feat{
   background:var(--surface);border:1px solid var(--b1);border-radius:16px;
   padding:24px;transition:transform .15s,border-color .15s,box-shadow .15s;
 }
 .feat:hover{transform:translateY(-2px);border-color:var(--b2);box-shadow:0 8px 30px rgba(0,0,0,.06)}
+.feat:first-child{
+  background:color-mix(in srgb,var(--accent) 5%,var(--surface));
+  border-color:color-mix(in srgb,var(--accent) 18%,var(--b1));
+}
 .feat-icon{
   width:38px;height:38px;border-radius:10px;
   background:linear-gradient(135deg,var(--accent2),var(--accent3));
   display:flex;align-items:center;justify-content:center;margin-bottom:14px;
 }
+.feat:first-child .feat-icon{width:48px;height:48px;border-radius:12px}
+.feat:first-child .feat-icon svg{width:22px;height:22px}
 .feat-icon svg{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .feat-title{font-size:15.5px;font-weight:700;margin-bottom:6px;letter-spacing:-.01em}
+.feat:first-child .feat-title{font-size:18px}
 .feat-desc{font-size:14px;color:var(--t2);line-height:1.55}
 
 @media(prefers-reduced-motion:no-preference){
@@ -157,7 +165,7 @@ html,body{font-family:'Geist',system-ui,sans-serif;background:var(--bg);color:va
 
 /* CTA */
 .cta-section{
-  padding:60px 28px 100px;max-width:780px;margin:0 auto;text-align:center;
+  padding:56px 28px 72px;max-width:780px;margin:0 auto;text-align:center;
 }
 .cta-box{
   background:linear-gradient(135deg,var(--accent),var(--accent2),var(--accent3));
@@ -228,7 +236,7 @@ html,body{font-family:'Geist',system-ui,sans-serif;background:var(--bg);color:va
   .features-wrap{padding:48px 16px}
   .section-title{font-size:24px}
   .features{grid-template-columns:1fr}
-  .cta-section{padding:32px 16px 60px}
+  .cta-section{padding:32px 16px 48px}
   .cta-box{padding:32px 20px}
   .cta-title{font-size:22px}
   .footer-inner{flex-direction:column;align-items:flex-start;gap:14px}
@@ -252,11 +260,11 @@ html,body{font-family:'Geist',system-ui,sans-serif;background:var(--bg);color:va
       <span class="logo-text">OrgChart Editor</span>
     </a>
     <div class="nav-links">
-      <a class="nav-link" href="privacy.html">Privacy</a>
-      <a class="nav-link" href="terms.html">Terms</a>
+      <a class="nav-link" href="privacy.html">Конфиденциальность</a>
+      <a class="nav-link" href="terms.html">Условия</a>
       <a class="nav-link" href="https://github.com/DzyubanE/Ogrchart-editor" target="_blank">GitHub</a>
       <a class="cta" href="dashboard.html">
-        Открыть
+        Создать схему
         <svg viewBox="0 0 13 13"><path d="M3 6.5h7M7 3l3.5 3.5L7 10"/></svg>
       </a>
     </div>
@@ -272,10 +280,6 @@ html,body{font-family:'Geist',system-ui,sans-serif;background:var(--bg);color:va
     <a class="btn primary" href="dashboard.html">
       Создать схему
       <svg viewBox="0 0 14 14"><path d="M3 7h8M7 3l4 4-4 4"/></svg>
-    </a>
-    <a class="btn secondary" href="https://github.com/DzyubanE/Ogrchart-editor" target="_blank">
-      <svg viewBox="0 0 14 14"><path d="M7 0C3.13 0 0 3.13 0 7c0 3.1 2.01 5.71 4.79 6.64.35.06.48-.15.48-.34v-1.2c-1.95.42-2.36-.94-2.36-.94-.32-.81-.78-1.03-.78-1.03-.64-.43.05-.43.05-.43.7.05 1.07.72 1.07.72.63 1.07 1.64.76 2.04.58.06-.45.25-.76.45-.94-1.56-.18-3.2-.78-3.2-3.47 0-.77.27-1.4.72-1.89-.07-.18-.31-.89.07-1.86 0 0 .59-.19 1.93.72.56-.16 1.16-.23 1.76-.24.6.01 1.2.08 1.76.24 1.34-.91 1.93-.72 1.93-.72.38.97.14 1.68.07 1.86.45.49.72 1.12.72 1.89 0 2.7-1.64 3.29-3.21 3.46.25.22.48.65.48 1.31v1.94c0 .19.13.41.48.34A7 7 0 0014 7c0-3.87-3.13-7-7-7z"/></svg>
-      GitHub
     </a>
   </div>
 </section>
@@ -367,7 +371,7 @@ html,body{font-family:'Geist',system-ui,sans-serif;background:var(--bg);color:va
     <div class="feat">
       <div class="feat-icon"><svg viewBox="0 0 20 20"><rect x="2" y="2" width="6" height="6" rx="1"/><rect x="12" y="2" width="6" height="6" rx="1"/><rect x="7" y="12" width="6" height="6" rx="1"/><path d="M5 8v2M15 8v2M10 12v-2"/></svg></div>
       <div class="feat-title">Drag-and-drop редактор</div>
-      <div class="feat-desc">Перетаскивайте блоки, рисуйте связи между ними, выравнивайте группы — всё прямо в браузере на бесконечном холсте.</div>
+      <div class="feat-desc">Перетаскивайте блоки, рисуйте связи между ними, выравнивайте группы. Всё это прямо в браузере, на бесконечном холсте.</div>
     </div>
     <div class="feat">
       <div class="feat-icon"><svg viewBox="0 0 20 20"><path d="M10 3v3M10 14v3M3 10h3M14 10h3M5 5l2 2M13 13l2 2M5 15l2-2M13 7l2-2"/></svg></div>
@@ -382,17 +386,19 @@ html,body{font-family:'Geist',system-ui,sans-serif;background:var(--bg);color:va
     <div class="feat">
       <div class="feat-icon"><svg viewBox="0 0 20 20"><rect x="2" y="3" width="16" height="14" rx="2"/><path d="M2 7h16M6 11h8M6 14h5"/></svg></div>
       <div class="feat-title">Карточки сотрудников</div>
-      <div class="feat-desc">К каждому блоку — описание обязанностей, фото сотрудников и их ID в корпоративных мессенджерах.</div>
+      <div class="feat-desc">К каждому блоку добавляется описание обязанностей, фото сотрудников и их ID в корпоративных мессенджерах.</div>
     </div>
     <div class="feat">
       <div class="feat-icon"><svg viewBox="0 0 20 20"><path d="M3 17V8l7-5 7 5v9M8 17v-5h4v5"/></svg></div>
       <div class="feat-title">Экспорт в HTML</div>
       <div class="feat-desc">Скачайте автономный HTML-файл и вставьте схему в Confluence, Notion или любую внутреннюю вики компании.</div>
     </div>
-    <div class="feat">
+    <div class="feat feat-banner">
       <div class="feat-icon"><svg viewBox="0 0 20 20"><path d="M10 2l2.5 5L18 8l-4 4 1 5.5L10 15l-5 2.5L6 12 2 8l5.5-1z"/></svg></div>
-      <div class="feat-title">Современный дизайн</div>
-      <div class="feat-desc">Градиентные карточки, плавные анимации, светлая и тёмная темы. Схемы которые приятно показывать.</div>
+      <div>
+        <div class="feat-title">Своя тема оформления</div>
+        <div class="feat-desc">Светлая и тёмная темы, а также свои цвета для блоков и связей в редакторе.</div>
+      </div>
     </div>
   </div>
 </section>
@@ -402,7 +408,7 @@ html,body{font-family:'Geist',system-ui,sans-serif;background:var(--bg);color:va
     <h2 class="cta-title">Готовы начать?</h2>
     <p class="cta-sub">Войдите через Google и создайте первую схему за минуту</p>
     <a class="cta-btn" href="dashboard.html">
-      Открыть редактор
+      Создать схему
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h8M7 3l4 4-4 4"/></svg>
     </a>
   </div>
