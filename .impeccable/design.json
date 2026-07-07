@@ -1,0 +1,117 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-07-07T00:00:00Z",
+  "title": "Design System: OrgChart Editor",
+  "extensions": {
+    "colorMeta": {
+      "indigo-primary": { "role": "primary", "displayName": "Indigo", "canonical": "#3730a3", "tonalRamp": ["#181454", "#221c78", "#2c2490", "#3730a3", "#5850c8", "#6366f1", "#9092f0", "#c7c8fa"] },
+      "danger": { "role": "semantic", "displayName": "Danger Red", "canonical": "#dc2626", "tonalRamp": ["#450a0a", "#7f1d1d", "#991b1b", "#dc2626", "#ef4444", "#f87171", "#fca5a5", "#fecaca"] },
+      "neutral-bg": { "role": "neutral", "displayName": "Warm Paper", "canonical": "#f0efeb", "tonalRamp": ["#1d2125", "#2c3138", "#3c4148", "#6b6f74", "#a9a7a1", "#d4d2cc", "#e8e6e1", "#f0efeb"] },
+      "neutral-surface": { "role": "neutral", "displayName": "Surface White", "canonical": "#ffffff", "tonalRamp": ["#252a2f", "#2c3138", "#3c4148", "#8a8d90", "#c8c9ca", "#e5e5e5", "#f5f5f5", "#ffffff"] },
+      "ink-1": { "role": "neutral", "displayName": "Ink Primary", "canonical": "#111111", "tonalRamp": ["#e6e4de", "#c9c7c1", "#9a9790", "#5a5855", "#3a3835", "#252320", "#181614", "#111111"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Marketing hero headline only (index.html)." },
+      "headline": { "displayName": "Headline", "purpose": "Section titles, page titles." },
+      "title": { "displayName": "Title", "purpose": "Card titles, modal titles, panel headers." },
+      "body": { "displayName": "Body", "purpose": "Descriptions, general prose, form context text." },
+      "label": { "displayName": "Label", "purpose": "Metadata, tags, small buttons, field labels." },
+      "mono": { "displayName": "Mono", "purpose": "Exported/embed code output." }
+    },
+    "shadows": [
+      { "name": "ambient", "value": "0 1px 3px rgba(0,0,0,.05), 0 4px 16px rgba(0,0,0,.07)", "purpose": "Default resting elevation for cards and chart nodes." },
+      { "name": "ambient-elevated", "value": "0 2px 8px rgba(0,0,0,.1), 0 12px 32px rgba(0,0,0,.14)", "purpose": "Hover/active lift for nodes and cards." },
+      { "name": "modal", "value": "0 16px 60px rgba(0,0,0,.18)", "purpose": "Modal dialogs." },
+      { "name": "dropdown", "value": "0 8px 40px rgba(0,0,0,.14)", "purpose": "Dropdown menus." }
+    ],
+    "motion": [
+      { "name": "ease-standard", "value": "cubic-bezier(0.4, 0, 0.2, 1)", "purpose": "Default easing for sheets and state transitions." },
+      { "name": "ease-overshoot", "value": "cubic-bezier(0.34, 1.2, 0.64, 1)", "purpose": "Dropdown-open only; the one sanctioned overshoot easing." }
+    ],
+    "breakpoints": []
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Main call-to-action; indigo fill, white text.",
+      "html": "<button class=\"ds-btn-primary\">New Chart</button>",
+      "css": ".ds-btn-primary { background: #3730a3; color: #fff; padding: 11px 22px; border-radius: 8px; font-weight: 600; font-size: 14px; border: 1px solid transparent; transition: background .12s, border-color .12s; } .ds-btn-primary:hover { background: #5850c8; } .ds-btn-primary:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(59,130,246,.15); }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Neutral action, outlined.",
+      "html": "<button class=\"ds-btn-secondary\">Cancel</button>",
+      "css": ".ds-btn-secondary { background: #ffffff; color: #111111; padding: 11px 22px; border-radius: 8px; font-weight: 600; font-size: 14px; border: 1px solid rgba(0,0,0,.13); transition: background .12s, border-color .12s; } .ds-btn-secondary:hover { background: #f5f4f1; }"
+    },
+    {
+      "name": "Danger Button",
+      "kind": "button",
+      "refersTo": "button-danger",
+      "description": "Destructive ghost action (delete).",
+      "html": "<button class=\"ds-btn-danger\">Delete</button>",
+      "css": ".ds-btn-danger { background: transparent; color: #dc2626; padding: 5px 11px; border-radius: 8px; font-weight: 600; font-size: 12.5px; border: 1px solid rgba(220,38,38,.2); transition: background .12s; } .ds-btn-danger:hover { background: rgba(220,38,38,.08); }"
+    },
+    {
+      "name": "Diagram Card",
+      "kind": "card",
+      "refersTo": "card-diagram",
+      "description": "Gallery card for a saved org chart.",
+      "html": "<div class=\"ds-card\"><div class=\"ds-card-body\"><h3>Engineering Org</h3><p>Updated 2 days ago</p></div></div>",
+      "css": ".ds-card { background: #ffffff; border: 1px solid rgba(0,0,0,.07); border-radius: 14px; transition: box-shadow .18s, transform .18s, border-color .18s; } .ds-card:hover { box-shadow: 0 4px 24px rgba(0,0,0,.1); transform: translateY(-2px); border-color: rgba(0,0,0,.13); } .ds-card-body { padding: 13px 15px 14px; } .ds-card-body h3 { font-size: 13.5px; font-weight: 600; margin: 0 0 4px; color: #111111; } .ds-card-body p { font-size: 12px; color: #999999; margin: 0; }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input-field",
+      "description": "Standard text field for forms and node properties.",
+      "html": "<input class=\"ds-input\" type=\"text\" placeholder=\"Job title\">",
+      "css": ".ds-input { padding: 7px 9px; background: #f5f4f1; border: 1px solid rgba(0,0,0,.07); border-radius: 8px; font-size: 13px; color: #111111; transition: border-color .12s, box-shadow .12s; } .ds-input:focus { outline: none; border-color: #3730a3; box-shadow: 0 0 0 3px rgba(59,130,246,.1); }"
+    },
+    {
+      "name": "Org Node",
+      "kind": "custom",
+      "refersTo": null,
+      "description": "The signature component: a person card on the org-chart canvas.",
+      "html": "<div class=\"ds-onode\"><strong>Jane Doe</strong><span>Engineering Manager</span></div>",
+      "css": ".ds-onode { border-radius: 14px; border: 1.5px solid rgba(0,0,0,.07); box-shadow: 0 1px 3px rgba(0,0,0,.05), 0 4px 16px rgba(0,0,0,.07); background: #ffffff; padding: 12px 14px; display: flex; flex-direction: column; gap: 2px; transition: box-shadow .18s cubic-bezier(.34,1.4,.64,1); } .ds-onode:hover { box-shadow: 0 2px 8px rgba(0,0,0,.1), 0 12px 32px rgba(0,0,0,.14); } .ds-onode strong { font-size: 13.5px; font-weight: 600; color: #111111; } .ds-onode span { font-size: 12px; color: #555555; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Clean Whiteboard",
+    "overview": "OrgChart Editor exists so a manager can build something they'll put in front of leadership without worrying whether the tool made them look unpolished. The metaphor is a whiteboard in a well-lit room: a quiet, neutral surface where the one thing that matters — the chart itself — gets all the attention. Indigo (#3730a3) is the single confident marker color, used sparingly and always on purpose (a primary action, a selected node, a brand mark). Everything else stays out of the way: warm-neutral surfaces, restrained shadows, no competing saturated colors. This system explicitly rejects generic SaaS visual language: gradient-text heroes, cream/sand near-white backgrounds pretending to be warm, hero-metric templates, tiny uppercase eyebrows above every section, and numbered section markers used as decoration rather than a real sequence.",
+    "keyCharacteristics": [
+      "One accent color (indigo), used deliberately and rarely",
+      "Warm-neutral surfaces (#f0efeb family), never generic cream/sand-as-default",
+      "Soft, shallow shadows for lift — never heavy or dark-mode-2014",
+      "Geist throughout: confident but not shouty typography",
+      "Full light/dark parity on every surface"
+    ],
+    "rules": [
+      { "name": "The One Accent Rule", "body": "Indigo appears on primary actions, selection, and brand marks only. If a screen has more than one saturated color competing for attention, one of them is wrong.", "section": "colors" },
+      { "name": "The Unification Rule", "body": "The product has exactly one background family (#f0efeb warm neutral) and one accent (#3730a3 indigo). index.html's warmer #fafaf7 background and editor.html's blue #3b82f6 accent are drift, not intentional variation.", "section": "colors" },
+      { "name": "The Single-Family Rule", "body": "Never introduce a second typeface family. Every hierarchy level is Geist at a different weight/size.", "section": "typography" },
+      { "name": "The Ambient-Not-Heavy Rule", "body": "Shadow opacity never exceeds ~0.2 alpha in light mode. If a shadow reads as a hard drop-shadow rather than soft depth, the blur radius is too small or the alpha too high.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do use indigo (#3730a3) as the only saturated brand accent, and use it sparingly.",
+      "Do keep the base background at #f0efeb (light) / #1d2125 (dark) across every surface.",
+      "Do use soft, shallow shadows for lift; widen and soften on hover rather than darken.",
+      "Do use Geist at varying weight/size for the entire type hierarchy; never introduce a second family.",
+      "Do respect prefers-reduced-motion on any new animation.",
+      "Do keep amber (tool-active state) and blue/amber/green (focus/multi-select/connect-target rings) as the only sanctioned exceptions to the one-accent rule."
+    ],
+    "donts": [
+      "Don't use #fafaf7 as a background anywhere outside legacy marketing copy.",
+      "Don't use editor.html's blue #3b82f6 as the primary accent.",
+      "Don't use gradient-text headlines, cream/sand-as-default backgrounds, hero-metric templates, uppercase eyebrows above every section, or numbered section markers as decorative scaffolding.",
+      "Don't use border-left/border-right as a colored accent stripe on cards or list items.",
+      "Don't let shadow alpha exceed ~0.2 in light mode.",
+      "Don't add bounce/elastic easing to anything except the dropdown-open transition.",
+      "Don't introduce a second typeface family for variety."
+    ]
+  }
+}
