@@ -1355,6 +1355,11 @@ window.addEventListener('load',function(){
 function openImport(){document.getElementById('imp-modal').classList.add('open');document.getElementById('imp-code').value='';document.getElementById('imp-err').style.display='none';}
 function closeImp(){document.getElementById('imp-modal').classList.remove('open');}
 function closeImpBg(e){if(e.target===document.getElementById('imp-modal'))closeImp();}
+// Defense-in-depth for imported data: reject anything that isn't a plausible
+// hex color or a safe image reference, regardless of downstream escaping.
+function sanitizeColor(c,fallback){if(typeof c==='string'&&/^#[0-9a-f]{3,8}$/i.test(c))return c;return fallback!==undefined?fallback:'#3730a3';}
+function sanitizeAvatar(a){return typeof a==='string'&&/^(data:image\/|https:\/\/|\.\/|\/)/i.test(a)?a:'';}
+
 function doImport(){
   const code=document.getElementById('imp-code').value.trim();
   const errEl=document.getElementById('imp-err');
@@ -1374,10 +1379,13 @@ function doImport(){
       if(nnum>nc)nc=nnum;
       // handle emps null
       if(d.emps===undefined)d.emps=[];
+      d.color=sanitizeColor(d.color);
+      d.emps.forEach(e=>{ e.avatar=sanitizeAvatar(e.avatar); });
       nodes[d.id]=d;
       renderNode(d.id);
     });
     // restore conns (ids already correct)
+    importedConns.forEach(c=>{ if(c.color)c.color=sanitizeColor(c.color,null); });
     conns=importedConns;
     clearMulti();deselect();drawLines();
     setTimeout(fitView,50);
