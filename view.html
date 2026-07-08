@@ -355,7 +355,7 @@ function openNode(id) {
 
   document.getElementById('dp-duties').innerHTML = d.duties && d.duties.length
     ? d.duties.map(function(t){
-        return '<div class="dp-duty"><span class="dp-dd" style="background:' + d.color + '"></span>' + esc(t) + '</div>';
+        return '<div class="dp-duty"><span class="dp-dd" style="background:' + esc(d.color) + '"></span>' + esc(t) + '</div>';
       }).join('')
     : '<div class="dp-none">—</div>';
 
@@ -372,7 +372,7 @@ function openNode(id) {
           const ini = (e.name || '').split(' ').map(function(w){ return w[0] || ''; }).join('').slice(0,2).toUpperCase();
           const avHtml = e.avatar ? '<img src="' + esc(e.avatar) + '" alt="">' : ini;
           const reddyHtml = e.reddy ? '<div class="dp-eid"><img class="reddy-ic" src="' + REDDY + '" alt="Reddy">' + esc(e.reddy) + '</div>' : '';
-          return '<div class="dp-emp"><div class="dp-av" style="background:' + ha(d.color, .13) + ';color:' + d.color + '">' + avHtml + '</div>' +
+          return '<div class="dp-emp"><div class="dp-av" style="background:' + ha(d.color, .13) + ';color:' + esc(d.color) + '">' + avHtml + '</div>' +
                  '<div><div class="dp-en">' + esc(e.name || '') + '</div>' + reddyHtml + '</div></div>';
         }).join('');
   }
@@ -458,14 +458,14 @@ function drawLines() {
     if (isA) {
       const srcN = NODES.find(function(n){ return n.id === c.from; });
       const tgtN = NODES.find(function(n){ return n.id === c.to; });
-      const sc = (srcN && srcN.color) || '#3b82f6';
-      const tc = (tgtN && tgtN.color) || '#3b82f6';
+      const sc = esc((srcN && srcN.color) || '#3b82f6');
+      const tc = esc((tgtN && tgtN.color) || '#3b82f6');
       const gid = 'g' + gi++;
       defs += '<linearGradient id="' + gid + '" x1="' + p.cx + '" y1="' + p.bot + '" x2="' + ch.cx + '" y2="' + ch.top + '" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="' + sc + '"/><stop offset="100%" stop-color="' + tc + '"/></linearGradient>';
       defs += '<marker id="ah-' + gid + '" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M1 1.5L8 5L1 8.5" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke="' + tc + '"/></marker>';
       paths += '<path d="M' + p.cx + ',' + p.bot + ' C' + p.cx + ',' + my + ' ' + ch.cx + ',' + my + ' ' + ch.cx + ',' + ch.top + '" fill="none" stroke="url(#' + gid + ')" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-' + gid + ')"/>';
     } else {
-      const st = c.color || defSt;
+      const st = esc(c.color || defSt);
       paths += '<path d="M' + p.cx + ',' + p.bot + ' C' + p.cx + ',' + my + ' ' + ch.cx + ',' + my + ' ' + ch.cx + ',' + ch.top + '" fill="none" stroke="' + st + '" stroke-width="1.5" stroke-linecap="round" marker-end="url(#ah)"/>';
     }
   });

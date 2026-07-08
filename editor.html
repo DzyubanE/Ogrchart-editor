@@ -842,9 +842,9 @@ function renderSidebar(id) {
     <div class="fl">Подпись</div><input type="text" value="${esc(d.dept)}" oninput="setF('${id}','dept',this.value)">
     <div class="fl">График</div><input type="text" value="${esc(d.sched)}" oninput="setF('${id}','sched',this.value)" style="max-width:90px">
     <div class="fl">Цвет блока</div><div class="color-row">${cBtns}</div>
-    <div class="custom-c"><input type="color" value="${d.color}" oninput="setColor('${id}',this.value)"><input type="text" value="${d.color}" oninput="setColor('${id}',this.value)"></div>
+    <div class="custom-c"><input type="color" value="${esc(d.color)}" oninput="setColor('${id}',this.value)"><input type="text" value="${esc(d.color)}" oninput="setColor('${id}',this.value)"></div>
     <div class="fl">Цвет новых линий</div><div class="color-row">${lcBtns}</div>
-    <div class="custom-c"><input type="color" id="lc-pick" value="${connLineColor}" oninput="setLC(this.value)"><input type="text" id="lc-text" value="${connLineColor}" oninput="setLC(this.value)"></div>
+    <div class="custom-c"><input type="color" id="lc-pick" value="${esc(connLineColor)}" oninput="setLC(this.value)"><input type="text" id="lc-text" value="${esc(connLineColor)}" oninput="setLC(this.value)"></div>
     <div class="fl">Обязанности</div><div id="duties-${id}">${dRows}</div>
     <button class="btn" style="width:100%;justify-content:center;margin-top:4px" onclick="addDuty('${id}')">+ Добавить</button>
     ${d.emps!==null?`<div class="fl" style="display:flex;align-items:center;justify-content:space-between"><span>Сотрудники</span><button class="btn" style="padding:2px 8px;font-size:11px;border-radius:6px" onclick="toggleEmps('${id}')">✕ Скрыть</button></div><div id="emps-${id}">${eRows}</div><button class="btn" style="width:100%;justify-content:center;margin-top:4px" onclick="addEmp('${id}')">+ Добавить</button>`:`<div class="fl" style="display:flex;align-items:center;justify-content:space-between"><span style="color:var(--t3)">Сотрудники скрыты</span><button class="btn" style="padding:2px 8px;font-size:11px;border-radius:6px" onclick="toggleEmps('${id}')">＋ Показать</button></div>`}
@@ -931,13 +931,13 @@ function drawLines(){
     const my2=(p.bot+ch.top)/2;
     const isA=actSet.has(k);
     if(isA){
-      const sc=nodes[c.from]?.color||'#3b82f6',tc=nodes[c.to]?.color||'#3b82f6';
+      const sc=esc(nodes[c.from]?.color||'#3b82f6'),tc=esc(nodes[c.to]?.color||'#3b82f6');
       const gid='g'+gi++;
       defs+=`<linearGradient id="${gid}" x1="${p.cx}" y1="${p.bot}" x2="${ch.cx}" y2="${ch.top}" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="${sc}"/><stop offset="100%" stop-color="${tc}"/></linearGradient>`;
       defs+=`<marker id="ah-${gid}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M1 1.5L8 5L1 8.5" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke="${tc}"/></marker>`;
       paths+=`<path d="M${p.cx},${p.bot} C${p.cx},${my2} ${ch.cx},${my2} ${ch.cx},${ch.top}" fill="none" stroke="url(#${gid})" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-${gid})"/>`;
     } else {
-      const st=c.color||defStroke;
+      const st=esc(c.color||defStroke);
       paths+=`<path d="M${p.cx},${p.bot} C${p.cx},${my2} ${ch.cx},${my2} ${ch.cx},${ch.top}" fill="none" stroke="${st}" stroke-width="1.5" stroke-linecap="round" marker-end="url(#ah)"/>`;
     }
   });
@@ -1275,13 +1275,13 @@ function openNode(id){
   document.getElementById('dp-dept').textContent=d.dept;
   document.getElementById('dp-sd').style.background=d.color;
   document.getElementById('dp-st').textContent='График '+d.sched;
-  document.getElementById('dp-duties').innerHTML=d.duties&&d.duties.length?d.duties.map(function(t){return'<div class="dp-duty"><span class="dp-dd" style="background:'+d.color+'"></span>'+esc(t)+'</div>';}).join(''):'<div class="dp-none">—</div>';
+  document.getElementById('dp-duties').innerHTML=d.duties&&d.duties.length?d.duties.map(function(t){return'<div class="dp-duty"><span class="dp-dd" style="background:'+esc(d.color)+'"></span>'+esc(t)+'</div>';}).join(''):'<div class="dp-none">—</div>';
   document.getElementById('dp-slb-emps').style.display=(d.emps===null||d.emps===undefined)?'none':'block';
   document.getElementById('dp-emps').innerHTML=(d.emps===null||d.emps===undefined)?'':(!d.emps.length)?'<div class="dp-none">Список уточняется</div>':d.emps.map(function(e){
     var ini=(e.name||'').split(' ').map(function(w){return w[0]||'';}).join('').slice(0,2).toUpperCase();
     var avHtml=e.avatar?'<img src="'+esc(e.avatar)+'" alt="">':ini;
     var reddyHtml=e.reddy?'<div class="dp-eid"><img class="reddy-ic" src="'+REDDY_IC+'" alt="Reddy">'+esc(e.reddy)+'</div>':'';
-    return'<div class="dp-emp"><div class="dp-av" style="background:'+ha(d.color,.13)+';color:'+d.color+'">'+avHtml+'</div><div><div class="dp-en">'+esc(e.name||'')+'</div>'+reddyHtml+'</div></div>';
+    return'<div class="dp-emp"><div class="dp-av" style="background:'+ha(d.color,.13)+';color:'+esc(d.color)+'">'+avHtml+'</div><div><div class="dp-en">'+esc(e.name||'')+'</div>'+reddyHtml+'</div></div>';
   }).join('');
   posDP(id);document.getElementById('dp').classList.add('open');drawLines();
 }
@@ -1323,14 +1323,14 @@ function drawLines(){
     var p=nbox(c.from),ch=nbox(c.to);if(!p||!ch)return;
     var my=(p.bot+ch.top)/2;var isA=aSet.has(k);
     if(isA){
-      var sc=NODES.find(function(n){return n.id===c.from})?.color||'#3b82f6';
-      var tc=NODES.find(function(n){return n.id===c.to})?.color||'#3b82f6';
+      var sc=esc(NODES.find(function(n){return n.id===c.from})?.color||'#3b82f6');
+      var tc=esc(NODES.find(function(n){return n.id===c.to})?.color||'#3b82f6');
       var gid='g'+gi++;
       defs+='<linearGradient id="'+gid+'" x1="'+p.cx+'" y1="'+p.bot+'" x2="'+ch.cx+'" y2="'+ch.top+'" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="'+sc+'"/><stop offset="100%" stop-color="'+tc+'"/></linearGradient>';
       defs+='<marker id="ah-'+gid+'" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M1 1.5L8 5L1 8.5" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke="'+tc+'"/></marker>';
       paths+='<path d="M'+p.cx+','+p.bot+' C'+p.cx+','+my+' '+ch.cx+','+my+' '+ch.cx+','+ch.top+'" fill="none" stroke="url(#'+gid+')" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-'+gid+')"/>';
     } else {
-      var st=c.color||defSt;
+      var st=esc(c.color||defSt);
       paths+='<path d="M'+p.cx+','+p.bot+' C'+p.cx+','+my+' '+ch.cx+','+my+' '+ch.cx+','+ch.top+'" fill="none" stroke="'+st+'" stroke-width="1.5" stroke-linecap="round" marker-end="url(#ah)"/>';
     }
   });

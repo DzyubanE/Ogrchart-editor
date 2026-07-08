@@ -310,7 +310,7 @@ function showApp(user) {
   const av = document.getElementById('nav-av');
   const meta = user.user_metadata || {};
   if (meta.avatar_url) {
-    av.innerHTML = '<img src="' + meta.avatar_url + '" alt="">';
+    av.innerHTML = '<img src="' + esc(meta.avatar_url) + '" alt="">';
   } else {
     av.textContent = (user.email || '?')[0].toUpperCase();
   }
