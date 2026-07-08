@@ -28,6 +28,13 @@
 html,body{height:100%;font-family:'Geist',system-ui,sans-serif;background:var(--bg);color:var(--t1)}
 a{text-decoration:none;color:inherit}
 
+.skip-link{
+  position:absolute;top:-48px;left:12px;z-index:2000;
+  background:var(--accent);color:#fff;padding:10px 16px;border-radius:8px;
+  font-size:13px;font-weight:600;text-decoration:none;transition:top .15s;
+}
+.skip-link:focus{top:12px}
+
 .nav{height:54px;display:flex;align-items:center;padding:0 28px;gap:12px;background:var(--surface);border-bottom:1px solid var(--b1);position:sticky;top:0;z-index:50}
 .nav-logo{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;letter-spacing:-.02em}
 .nav-logo-icon{width:28px;height:28px;border-radius:8px;background:var(--accent);display:flex;align-items:center;justify-content:center}
@@ -37,12 +44,10 @@ a{text-decoration:none;color:inherit}
 .user-av{width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:700;flex-shrink:0;overflow:hidden}
 .user-av img{width:100%;height:100%;object-fit:cover}
 
-.btn{display:inline-flex;align-items:center;gap:5px;padding:6px 13px;border-radius:8px;font-size:12px;font-weight:600;border:1px solid var(--b2);background:var(--surface);color:var(--t1);cursor:pointer;transition:background .12s;font-family:'Geist',sans-serif}
-.btn:hover{background:var(--s2)}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:6px 13px;border-radius:8px;font-size:12px;font-weight:600;border:1px solid var(--b2);background:var(--surface);color:var(--t1);cursor:pointer;transition:background .12s,transform .15s cubic-bezier(.16,1,.3,1);font-family:'Geist',sans-serif}
+.btn:active{transform:scale(.96)}
 .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
-.btn.primary:hover{background:var(--accent2)}
 .btn.danger{background:var(--danger);border-color:var(--danger);color:#fff}
-.btn.danger:hover{background:#b91c1c}
 .btn svg{width:14px;height:14px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 
 .main{max-width:1100px;margin:0 auto;padding:36px 28px}
@@ -52,24 +57,25 @@ a{text-decoration:none;color:inherit}
 
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
 
-.diag-card{background:var(--surface);border:1px solid var(--b1);border-radius:14px;overflow:hidden;cursor:pointer;transition:box-shadow .15s,transform .15s,border-color .15s;position:relative}
-.diag-card:hover{box-shadow:0 4px 24px rgba(0,0,0,.1);transform:translateY(-2px);border-color:var(--b2)}
+.diag-card{background:var(--surface);border:1px solid var(--b1);border-radius:14px;overflow:hidden;cursor:pointer;transition:box-shadow .15s,transform .15s cubic-bezier(.16,1,.3,1),border-color .15s;position:relative}
+.diag-card:active{transform:scale(.985)}
+.diag-card:focus-visible{outline:2px solid var(--accent2);outline-offset:2px}
 .card-preview{height:140px;background:var(--s2);border-bottom:1px solid var(--b1);position:relative;overflow:hidden}
 .card-body{padding:13px 15px 14px}
 .card-title{font-size:14px;font-weight:600;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px}
 .card-meta{font-size:12px;color:var(--t3)}
-.card-actions{position:absolute;top:10px;right:10px;display:none;gap:5px}
-.diag-card:hover .card-actions{display:flex}
-.card-act-btn{width:28px;height:28px;border-radius:8px;border:1px solid var(--b2);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .12s}
-.card-act-btn:hover{background:var(--s2)}
+.card-actions{position:absolute;top:10px;right:10px;display:flex;gap:5px;opacity:0;pointer-events:none;transition:opacity .15s}
+.diag-card:focus-within .card-actions{opacity:1;pointer-events:auto}
+@media(hover:none){
+  .card-actions{opacity:1;pointer-events:auto}
+}
+.card-act-btn{width:28px;height:28px;padding:0;border-radius:8px;border:1px solid var(--b2);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:inherit;transition:background .12s,transform .15s cubic-bezier(.16,1,.3,1)}
+.card-act-btn:active{transform:scale(.92)}
 .card-act-btn svg{width:13px;height:13px;fill:none;stroke:var(--t2);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.card-act-btn.del:hover{background:rgba(220,38,38,.08);border-color:rgba(220,38,38,.25)}
-.card-act-btn.del:hover svg{stroke:var(--danger)}
 
-.new-card{background:var(--surface);border:1.5px dashed var(--b2);border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-height:200px;cursor:pointer;transition:border-color .15s,background .15s;color:var(--t3);font-size:14px;font-weight:500}
-.new-card:hover{border-color:var(--accent2);background:rgba(88,80,200,.04);color:var(--accent2)}
+.new-card{background:var(--surface);border:1.5px dashed var(--b2);border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-height:200px;width:100%;cursor:pointer;transition:border-color .15s,background .15s,transform .15s cubic-bezier(.16,1,.3,1);color:var(--t3);font-size:14px;font-weight:500;font-family:inherit}
+.new-card:active{transform:scale(.98)}
 .new-card-icon{width:42px;height:42px;border-radius:11px;background:var(--s2);display:flex;align-items:center;justify-content:center;transition:background .15s}
-.new-card:hover .new-card-icon{background:rgba(88,80,200,.1)}
 .new-card-icon svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 
 .empty{text-align:center;padding:80px 20px;display:flex;flex-direction:column;align-items:center;gap:12px}
@@ -84,8 +90,8 @@ a{text-decoration:none;color:inherit}
 .auth-logo svg{width:26px;height:26px}
 .auth-title{font-size:20px;font-weight:700;letter-spacing:-.02em;margin-bottom:6px}
 .auth-sub{font-size:14px;color:var(--t3);margin-bottom:28px;line-height:1.5}
-.google-btn{width:100%;padding:11px;border-radius:10px;border:1px solid var(--b2);background:var(--surface);display:flex;align-items:center;justify-content:center;gap:10px;font-size:14px;font-weight:600;color:var(--t1);cursor:pointer;transition:background .12s,border-color .12s;font-family:'Geist',sans-serif;margin-bottom:10px}
-.google-btn:hover{background:var(--s2);border-color:var(--b2)}
+.google-btn{width:100%;padding:11px;border-radius:10px;border:1px solid var(--b2);background:var(--surface);display:flex;align-items:center;justify-content:center;gap:10px;font-size:14px;font-weight:600;color:var(--t1);cursor:pointer;transition:background .12s,border-color .12s,transform .15s cubic-bezier(.16,1,.3,1);font-family:'Geist',sans-serif;margin-bottom:10px}
+.google-btn:active{transform:scale(.97)}
 .google-btn svg{width:18px;height:18px;flex-shrink:0}
 
 .loading{display:flex;align-items:center;justify-content:center;min-height:60vh;color:var(--t3);font-size:14px;gap:8px}
@@ -105,7 +111,23 @@ a{text-decoration:none;color:inherit}
 .toast.show{opacity:1}
 
 ::-webkit-scrollbar{width:5px}
-::-webkit-scrollbar-thumb{background:var(--b2);border-radius:50%}
+::-webkit-scrollbar-thumb{background:var(--b2);border-radius:3px}
+
+/* HOVER (mouse/trackpad only - avoids sticky-hover on touch tap) */
+@media(hover:hover) and (pointer:fine){
+  .btn:hover{background:var(--s2)}
+  .btn.primary:hover{background:var(--accent2)}
+  .btn.danger:hover{background:#b91c1c}
+  .diag-card:hover{box-shadow:0 4px 24px rgba(0,0,0,.1);transform:translateY(-2px);border-color:var(--b2)}
+  .diag-card:hover .card-actions{opacity:1;pointer-events:auto}
+  .card-act-btn:hover{background:var(--s2)}
+  .card-act-btn.del:hover{background:rgba(220,38,38,.08);border-color:rgba(220,38,38,.25)}
+  .card-act-btn.del:hover svg{stroke:var(--danger)}
+  .new-card:hover{border-color:var(--accent2);background:rgba(88,80,200,.04);color:var(--accent2)}
+  .new-card:hover .new-card-icon{background:rgba(88,80,200,.1)}
+  .google-btn:hover{background:var(--s2);border-color:var(--b2)}
+}
+
 @media(max-width:640px){
   .nav{padding:0 14px}
   .user-chip span{display:none}
@@ -119,6 +141,7 @@ a{text-decoration:none;color:inherit}
 </style>
 </head>
 <body>
+<a href="#main-content" class="skip-link">Перейти к содержимому</a>
 
 <div id="auth-view" class="auth-screen" style="display:none">
   <div class="auth-box">
@@ -175,7 +198,7 @@ a{text-decoration:none;color:inherit}
     </div>
   </nav>
 
-  <div class="main">
+  <div class="main" id="main-content">
     <div class="page-head">
       <div>
         <div class="page-title">Мои схемы</div>
@@ -204,8 +227,8 @@ a{text-decoration:none;color:inherit}
 </div>
 
 <div class="modal-ov" id="rename-modal">
-  <div class="modal">
-    <div class="modal-title">Переименовать</div>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="rename-modal-title">
+    <div class="modal-title" id="rename-modal-title">Переименовать</div>
     <div class="modal-sub">Введите новое название схемы</div>
     <input class="modal-input" id="rename-input" type="text" placeholder="Название схемы" maxlength="80">
     <div class="modal-btns">
@@ -216,11 +239,11 @@ a{text-decoration:none;color:inherit}
 </div>
 
 <div class="modal-ov" id="delete-modal">
-  <div class="modal">
-    <div class="modal-title">Удалить схему?</div>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="delete-modal-title">
+    <div class="modal-title" id="delete-modal-title">Удалить схему?</div>
     <div class="modal-sub">Это действие нельзя отменить.</div>
     <div class="modal-btns">
-      <button class="btn" onclick="closeDeleteConfirm()">Отмена</button>
+      <button class="btn" id="delete-cancel-btn" onclick="closeDeleteConfirm()">Отмена</button>
       <button class="btn danger" onclick="confirmDelete()">Удалить</button>
     </div>
   </div>
@@ -322,7 +345,8 @@ function renderDiagrams() {
   grid.style.display = 'grid';
   grid.innerHTML = '';
 
-  const nc = document.createElement('div');
+  const nc = document.createElement('button');
+  nc.type = 'button';
   nc.className = 'new-card';
   nc.innerHTML = '<div class="new-card-icon"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M10 4v12M4 10h12"/></svg></div><span>Новая схема</span>';
   nc.onclick = createDiagram;
@@ -331,15 +355,18 @@ function renderDiagrams() {
   diagrams.forEach(function(d) {
     const card = document.createElement('div');
     card.className = 'diag-card';
+    card.setAttribute('role', 'button');
+    card.setAttribute('tabindex', '0');
+    card.setAttribute('aria-label', 'Открыть схему «' + d.title + '»');
     const date = new Date(d.updated_at).toLocaleDateString('ru', {day:'numeric', month:'short', year:'numeric'});
     const nodesArr = Object.values(d.nodes || {});
     const preview = buildPreview(nodesArr, d.conns || []);
     card.innerHTML =
       '<div class="card-preview">' + preview + '</div>' +
       '<div class="card-actions">' +
-        '<div class="card-act-btn" data-act="share" title="Поделиться"><svg viewBox="0 0 13 13"><circle cx="10.5" cy="2.5" r="1.8"/><circle cx="2.5" cy="6.5" r="1.8"/><circle cx="10.5" cy="10.5" r="1.8"/><line x1="4.2" y1="7.4" x2="8.8" y2="9.6"/><line x1="8.8" y1="3.4" x2="4.2" y2="5.6"/></svg></div>' +
-        '<div class="card-act-btn" data-act="rename" title="Переименовать"><svg viewBox="0 0 13 13"><path d="M2 10l1.5-1.5 5-5L10 5l-5 5L3.5 11.5 2 10z"/></svg></div>' +
-        '<div class="card-act-btn del" data-act="delete" title="Удалить"><svg viewBox="0 0 13 13"><path d="M2 3.5h9M5 3.5V2h3v1.5M4 3.5l.6 7.5h3.8l.6-7.5"/></svg></div>' +
+        '<button type="button" class="card-act-btn" data-act="share" title="Поделиться" aria-label="Поделиться схемой «' + esc(d.title) + '»"><svg viewBox="0 0 13 13"><circle cx="10.5" cy="2.5" r="1.8"/><circle cx="2.5" cy="6.5" r="1.8"/><circle cx="10.5" cy="10.5" r="1.8"/><line x1="4.2" y1="7.4" x2="8.8" y2="9.6"/><line x1="8.8" y1="3.4" x2="4.2" y2="5.6"/></svg></button>' +
+        '<button type="button" class="card-act-btn" data-act="rename" title="Переименовать" aria-label="Переименовать схему «' + esc(d.title) + '»"><svg viewBox="0 0 13 13"><path d="M2 10l1.5-1.5 5-5L10 5l-5 5L3.5 11.5 2 10z"/></svg></button>' +
+        '<button type="button" class="card-act-btn del" data-act="delete" title="Удалить" aria-label="Удалить схему «' + esc(d.title) + '»"><svg viewBox="0 0 13 13"><path d="M2 3.5h9M5 3.5V2h3v1.5M4 3.5l.6 7.5h3.8l.6-7.5"/></svg></button>' +
       '</div>' +
       '<div class="card-body">' +
         '<div class="card-title">' + esc(d.title) + '</div>' +
@@ -357,6 +384,13 @@ function renderDiagrams() {
       }
       openEditor(d.id);
     };
+    card.addEventListener('keydown', function(e) {
+      if (e.target.closest('[data-act]')) return;
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        openEditor(d.id);
+      }
+    });
     grid.appendChild(card);
   });
 }
@@ -447,7 +481,9 @@ function openEditor(id) {
   window.location.href = 'editor.html?id=' + id;
 }
 
+let lastFocusedEl = null;
 function startRename(id, title) {
+  lastFocusedEl = document.activeElement;
   renameId = id;
   document.getElementById('rename-input').value = title;
   document.getElementById('rename-modal').classList.add('open');
@@ -456,6 +492,7 @@ function startRename(id, title) {
 function closeRename() {
   document.getElementById('rename-modal').classList.remove('open');
   renameId = null;
+  if (lastFocusedEl && document.body.contains(lastFocusedEl)) lastFocusedEl.focus();
 }
 async function confirmRename() {
   const title = document.getElementById('rename-input').value.trim();
@@ -477,12 +514,15 @@ async function confirmRename() {
 
 let deleteId = null;
 function deleteDiagram(id) {
+  lastFocusedEl = document.activeElement;
   deleteId = id;
   document.getElementById('delete-modal').classList.add('open');
+  setTimeout(function(){ document.getElementById('delete-cancel-btn').focus(); }, 50);
 }
 function closeDeleteConfirm() {
   document.getElementById('delete-modal').classList.remove('open');
   deleteId = null;
+  if (lastFocusedEl && document.body.contains(lastFocusedEl)) lastFocusedEl.focus();
 }
 async function confirmDelete() {
   const id = deleteId;
@@ -526,6 +566,23 @@ function toast(msg) {
   clearTimeout(toastT);
   toastT = setTimeout(function(){ el.classList.remove('show'); }, 3500);
 }
+
+function trapFocus(modalEl) {
+  modalEl.addEventListener('keydown', function(e) {
+    if (e.key !== 'Tab') return;
+    const focusables = modalEl.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+    if (!focusables.length) return;
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault(); last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault(); first.focus();
+    }
+  });
+}
+trapFocus(document.querySelector('#rename-modal .modal'));
+trapFocus(document.querySelector('#delete-modal .modal'));
 
 document.getElementById('rename-modal').addEventListener('click', function(e) {
   if (e.target === document.getElementById('rename-modal')) closeRename();
