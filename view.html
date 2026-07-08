@@ -33,7 +33,8 @@ html,body{height:100%;font-family:'Geist',system-ui,sans-serif;background:var(--
 #stage{position:absolute;transform-origin:top left}
 #svg-lines{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:visible;z-index:1}
 .onode{position:absolute;width:200px;border-radius:14px;background:var(--bg);border:1.5px solid var(--b1);box-shadow:var(--sh);cursor:pointer;overflow:hidden;transition:transform .18s cubic-bezier(.16,1,.3,1),box-shadow .18s,border-color .18s}
-.onode:hover{transform:translateY(-2px);box-shadow:0 4px 20px rgba(0,0,0,.12)}
+.onode:active{transform:scale(.98)}
+.onode:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .onode.active{border-color:var(--accent) !important;box-shadow:0 4px 20px rgba(0,0,0,.12),0 0 0 3px rgba(55,48,163,.15) !important}
 .on-head{padding:11px 12px 11px;display:flex;align-items:center;gap:8px}
 .on-texts{flex:1;min-width:0}
@@ -46,7 +47,8 @@ html,body{height:100%;font-family:'Geist',system-ui,sans-serif;background:var(--
 .dp.open{opacity:1;transform:scale(1) translateX(0);pointer-events:auto}
 .dp-bar{height:4px}
 .dp-head{padding:15px 16px 11px;position:relative}
-.dp-x{position:absolute;top:12px;right:12px;width:24px;height:24px;border-radius:8px;background:var(--bg2);border:1px solid var(--b1);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.dp-x{position:absolute;top:12px;right:12px;width:24px;height:24px;border-radius:8px;background:var(--bg2);border:1px solid var(--b1);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .15s cubic-bezier(.16,1,.3,1)}
+.dp-x:active{transform:scale(.9)}
 .dp-x svg{width:10px;height:10px;stroke:var(--t2);fill:none;stroke-width:2;stroke-linecap:round}
 .dp-role{font-size:14.5px;font-weight:700;letter-spacing:-.02em;color:var(--t1);padding-right:28px;line-height:1.3}
 .dp-dept{font-size:11.5px;color:var(--t2);margin-top:3px}
@@ -66,11 +68,18 @@ html,body{height:100%;font-family:'Geist',system-ui,sans-serif;background:var(--
 .reddy-ic{width:16px;height:16px;border-radius:50%;object-fit:cover;flex-shrink:0}
 .dp-none{font-size:11.5px;color:var(--t3);font-style:italic;padding:6px 0}
 .zoom-ctrl{position:fixed;top:68px;right:16px;z-index:100;display:flex;flex-direction:column;gap:4px}
-.zoom-ctrl button{width:32px;height:32px;border-radius:8px;font-size:16px;font-weight:600;background:var(--bg);border:1px solid var(--b2);color:var(--t1);cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--sh)}
-.zoom-ctrl button:hover{background:var(--bg2)}
+.zoom-ctrl button{width:32px;height:32px;border-radius:8px;font-size:16px;font-weight:600;background:var(--bg);border:1px solid var(--b2);color:var(--t1);cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--sh);transition:transform .15s cubic-bezier(.16,1,.3,1)}
+.zoom-ctrl button:active{transform:scale(.92)}
 .err{display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:12px;color:var(--t3);padding:20px;text-align:center}
+.err-icon{width:56px;height:56px;border-radius:14px;background:var(--bg2);display:flex;align-items:center;justify-content:center}
+.err-icon svg{width:26px;height:26px;stroke:var(--t3);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 .err-title{font-size:18px;font-weight:700;color:var(--t1)}
 .err-sub{font-size:13px}
+
+@media(hover:hover) and (pointer:fine){
+  .onode:hover{transform:translateY(-2px);box-shadow:0 4px 20px rgba(0,0,0,.12)}
+  .zoom-ctrl button:hover{background:var(--bg2)}
+}
 
 @media(max-width:640px){
   .hdr{padding:0 14px}
@@ -85,7 +94,7 @@ html,body{height:100%;font-family:'Geist',system-ui,sans-serif;background:var(--
 <body>
 
 <div id="err-view" class="err" style="display:none">
-  <div style="font-size:36px">🔍</div>
+  <div class="err-icon"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M20 20l-4.8-4.8"/></svg></div>
   <div class="err-title">Схема не найдена</div>
   <div class="err-sub">Ссылка недействительна или схема была удалена</div>
 </div>
@@ -100,13 +109,13 @@ html,body{height:100%;font-family:'Geist',system-ui,sans-serif;background:var(--
       </svg>
     </div>
     <div><div class="hdr-title" id="hdr-title">OrgChart</div></div>
-    <div id="hdr-tip" class="hdr-tip">Тяните мышью для навигации · +/− для масштаба</div>
+    <div id="hdr-tip" class="hdr-tip">Перетаскивайте для навигации · +/− для масштаба</div>
     <div class="hdr-right">Нажмите на карточку</div>
   </div>
   <div class="body" id="body">
     <div id="stage"><svg id="svg-lines"></svg></div>
   </div>
-  <div class="dp" id="dp">
+  <div class="dp" id="dp" role="dialog" aria-modal="false" aria-labelledby="dp-role">
     <div class="dp-bar" id="dp-bar"></div>
     <div class="dp-head">
       <button class="dp-x" onclick="closeDP()" aria-label="Закрыть"><svg viewBox="0 0 10 10"><path d="M1.5 1.5l7 7M8.5 1.5l-7 7"/></svg></button>
@@ -192,25 +201,77 @@ document.addEventListener('mouseup', function() {
   }
 });
 
+function zoomAt(cx, cy, d) {
+  const nz = Math.min(3, Math.max(.2, zoom + d));
+  const sc = nz / zoom;
+  vx = cx - sc * (cx - vx);
+  vy = cy - sc * (cy - vy);
+  zoom = nz;
+  applyT();
+  document.getElementById('zlbl').textContent = Math.round(zoom * 100) + '%';
+}
+
 body.addEventListener('wheel', function(e) {
   if (e.ctrlKey || e.metaKey) {
     e.preventDefault();
     const r = body.getBoundingClientRect();
-    const nz = Math.min(3, Math.max(.2, zoom + (e.deltaY > 0 ? -.08 : .08)));
-    const cx = e.clientX - r.left;
-    const cy = e.clientY - r.top;
-    const sc = nz / zoom;
-    vx = cx - sc * (cx - vx);
-    vy = cy - sc * (cy - vy);
-    zoom = nz;
-    applyT();
-    document.getElementById('zlbl').textContent = Math.round(zoom * 100) + '%';
+    zoomAt(e.clientX - r.left, e.clientY - r.top, e.deltaY > 0 ? -.08 : .08);
   }
 }, {passive: false});
 
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') closeDP();
 });
+
+// Touch: single-finger pan, two-finger pinch-zoom (mirrors editor.html's mobile support)
+(function() {
+  let lastDist = 0;
+  body.addEventListener('touchstart', function(e) {
+    if (e.touches.length === 2) {
+      lastDist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+    }
+  }, {passive: true});
+  body.addEventListener('touchmove', function(e) {
+    if (e.touches.length === 2) {
+      e.preventDefault();
+      const dist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      if (lastDist > 0) {
+        const delta = (dist - lastDist) * 0.008;
+        const cx = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+        const cy = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+        const r = body.getBoundingClientRect();
+        zoomAt(cx - r.left, cy - r.top, delta);
+      }
+      lastDist = dist;
+    }
+  }, {passive: false});
+  body.addEventListener('touchend', function() { lastDist = 0; }, {passive: true});
+
+  let panT = false, panTX = 0, panTY = 0;
+  body.addEventListener('touchstart', function(e) {
+    if (e.touches.length === 1 && !e.target.closest('.onode') && !e.target.closest('.dp')) {
+      panT = true;
+      panTX = e.touches[0].clientX - vx;
+      panTY = e.touches[0].clientY - vy;
+    }
+  }, {passive: true});
+  body.addEventListener('touchmove', function(e) {
+    if (panT && e.touches.length === 1) {
+      const r = body.getBoundingClientRect();
+      const pad = 60;
+      vx = Math.min(pad, Math.max(r.width - W * zoom - pad, e.touches[0].clientX - panTX));
+      vy = Math.min(pad, Math.max(r.height - H * zoom - pad, e.touches[0].clientY - panTY));
+      applyT();
+    }
+  }, {passive: true});
+  body.addEventListener('touchend', function() { panT = false; }, {passive: true});
+})();
 
 function ha(h, a) {
   try {
@@ -222,7 +283,7 @@ function ha(h, a) {
 }
 
 function esc(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 function init() {
@@ -243,6 +304,9 @@ function init() {
     const el = document.createElement('div');
     el.className = 'onode';
     el.id = d.id;
+    el.setAttribute('role', 'button');
+    el.setAttribute('tabindex', '0');
+    el.setAttribute('aria-label', 'Подробнее: ' + d.role);
     el.style.left = d.x + 'px';
     el.style.top = d.y + 'px';
     const c1 = ha(d.color, .5);
@@ -256,6 +320,12 @@ function init() {
     el.addEventListener('click', function(e) {
       e.stopPropagation();
       openNode(d.id);
+    });
+    el.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        openNode(d.id);
+      }
     });
     stage.appendChild(el);
   });
@@ -300,7 +370,7 @@ function openNode(id) {
       ? '<div class="dp-none">Список уточняется</div>'
       : d.emps.map(function(e) {
           const ini = (e.name || '').split(' ').map(function(w){ return w[0] || ''; }).join('').slice(0,2).toUpperCase();
-          const avHtml = e.avatar ? '<img src="' + e.avatar + '" alt="">' : ini;
+          const avHtml = e.avatar ? '<img src="' + esc(e.avatar) + '" alt="">' : ini;
           const reddyHtml = e.reddy ? '<div class="dp-eid"><img class="reddy-ic" src="' + REDDY + '" alt="Reddy">' + esc(e.reddy) + '</div>' : '';
           return '<div class="dp-emp"><div class="dp-av" style="background:' + ha(d.color, .13) + ';color:' + d.color + '">' + avHtml + '</div>' +
                  '<div><div class="dp-en">' + esc(e.name || '') + '</div>' + reddyHtml + '</div></div>';
@@ -309,6 +379,10 @@ function openNode(id) {
   posDP(id);
   document.getElementById('dp').classList.add('open');
   drawLines();
+  setTimeout(function(){
+    const closeBtn = document.querySelector('#dp .dp-x');
+    if (closeBtn) closeBtn.focus();
+  }, 50);
 }
 
 function posDP(id) {
@@ -334,10 +408,15 @@ function posDP(id) {
 }
 
 function closeDP() {
+  const wasActiveId = activeId;
   document.getElementById('dp').classList.remove('open');
   document.querySelectorAll('.onode.active').forEach(function(n){ n.classList.remove('active'); });
   activeId = null;
   drawLines();
+  if (wasActiveId) {
+    const trigger = document.getElementById(wasActiveId);
+    if (trigger) trigger.focus();
+  }
 }
 
 body.addEventListener('click', function(e) {
@@ -419,7 +498,7 @@ window.addEventListener('resize', sd);
     const diags = await r2.json();
     if (!diags || !diags.length) throw new Error('not found');
     const d = diags[0];
-    document.title = d.title + ' — OrgChart';
+    document.title = d.title + ' · OrgChart';
     document.getElementById('hdr-title').textContent = d.title;
     NODES = Object.values(d.nodes || {});
     CONNS = d.conns || [];
