@@ -121,10 +121,10 @@ html,body{height:100%;font-family:'Geist',system-ui,sans-serif;background:var(--
       <button class="dp-x" onclick="closeDP()" aria-label="Закрыть"><svg viewBox="0 0 10 10"><path d="M1.5 1.5l7 7M8.5 1.5l-7 7"/></svg></button>
       <div class="dp-role" id="dp-role"></div>
       <div class="dp-dept" id="dp-dept"></div>
-      <div class="dp-sched"><span class="dp-sd" id="dp-sd"></span><span id="dp-st"></span></div>
+      <div class="dp-sched" id="dp-sched-box"><span class="dp-sd" id="dp-sd"></span><span id="dp-st"></span></div>
     </div>
     <div class="dp-body">
-      <div class="dp-slb">Обязанности</div><div id="dp-duties"></div>
+      <div class="dp-slb" id="dp-slb-duties">Обязанности</div><div id="dp-duties"></div>
       <div class="dp-slb" id="dp-slb-emps">Сотрудники</div><div id="dp-emps"></div>
     </div>
   </div>
@@ -311,10 +311,12 @@ function init() {
     el.style.top = d.y + 'px';
     const c1 = ha(d.color, .5);
     const c2 = ha(d.color, .93);
+    const subtitle = d.kind === 'group' ? esc(d.dept) : (esc(d.dept) + ' \u00B7 ' + esc(d.sched));
+    const subtitleHtml = subtitle ? '<div class="on-dept">' + subtitle + '</div>' : '';
     el.innerHTML =
       '<div class="on-head" style="background:linear-gradient(135deg,' + c1 + ',' + c2 + ')">' +
       '<div class="on-texts"><div class="on-role">' + esc(d.role) + '</div>' +
-      '<div class="on-dept">' + esc(d.dept) + ' \u00B7 ' + esc(d.sched) + '</div></div>' +
+      subtitleHtml + '</div>' +
       '<div class="on-arr"><svg viewBox="0 0 8 8" fill="none"><path d="M2 1.5l3.5 3L2 7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>' +
       '</div>';
     el.addEventListener('click', function(e) {
@@ -352,29 +354,40 @@ function openNode(id) {
   document.getElementById('dp-dept').textContent = d.dept;
   document.getElementById('dp-sd').style.background = d.color;
   document.getElementById('dp-st').textContent = 'График ' + d.sched;
+  document.getElementById('dp-sched-box').style.display = d.kind === 'group' ? 'none' : 'inline-flex';
 
-  document.getElementById('dp-duties').innerHTML = d.duties && d.duties.length
-    ? d.duties.map(function(t){
-        return '<div class="dp-duty"><span class="dp-dd" style="background:' + esc(d.color) + '"></span>' + esc(t) + '</div>';
-      }).join('')
-    : '<div class="dp-none">—</div>';
-
-  const empSlb = document.getElementById('dp-slb-emps');
-  const empDiv = document.getElementById('dp-emps');
-  if (d.emps === null || d.emps === undefined) {
-    empSlb.style.display = 'none';
-    empDiv.innerHTML = '';
+  if (d.kind === 'group') {
+    document.getElementById('dp-slb-duties').textContent = 'Описание';
+    document.getElementById('dp-duties').innerHTML = d.desc
+      ? '<div style="font-size:12px;color:var(--t2);line-height:1.6;padding:2px 0">' + esc(d.desc) + '</div>'
+      : '<div class="dp-none">—</div>';
+    document.getElementById('dp-slb-emps').style.display = 'none';
+    document.getElementById('dp-emps').innerHTML = '';
   } else {
-    empSlb.style.display = 'block';
-    empDiv.innerHTML = d.emps.length === 0
-      ? '<div class="dp-none">Список уточняется</div>'
-      : d.emps.map(function(e) {
-          const ini = (e.name || '').split(' ').map(function(w){ return w[0] || ''; }).join('').slice(0,2).toUpperCase();
-          const avHtml = e.avatar ? '<img src="' + esc(e.avatar) + '" alt="">' : ini;
-          const reddyHtml = e.reddy ? '<div class="dp-eid"><img class="reddy-ic" src="' + REDDY + '" alt="Reddy">' + esc(e.reddy) + '</div>' : '';
-          return '<div class="dp-emp"><div class="dp-av" style="background:' + ha(d.color, .13) + ';color:' + esc(d.color) + '">' + avHtml + '</div>' +
-                 '<div><div class="dp-en">' + esc(e.name || '') + '</div>' + reddyHtml + '</div></div>';
-        }).join('');
+    document.getElementById('dp-slb-duties').textContent = 'Обязанности';
+    document.getElementById('dp-duties').innerHTML = d.duties && d.duties.length
+      ? d.duties.map(function(t){
+          return '<div class="dp-duty"><span class="dp-dd" style="background:' + esc(d.color) + '"></span>' + esc(t) + '</div>';
+        }).join('')
+      : '<div class="dp-none">—</div>';
+
+    const empSlb = document.getElementById('dp-slb-emps');
+    const empDiv = document.getElementById('dp-emps');
+    if (d.emps === null || d.emps === undefined) {
+      empSlb.style.display = 'none';
+      empDiv.innerHTML = '';
+    } else {
+      empSlb.style.display = 'block';
+      empDiv.innerHTML = d.emps.length === 0
+        ? '<div class="dp-none">Список уточняется</div>'
+        : d.emps.map(function(e) {
+            const ini = (e.name || '').split(' ').map(function(w){ return w[0] || ''; }).join('').slice(0,2).toUpperCase();
+            const avHtml = e.avatar ? '<img src="' + esc(e.avatar) + '" alt="">' : ini;
+            const reddyHtml = e.reddy ? '<div class="dp-eid"><img class="reddy-ic" src="' + REDDY + '" alt="Reddy">' + esc(e.reddy) + '</div>' : '';
+            return '<div class="dp-emp"><div class="dp-av" style="background:' + ha(d.color, .13) + ';color:' + esc(d.color) + '">' + avHtml + '</div>' +
+                   '<div><div class="dp-en">' + esc(e.name || '') + '</div>' + reddyHtml + '</div></div>';
+          }).join('');
+    }
   }
   posDP(id);
   document.getElementById('dp').classList.add('open');
