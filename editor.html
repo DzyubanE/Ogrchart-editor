@@ -114,11 +114,15 @@ input[type=text]:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(55,4
 .onode.multi-sel{border-color:#f59e0b!important;box-shadow:var(--sh2),0 0 0 3px rgba(245,158,11,.18)!important}
 .onode.conn-src{border-color:#f59e0b!important;box-shadow:0 0 0 3px rgba(245,158,11,.25)!important}
 .onode.conn-tgt-ok{border-color:#22c55e!important;box-shadow:0 0 0 3px rgba(34,197,94,.2)!important;cursor:crosshair!important}
+.onode.onode-group{border-radius:18px}
 .on-head{padding:11px 12px 10px;display:flex;align-items:center;gap:8px}
+.onode-group .on-head{padding:14px 14px 13px}
 .on-texts{flex:1;min-width:0}
-.on-role{font-size:12.5px;font-weight:700;color:#fff;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.on-dept{font-size:10.5px;color:rgba(255,255,255,.7);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.on-role{font-size:12.5px;font-weight:700;color:#fff;line-height:1.3;overflow-wrap:break-word}
+.onode-group .on-role{font-size:13.5px}
+.on-dept{font-size:10.5px;color:rgba(255,255,255,.7);margin-top:2px;overflow-wrap:break-word}
 .on-arr{width:20px;height:20px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .25s,background .15s}
+.onode-group .on-arr{border-radius:8px}
 .on-arr svg{width:8px;height:8px;stroke:#fff;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .onode.sel .on-arr,.onode.multi-sel .on-arr{transform:rotate(90deg);background:rgba(255,255,255,.35)}
 
@@ -536,7 +540,7 @@ function fitView() {
   const ns = Object.values(nodes); if (!ns.length) return;
   const pad = 60;
   const minX = Math.min(...ns.map(n=>n.x))-pad, minY = Math.min(...ns.map(n=>n.y))-pad;
-  const maxX = Math.max(...ns.map(n=>n.x+200))+pad, maxY = Math.max(...ns.map(n=>n.y+68))+pad;
+  const maxX = Math.max(...ns.map(n=>n.x+200))+pad, maxY = Math.max(...ns.map(n=>n.y+nodeH(n.id)))+pad;
   const r = cvWrap.getBoundingClientRect();
   zoom = Math.min(2, Math.max(.15, Math.min(r.width/(maxX-minX), r.height/(maxY-minY))));
   vx = (r.width-(maxX-minX)*zoom)/2 - minX*zoom;
@@ -547,6 +551,10 @@ applyT();
 
 // ═══════════════════════════ NODES ═══════════════════════════
 const NW = 196, NH = 68;
+// Cards have no fixed height (text can wrap and grow them) — use the real
+// rendered height wherever a node's vertical extent matters, falling back
+// to NH only if the element isn't in the DOM yet.
+function nodeH(id) { const el = document.getElementById(id); return el ? el.offsetHeight : NH; }
 function addNode(data) {
   const id = data?.id || uid();
   const r = cvWrap.getBoundingClientRect();
@@ -576,6 +584,7 @@ function renderNode(id) {
     });
   }
   el.style.left = d.x+'px'; el.style.top = d.y+'px';
+  el.classList.toggle('onode-group', d.kind==='group');
   const c1 = ha(d.color,.5), c2 = ha(d.color,.93);
   const isLight = isLightColor(d.color);
   const roleColor = isLight ? '#1a1a1a' : '#fff';
@@ -682,6 +691,7 @@ function showSnapGuides(dragId, dx, dy, orig) {
   let snapX = null, snapY = null, lblParts = [];
   const THRESH = SNAP_THRESH / zoom;
 
+  const dh = nodeH(dragId);
   for (const o of others) {
     // X alignment: left, center, right
     const checks = [
@@ -692,8 +702,9 @@ function showSnapGuides(dragId, dx, dy, orig) {
         nodes[dragId].x += (b-a); snapX = (b < NW/2 ? b : b) ; break;
       }
     }
+    const oh = nodeH(o.id);
     const checksY = [
-      [d.y, o.y], [d.y+NH/2, o.y+NH/2], [d.y+NH, o.y+NH], [d.y, o.y+NH], [d.y+NH, o.y]
+      [d.y, o.y], [d.y+dh/2, o.y+oh/2], [d.y+dh, o.y+oh], [d.y, o.y+oh], [d.y+dh, o.y]
     ];
     for (const [a, b] of checksY) {
       if (Math.abs(a-b) < THRESH && snapY === null) { nodes[dragId].y += (b-a); snapY = b; break; }
@@ -740,7 +751,7 @@ cvWrap.addEventListener('mousedown', e => {
     const bx2 = (Math.max(x,boxX0) - vx) / zoom, by2 = (Math.max(y,boxY0) - vy) / zoom;
     clearMulti();
     Object.values(nodes).forEach(n => {
-      if (n.x+NW > bx1 && n.x < bx2 && n.y+NH > by1 && n.y < by2) addMulti(n.id);
+      if (n.x+NW > bx1 && n.x < bx2 && n.y+nodeH(n.id) > by1 && n.y < by2) addMulti(n.id);
     });
   };
   const mu = () => { boxSel = false; sb.style.display='none'; document.removeEventListener('mousemove',mm); document.removeEventListener('mouseup',mu); updateMultiSidebar(); };
@@ -782,8 +793,8 @@ function alignSel(dir) {
   if (dir==='right')  { const v=Math.max(...ns.map(n=>n.x+NW));    ns.forEach(n=>{n.x=v-NW}); }
   if (dir==='cx')     { const v=(Math.min(...ns.map(n=>n.x))+Math.max(...ns.map(n=>n.x+NW)))/2; ns.forEach(n=>{n.x=Math.round(v-NW/2)}); }
   if (dir==='top')    { const v=Math.min(...ns.map(n=>n.y));       ns.forEach(n=>{n.y=v}); }
-  if (dir==='bottom') { const v=Math.max(...ns.map(n=>n.y+NH));    ns.forEach(n=>{n.y=v-NH}); }
-  if (dir==='cy')     { const v=(Math.min(...ns.map(n=>n.y))+Math.max(...ns.map(n=>n.y+NH)))/2; ns.forEach(n=>{n.y=Math.round(v-NH/2)}); }
+  if (dir==='bottom') { const v=Math.max(...ns.map(n=>n.y+nodeH(n.id))); ns.forEach(n=>{n.y=v-nodeH(n.id)}); }
+  if (dir==='cy')     { const v=(Math.min(...ns.map(n=>n.y))+Math.max(...ns.map(n=>n.y+nodeH(n.id))))/2; ns.forEach(n=>{n.y=Math.round(v-nodeH(n.id)/2)}); }
   ids.forEach(id=>{ const el=document.getElementById(id); if(el){el.style.left=nodes[id].x+'px';el.style.top=nodes[id].y+'px';} });
   drawLines(); snapshot();
 }
@@ -816,8 +827,9 @@ function resolveCollisions() {
       const a=ns[i],b=ns[j];
       // Symmetric AABB overlap - must not assume which node is left/above the other,
       // since array order (insertion order) has no relation to spatial order.
+      const ah=nodeH(a.id), bh=nodeH(b.id);
       const ox=(Math.min(a.x+NW,b.x+NW)-Math.max(a.x,b.x))+COL_MARGIN;
-      const oy=(Math.min(a.y+NH,b.y+NH)-Math.max(a.y,b.y))+COL_MARGIN;
+      const oy=(Math.min(a.y+ah,b.y+bh)-Math.max(a.y,b.y))+COL_MARGIN;
       if(ox<=0||oy<=0) continue;
       if(ox<oy){
         const h=ox/2;
@@ -1092,7 +1104,7 @@ function buildExport(avatarMode){
   const title=document.getElementById('chart-title').value||'Org Chart';
   const padX=40, padTop=16, padBottom=40;
   const minX=Math.min(...ns.map(n=>n.x)),minY=Math.min(...ns.map(n=>n.y));
-  const maxX=Math.max(...ns.map(n=>n.x+200)),maxY=Math.max(...ns.map(n=>n.y+70));
+  const maxX=Math.max(...ns.map(n=>n.x+200)),maxY=Math.max(...ns.map(n=>n.y+nodeH(n.id)));
   const W=maxX-minX+padX*2, H=maxY-minY+padTop+padBottom;
   const shifted=ns.map(n=>({...n,x:n.x-minX+padX,y:n.y-minY+padTop}));
   // handle avatar mode
@@ -1136,11 +1148,15 @@ html,body{height:100%;font-family:'Geist',system-ui,sans-serif;background:var(--
 .onode{position:absolute;width:200px;border-radius:14px;background:var(--bg);border:1.5px solid var(--b1);box-shadow:var(--sh);cursor:pointer;overflow:hidden;transition:transform .18s cubic-bezier(.16,1,.3,1),box-shadow .18s,border-color .18s}
 .onode:hover{transform:translateY(-2px);box-shadow:0 4px 20px rgba(0,0,0,.12)}
 .onode.active{border-color:var(--nc,#3b82f6)!important;box-shadow:0 4px 20px rgba(0,0,0,.12),0 0 0 3px rgba(59,130,246,.15)!important}
+.onode.onode-group{border-radius:18px}
 .on-head{padding:11px 12px 11px;display:flex;align-items:center;gap:8px}
+.onode-group .on-head{padding:14px 14px 13px}
 .on-texts{flex:1;min-width:0}
-.on-role{font-size:12.5px;font-weight:700;color:#fff;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.on-dept{font-size:10.5px;color:rgba(255,255,255,.7);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.on-role{font-size:12.5px;font-weight:700;color:#fff;line-height:1.3;overflow-wrap:break-word}
+.onode-group .on-role{font-size:13.5px}
+.on-dept{font-size:10.5px;color:rgba(255,255,255,.7);margin-top:2px;overflow-wrap:break-word}
 .on-arr{width:20px;height:20px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .25s cubic-bezier(.4,0,.2,1),background .15s}
+.onode-group .on-arr{border-radius:8px}
 .on-arr svg{width:8px;height:8px;stroke:#fff;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .onode.active .on-arr{transform:rotate(90deg);background:rgba(255,255,255,.35)}
 .dp{position:fixed;z-index:200;width:308px;background:var(--bg);border:1px solid var(--b2);border-radius:18px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.14);pointer-events:none;opacity:0;transform:scale(.96) translateX(-6px);transition:opacity .2s,transform .22s cubic-bezier(.16,1,.3,1)}
@@ -1287,7 +1303,7 @@ function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').repl
 function isLightColor(h){try{var r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);return(0.299*r+0.587*g+0.114*b)/255>0.6}catch(e){return false}}
 function init(){
   NODES.forEach(function(d){
-    var el=document.createElement('div');el.className='onode';el.id=d.id;
+    var el=document.createElement('div');el.className=d.kind==='group'?'onode onode-group':'onode';el.id=d.id;
     el.style.left=d.x+'px';el.style.top=d.y+'px';el.style.setProperty('--nc',d.color);
     var c1=ha(d.color,.5),c2=ha(d.color,.93);
     var isLight=isLightColor(d.color);
