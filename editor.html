@@ -888,7 +888,10 @@ function renderSidebar(id) {
     return;
   }
   const dRows=d.duties.map((t,i)=>`<div style="display:flex;gap:4px;margin-bottom:4px"><input type="text" value="${esc(t)}" placeholder="Обязанность" oninput="setDuty('${id}',${i},this.value)"><div class="xb" onclick="remDuty('${id}',${i})">×</div></div>`).join('');
-  const eRows=(d.emps||[]).map((e,i)=>`<div class="emp-item"><div class="av-btn" onclick="pickAv('${id}',${i})">${e.avatar?`<img src="${esc(e.avatar)}" alt="">`:'📷'}</div><input type="text" value="${esc(e.name||'')}" placeholder="Имя" oninput="setEN('${id}',${i},this.value)"><input type="text" value="${esc(e.reddy||'')}" style="width:76px" placeholder="ID Reddy" oninput="setER('${id}',${i},this.value)"><div class="xb" onclick="remEmp('${id}',${i})">×</div></div>`).join('');
+  const eRows=(d.emps||[]).map((e,i)=>{
+    const isUrl=!!e.avatar&&!e.avatar.startsWith('data:');
+    return `<div class="emp-item"><div class="av-btn" id="av-${id}-${i}" onclick="pickAv('${id}',${i})">${e.avatar?`<img src="${esc(e.avatar)}" alt="">`:'📷'}</div><input type="text" value="${esc(e.name||'')}" placeholder="Имя" oninput="setEN('${id}',${i},this.value)"><input type="text" value="${esc(e.reddy||'')}" style="width:76px" placeholder="ID Reddy" oninput="setER('${id}',${i},this.value)"><div class="xb" onclick="remEmp('${id}',${i})">×</div></div><input type="text" value="${isUrl?esc(e.avatar):''}" placeholder="или ссылка на фото (URL)" oninput="setAvatarUrl('${id}',${i},this.value)" style="font-size:11px;margin:-2px 0 6px">`;
+  }).join('');
   document.getElementById('sb-body').innerHTML=`
     <div class="fl">Должность</div><input type="text" value="${esc(d.role)}" oninput="setF('${id}','role',this.value)">
     <div class="fl">Подпись</div><input type="text" value="${esc(d.dept)}" oninput="setF('${id}','dept',this.value)">
@@ -939,6 +942,12 @@ function pickAv(id,i){
   };
   inp.click();
 }
+function setAvatarUrl(id,i,v){
+  if(!nodes[id]?.emps?.[i])return;
+  nodes[id].emps[i].avatar=v;
+  const av=document.getElementById('av-'+id+'-'+i);
+  if(av) av.innerHTML=v?`<img src="${esc(v)}" alt="">`:'📷';
+}
 
 // ═══════════════════════════ CONNECTIONS ═════════════════════
 function toggleConn(){connMode=!connMode;connFrom=null;document.getElementById('conn-banner').classList.toggle('show',connMode);document.getElementById('btn-conn').classList.toggle('active',connMode);if(!connMode){document.querySelectorAll('.onode').forEach(n=>n.classList.remove('conn-src','conn-tgt-ok'));document.getElementById('conn-text').textContent='Кликните на источник';}}
@@ -970,8 +979,11 @@ function drawLines(){
   const actSet=new Set();
   if(selId)conns.forEach(c=>{if(c.from===selId||c.to===selId)actSet.add(c.from+'>'+c.to);});
   const seen=new Set();let defs='<defs>',paths='',gi=0;
-  // default marker
-  defs+=`<marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M1 1.5L8 5L1 8.5" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="context-stroke"/></marker>`;
+  // default marker — markerUnits=userSpaceOnUse keeps the arrowhead a fixed size
+  // regardless of the connector's stroke-width (default markerUnits scales the
+  // marker BY that stroke-width, which made the thicker active/gradient line's
+  // arrowhead balloon to ~1.7x the size of the normal one)
+  defs+=`<marker id="ah" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M1 1.5L8 5L1 8.5" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="context-stroke"/></marker>`;
   conns.forEach(c=>{
     const k=c.from+'>'+c.to;if(seen.has(k))return;seen.add(k);
     const p=nodeBox(c.from),ch=nodeBox(c.to);if(!p||!ch)return;
@@ -981,7 +993,7 @@ function drawLines(){
       const sc=esc(nodes[c.from]?.color||'#3b82f6'),tc=esc(nodes[c.to]?.color||'#3b82f6');
       const gid='g'+gi++;
       defs+=`<linearGradient id="${gid}" x1="${p.cx}" y1="${p.bot}" x2="${ch.cx}" y2="${ch.top}" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="${sc}"/><stop offset="100%" stop-color="${tc}"/></linearGradient>`;
-      defs+=`<marker id="ah-${gid}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M1 1.5L8 5L1 8.5" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke="${tc}"/></marker>`;
+      defs+=`<marker id="ah-${gid}" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M1 1.5L8 5L1 8.5" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke="${tc}"/></marker>`;
       paths+=`<path d="M${p.cx},${p.bot} C${p.cx},${my2} ${ch.cx},${my2} ${ch.cx},${ch.top}" fill="none" stroke="url(#${gid})" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-${gid})"/>`;
     } else {
       const st=esc(c.color||defStroke);
@@ -1079,7 +1091,7 @@ function renderAvFileList(){
   const empsWithAv=[];
   Object.values(nodes).forEach(n=>{
     (n.emps||[]).forEach(e=>{
-      if(e.avatar&&e.name) empsWithAv.push({name:e.name,filename:avFilename(e.name)});
+      if(e.avatar&&e.avatar.startsWith('data:')&&e.name) empsWithAv.push({name:e.name,filename:avFilename(e.name)});
     });
   });
   const el=document.getElementById('av-file-list');
@@ -1114,7 +1126,7 @@ function buildExport(avatarMode){
     ...n,
     emps: n.emps===null ? null : (n.emps||[]).map(e=>({
       ...e,
-      avatar: avMode==='url'&&e.avatar&&e.name
+      avatar: avMode==='url'&&e.avatar&&e.avatar.startsWith('data:')&&e.name
         ? baseUrl+'/'+avFilename(e.name)
         : (e.avatar||'')
     }))
@@ -1384,7 +1396,7 @@ function drawLines(){
   var defSt=dark?'rgba(255,255,255,0.28)':'rgba(0,0,0,0.15)';
   var aSet=new Set();if(activeId)CONNS.forEach(function(c){if(c.from===activeId||c.to===activeId)aSet.add(c.from+'>'+c.to);});
   var seen=new Set();var defs='<defs>';var paths='';var gi=0;
-  defs+='<marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M1 1.5L8 5L1 8.5" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="context-stroke"/></marker>';
+  defs+='<marker id="ah" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M1 1.5L8 5L1 8.5" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="context-stroke"/></marker>';
   CONNS.forEach(function(c){
     var k=c.from+'>'+c.to;if(seen.has(k))return;seen.add(k);
     var p=nbox(c.from),ch=nbox(c.to);if(!p||!ch)return;
@@ -1394,7 +1406,7 @@ function drawLines(){
       var tc=esc(NODES.find(function(n){return n.id===c.to})?.color||'#3b82f6');
       var gid='g'+gi++;
       defs+='<linearGradient id="'+gid+'" x1="'+p.cx+'" y1="'+p.bot+'" x2="'+ch.cx+'" y2="'+ch.top+'" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="'+sc+'"/><stop offset="100%" stop-color="'+tc+'"/></linearGradient>';
-      defs+='<marker id="ah-'+gid+'" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M1 1.5L8 5L1 8.5" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke="'+tc+'"/></marker>';
+      defs+='<marker id="ah-'+gid+'" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M1 1.5L8 5L1 8.5" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke="'+tc+'"/></marker>';
       paths+='<path d="M'+p.cx+','+p.bot+' C'+p.cx+','+my+' '+ch.cx+','+my+' '+ch.cx+','+ch.top+'" fill="none" stroke="url(#'+gid+')" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-'+gid+')"/>';
     } else {
       var st=esc(c.color||defSt);
