@@ -1159,17 +1159,20 @@ html,body{height:100%;font-family:'Geist',system-ui,sans-serif;background:var(--
 .onode-group .on-arr{border-radius:8px}
 .on-arr svg{width:8px;height:8px;stroke:#fff;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .onode.active .on-arr{transform:rotate(90deg);background:rgba(255,255,255,.35)}
-.dp{position:fixed;z-index:200;width:308px;background:var(--bg);border:1px solid var(--b2);border-radius:18px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.14);pointer-events:none;opacity:0;transform:scale(.96) translateX(-6px);transition:opacity .2s,transform .22s cubic-bezier(.16,1,.3,1)}
+.dp{position:fixed;z-index:200;width:308px;max-width:calc(100vw - 40px);background:var(--bg);border:1px solid var(--b2);border-radius:18px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.14);pointer-events:none;opacity:0;transform:scale(.96) translateX(-6px);transition:opacity .2s,transform .22s cubic-bezier(.16,1,.3,1);display:flex;flex-direction:column}
 .dp.open{opacity:1;transform:scale(1) translateX(0);pointer-events:auto}
 .dp-bar{height:4px;flex-shrink:0}
-.dp-head{padding:15px 16px 11px;position:relative;flex-shrink:0}
+.dp-head{padding:15px 16px 11px;position:relative;flex-shrink:0;border-bottom:1px solid var(--b1)}
 .dp-x{position:absolute;top:12px;right:12px;width:24px;height:24px;border-radius:8px;background:var(--bg2);border:1px solid var(--b1);display:flex;align-items:center;justify-content:center;cursor:pointer}
 .dp-x svg{width:10px;height:10px;stroke:var(--t2);fill:none;stroke-width:2;stroke-linecap:round}
 .dp-role{font-size:14.5px;font-weight:700;letter-spacing:-.02em;color:var(--t1);padding-right:28px;line-height:1.3}
 .dp-dept{font-size:11.5px;color:var(--t2);margin-top:3px}
 .dp-sched{display:inline-flex;align-items:center;gap:5px;margin-top:8px;padding:3px 10px;border-radius:20px;background:var(--bg2);border:1px solid var(--b1);font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--t3)}
 .dp-sd{width:5px;height:5px;border-radius:50%;flex-shrink:0;display:inline-block}
-.dp-body{padding:2px 16px 18px}
+.dp-body{padding:2px 16px 18px;flex:1;min-height:0;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--b2) transparent}
+.dp-body::-webkit-scrollbar{width:6px}
+.dp-body::-webkit-scrollbar-track{background:transparent}
+.dp-body::-webkit-scrollbar-thumb{background:var(--b2);border-radius:10px}
 .dp-slb{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--t3);margin:13px 0 7px}
 .dp-duty{display:flex;gap:9px;padding:5px 0;border-bottom:1px solid var(--b1);font-size:12px;color:var(--t2);line-height:1.5}
 .dp-duty:last-of-type{border-bottom:none}
@@ -1350,24 +1353,25 @@ function openNode(id){
 }
 function posDP(id){
   var d=NODES.find(function(n){return n.id===id});if(!d)return;
+  var MARGIN=20; // keeps the panel's own drop shadow clear of the viewport/embed edge
   var r=body.getBoundingClientRect();
   var nx=(d.x+200)*zoom+vx+r.left, ny=d.y*zoom+vy+r.top;
   var left=nx+12;
-  if(left+320>window.innerWidth-8) left=Math.max(8,nx-200*zoom-328);
-  left=Math.max(8,left);
-  // position: try to align with card top, but keep within screen
-  var top=Math.max(r.top+8,ny);
+  if(left+320>window.innerWidth-MARGIN) left=Math.max(MARGIN,nx-200*zoom-328);
+  left=Math.max(MARGIN,left);
   var dp=document.getElementById('dp');
+  // Cap height to what actually fits — .dp-body scrolls internally past this instead of the panel overflowing the viewport
+  dp.style.maxHeight=Math.max(160,window.innerHeight-MARGIN*2)+'px';
   dp.style.left=left+'px';
+  // position: try to align with card top, but keep within screen (and below the header, if shown)
+  var top=Math.max(r.top+8,MARGIN,ny);
   dp.style.top=top+'px';
-  dp.style.maxHeight='none';
-  // if panel goes below viewport, scroll it into view
-  requestAnimationFrame(function(){
-    var dpR=dp.getBoundingClientRect();
-    if(dpR.bottom>window.innerHeight-8){
-      dp.style.top=Math.max(r.top+8, window.innerHeight-dpR.height-8)+'px';
-    }
-  });
+  // offsetHeight forces a layout read (unaffected by the open-transition's transform/opacity animation,
+  // unlike getBoundingClientRect mid-transition) so this height is accurate right away — no rAF needed.
+  var h=dp.offsetHeight;
+  if(top+h>window.innerHeight-MARGIN){
+    dp.style.top=Math.max(MARGIN, window.innerHeight-MARGIN-h)+'px';
+  }
 }
 function closeDP(){document.getElementById('dp').classList.remove('open');document.querySelectorAll('.onode.active').forEach(function(n){n.classList.remove('active');});activeId=null;drawLines();}
 document.getElementById('body').addEventListener('click',function(e){if(!e.target.closest('.onode')&&!e.target.closest('.dp'))closeDP();});
