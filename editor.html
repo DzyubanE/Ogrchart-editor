@@ -114,7 +114,7 @@ input[type=text]:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(55,4
 .onode.multi-sel{border-color:#f59e0b!important;box-shadow:var(--sh2),0 0 0 3px rgba(245,158,11,.18)!important}
 .onode.conn-src{border-color:#f59e0b!important;box-shadow:0 0 0 3px rgba(245,158,11,.25)!important}
 .onode.conn-tgt-ok{border-color:#22c55e!important;box-shadow:0 0 0 3px rgba(34,197,94,.2)!important;cursor:crosshair!important}
-.onode.onode-group{border-radius:18px}
+.onode.onode-group{border-radius:18px;width:max-content;min-width:140px;max-width:320px}
 .on-head{padding:11px 12px 10px;display:flex;align-items:center;gap:8px}
 .onode-group .on-head{padding:14px 14px 13px}
 .on-texts{flex:1;min-width:0}
@@ -541,7 +541,7 @@ function fitView() {
   const ns = Object.values(nodes); if (!ns.length) return;
   const pad = 60;
   const minX = Math.min(...ns.map(n=>n.x))-pad, minY = Math.min(...ns.map(n=>n.y))-pad;
-  const maxX = Math.max(...ns.map(n=>n.x+200))+pad, maxY = Math.max(...ns.map(n=>n.y+nodeH(n.id)))+pad;
+  const maxX = Math.max(...ns.map(n=>n.x+nodeW(n.id)))+pad, maxY = Math.max(...ns.map(n=>n.y+nodeH(n.id)))+pad;
   const r = cvWrap.getBoundingClientRect();
   zoom = Math.min(2, Math.max(.15, Math.min(r.width/(maxX-minX), r.height/(maxY-minY))));
   vx = (r.width-(maxX-minX)*zoom)/2 - minX*zoom;
@@ -556,6 +556,8 @@ const NW = 196, NH = 68;
 // rendered height wherever a node's vertical extent matters, falling back
 // to NH only if the element isn't in the DOM yet.
 function nodeH(id) { const el = document.getElementById(id); return el ? el.offsetHeight : NH; }
+// Group cards are auto-width (they hug their text), so their real width can differ from NW.
+function nodeW(id) { const el = document.getElementById(id); return el ? el.offsetWidth : NW; }
 function addNode(data) {
   const id = data?.id || uid();
   const r = cvWrap.getBoundingClientRect();
@@ -692,15 +694,16 @@ function showSnapGuides(dragId, dx, dy, orig) {
   let snapX = null, snapY = null, lblParts = [];
   const THRESH = SNAP_THRESH / zoom;
 
-  const dh = nodeH(dragId);
+  const dh = nodeH(dragId), dw = nodeW(dragId);
   for (const o of others) {
-    // X alignment: left, center, right
+    // X alignment: left, center, right (per-node width, since group cards are auto-width)
+    const ow = nodeW(o.id);
     const checks = [
-      [d.x, o.x, 'L'], [d.x, o.x+NW-NW, 'L'], [d.x+NW/2, o.x+NW/2, 'C'], [d.x, o.x+NW, 'R'], [d.x+NW, o.x, 'R'], [d.x+NW, o.x+NW, 'R']
+      [d.x, o.x, 'L'], [d.x+dw/2, o.x+ow/2, 'C'], [d.x, o.x+ow, 'R'], [d.x+dw, o.x, 'R'], [d.x+dw, o.x+ow, 'R']
     ];
     for (const [a, b, lbl] of checks) {
       if (Math.abs(a-b) < THRESH && snapX === null) {
-        nodes[dragId].x += (b-a); snapX = (b < NW/2 ? b : b) ; break;
+        nodes[dragId].x += (b-a); snapX = b; break;
       }
     }
     const oh = nodeH(o.id);
@@ -752,7 +755,7 @@ cvWrap.addEventListener('mousedown', e => {
     const bx2 = (Math.max(x,boxX0) - vx) / zoom, by2 = (Math.max(y,boxY0) - vy) / zoom;
     clearMulti();
     Object.values(nodes).forEach(n => {
-      if (n.x+NW > bx1 && n.x < bx2 && n.y+nodeH(n.id) > by1 && n.y < by2) addMulti(n.id);
+      if (n.x+nodeW(n.id) > bx1 && n.x < bx2 && n.y+nodeH(n.id) > by1 && n.y < by2) addMulti(n.id);
     });
   };
   const mu = () => { boxSel = false; sb.style.display='none'; document.removeEventListener('mousemove',mm); document.removeEventListener('mouseup',mu); updateMultiSidebar(); };
@@ -791,8 +794,8 @@ function alignSel(dir) {
   const ids = getAlignIds(); if (!ids.length) { toast('Выберите 2+ блока'); return; }
   const ns = ids.map(id=>nodes[id]).filter(Boolean);
   if (dir==='left')   { const v=Math.min(...ns.map(n=>n.x));       ns.forEach(n=>{n.x=v}); }
-  if (dir==='right')  { const v=Math.max(...ns.map(n=>n.x+NW));    ns.forEach(n=>{n.x=v-NW}); }
-  if (dir==='cx')     { const v=(Math.min(...ns.map(n=>n.x))+Math.max(...ns.map(n=>n.x+NW)))/2; ns.forEach(n=>{n.x=Math.round(v-NW/2)}); }
+  if (dir==='right')  { const v=Math.max(...ns.map(n=>n.x+nodeW(n.id))); ns.forEach(n=>{n.x=v-nodeW(n.id)}); }
+  if (dir==='cx')     { const v=(Math.min(...ns.map(n=>n.x))+Math.max(...ns.map(n=>n.x+nodeW(n.id))))/2; ns.forEach(n=>{n.x=Math.round(v-nodeW(n.id)/2)}); }
   if (dir==='top')    { const v=Math.min(...ns.map(n=>n.y));       ns.forEach(n=>{n.y=v}); }
   if (dir==='bottom') { const v=Math.max(...ns.map(n=>n.y+nodeH(n.id))); ns.forEach(n=>{n.y=v-nodeH(n.id)}); }
   if (dir==='cy')     { const v=(Math.min(...ns.map(n=>n.y))+Math.max(...ns.map(n=>n.y+nodeH(n.id))))/2; ns.forEach(n=>{n.y=Math.round(v-nodeH(n.id)/2)}); }
@@ -828,8 +831,8 @@ function resolveCollisions() {
       const a=ns[i],b=ns[j];
       // Symmetric AABB overlap - must not assume which node is left/above the other,
       // since array order (insertion order) has no relation to spatial order.
-      const ah=nodeH(a.id), bh=nodeH(b.id);
-      const ox=(Math.min(a.x+NW,b.x+NW)-Math.max(a.x,b.x))+COL_MARGIN;
+      const ah=nodeH(a.id), bh=nodeH(b.id), aw=nodeW(a.id), bw=nodeW(b.id);
+      const ox=(Math.min(a.x+aw,b.x+bw)-Math.max(a.x,b.x))+COL_MARGIN;
       const oy=(Math.min(a.y+ah,b.y+bh)-Math.max(a.y,b.y))+COL_MARGIN;
       if(ox<=0||oy<=0) continue;
       if(ox<oy){
@@ -963,7 +966,7 @@ function handleConn(id){
 function removeConn(i){conns.splice(i,1);drawLines();if(selId)renderSidebar(selId);snapshot();}
 
 // ═══════════════════════════ SVG LINES ═══════════════════════
-function nodeBox(id){const d=nodes[id];const el=document.getElementById(id);if(!d||!el)return null;return{cx:d.x+NW/2,top:d.y,bot:d.y+el.offsetHeight};}
+function nodeBox(id){const d=nodes[id];const el=document.getElementById(id);if(!d||!el)return null;return{cx:d.x+el.offsetWidth/2,top:d.y,bot:d.y+el.offsetHeight};}
 function drawLines(){
   const svg=document.getElementById('svg-lines');
   const ns=Object.values(nodes);
@@ -1118,7 +1121,7 @@ function buildExport(avatarMode){
   const title=document.getElementById('chart-title').value||'Org Chart';
   const padX=40, padTop=16, padBottom=40;
   const minX=Math.min(...ns.map(n=>n.x)),minY=Math.min(...ns.map(n=>n.y));
-  const maxX=Math.max(...ns.map(n=>n.x+200)),maxY=Math.max(...ns.map(n=>n.y+nodeH(n.id)));
+  const maxX=Math.max(...ns.map(n=>n.x+nodeW(n.id))),maxY=Math.max(...ns.map(n=>n.y+nodeH(n.id)));
   const W=maxX-minX+padX*2, H=maxY-minY+padTop+padBottom;
   const shifted=ns.map(n=>({...n,x:n.x-minX+padX,y:n.y-minY+padTop}));
   // handle avatar mode
@@ -1161,8 +1164,10 @@ html,body{height:100%;font-family:'Geist',system-ui,sans-serif;background:var(--
 #svg-lines{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:visible;z-index:1}
 .onode{position:absolute;width:200px;border-radius:14px;background:var(--bg);border:1.5px solid var(--b1);box-shadow:var(--sh);cursor:pointer;overflow:hidden;transition:transform .18s cubic-bezier(.16,1,.3,1),box-shadow .18s,border-color .18s}
 .onode:hover{transform:translateY(-2px);box-shadow:0 4px 20px rgba(0,0,0,.12)}
+.onode.onode-static{cursor:default}
+.onode.onode-static:hover{transform:none;box-shadow:var(--sh)}
 .onode.active{border-color:var(--nc,#3b82f6)!important;box-shadow:0 4px 20px rgba(0,0,0,.12),0 0 0 3px rgba(59,130,246,.15)!important}
-.onode.onode-group{border-radius:18px}
+.onode.onode-group{border-radius:18px;width:max-content;min-width:140px;max-width:320px}
 .on-head{padding:11px 12px 11px;display:flex;align-items:center;gap:8px}
 .onode-group .on-head{padding:14px 14px 13px}
 .on-texts{flex:1;min-width:0}
@@ -1330,8 +1335,11 @@ function init(){
     var arrStroke=isLight?'#1a1a1a':'#fff';
     var subtitle=d.kind==='group'?esc(d.dept):(esc(d.dept)+' \u00b7 '+esc(d.sched));
     var subtitleHtml=subtitle?'<div class="on-dept" style="color:'+deptColor+'">'+subtitle+'</div>':'';
-    el.innerHTML='<div class="on-head" style="background:linear-gradient(135deg,'+c1+','+c2+')"><div class="on-texts"><div class="on-role" style="color:'+roleColor+'">'+esc(d.role)+'</div>'+subtitleHtml+'</div><div class="on-arr" style="background:'+arrBg+'"><svg viewBox="0 0 8 8" fill="none"><path d="M2 1.5l3.5 3L2 7" stroke="'+arrStroke+'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>';
-    el.addEventListener('click',function(e){e.stopPropagation();openNode(d.id);});
+    var expandable=!(d.kind==='group'&&!d.desc);
+    var arrHtml=expandable?'<div class="on-arr" style="background:'+arrBg+'"><svg viewBox="0 0 8 8" fill="none"><path d="M2 1.5l3.5 3L2 7" stroke="'+arrStroke+'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>':'';
+    if(!expandable) el.classList.add('onode-static');
+    el.innerHTML='<div class="on-head" style="background:linear-gradient(135deg,'+c1+','+c2+')"><div class="on-texts"><div class="on-role" style="color:'+roleColor+'">'+esc(d.role)+'</div>'+subtitleHtml+'</div>'+arrHtml+'</div>';
+    if(expandable) el.addEventListener('click',function(e){e.stopPropagation();openNode(d.id);});
     document.getElementById('stage').appendChild(el);
   });
   drawLines();
@@ -1369,9 +1377,10 @@ function posDP(id){
   var d=NODES.find(function(n){return n.id===id});if(!d)return;
   var MARGIN=24; // keeps the panel's own drop shadow clear of the viewport/embed edge
   var r=body.getBoundingClientRect();
-  var nx=(d.x+200)*zoom+vx+r.left, ny=d.y*zoom+vy+r.top;
+  var cw=document.getElementById(id)?.offsetWidth||200;
+  var nx=(d.x+cw)*zoom+vx+r.left, ny=d.y*zoom+vy+r.top;
   var left=nx+12;
-  if(left+320>window.innerWidth-MARGIN) left=Math.max(MARGIN,nx-200*zoom-328);
+  if(left+320>window.innerWidth-MARGIN) left=Math.max(MARGIN,nx-cw*zoom-328);
   left=Math.max(MARGIN,left);
   var dp=document.getElementById('dp');
   // Cap height to what actually fits — .dp-body scrolls internally past this instead of the panel overflowing the viewport
@@ -1390,7 +1399,7 @@ function posDP(id){
 function closeDP(){document.getElementById('dp').classList.remove('open');document.querySelectorAll('.onode.active').forEach(function(n){n.classList.remove('active');});activeId=null;drawLines();}
 document.getElementById('body').addEventListener('click',function(e){if(!e.target.closest('.onode')&&!e.target.closest('.dp'))closeDP();});
 document.addEventListener('keydown',function(e){if(e.key==='Escape')closeDP();});
-function nbox(id){var d=NODES.find(function(n){return n.id===id});var el=document.getElementById(id);if(!el||!d)return null;return{cx:d.x+100,top:d.y,bot:d.y+el.offsetHeight};}
+function nbox(id){var d=NODES.find(function(n){return n.id===id});var el=document.getElementById(id);if(!el||!d)return null;return{cx:d.x+el.offsetWidth/2,top:d.y,bot:d.y+el.offsetHeight};}
 function drawLines(){
   var svg=document.getElementById('svg-lines');var stage=document.getElementById('stage');
   svg.setAttribute('width',stage.offsetWidth);svg.setAttribute('height',stage.offsetHeight);

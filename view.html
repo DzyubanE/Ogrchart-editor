@@ -36,7 +36,7 @@ html,body{height:100%;font-family:'Geist',system-ui,sans-serif;background:var(--
 .onode:active{transform:scale(.98)}
 .onode:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .onode.active{border-color:var(--accent) !important;box-shadow:0 4px 20px rgba(0,0,0,.12),0 0 0 3px rgba(55,48,163,.15) !important}
-.onode.onode-group{border-radius:18px}
+.onode.onode-group{border-radius:18px;width:max-content;min-width:140px;max-width:320px}
 .on-head{padding:11px 12px 11px;display:flex;align-items:center;gap:8px}
 .onode-group .on-head{padding:14px 14px 13px}
 .on-texts{flex:1;min-width:0}
@@ -83,8 +83,11 @@ html,body{height:100%;font-family:'Geist',system-ui,sans-serif;background:var(--
 .err-title{font-size:18px;font-weight:700;color:var(--t1)}
 .err-sub{font-size:13px}
 
+.onode.onode-static{cursor:default}
+
 @media(hover:hover) and (pointer:fine){
   .onode:hover{transform:translateY(-2px);box-shadow:0 4px 20px rgba(0,0,0,.12)}
+  .onode.onode-static:hover{transform:none;box-shadow:var(--sh)}
   .zoom-ctrl button:hover{background:var(--bg2)}
 }
 
@@ -303,23 +306,31 @@ function init() {
 
   NODES.forEach(function(d) {
     const el = document.createElement('div');
+    const expandable = !(d.kind === 'group' && !d.desc);
     el.className = d.kind === 'group' ? 'onode onode-group' : 'onode';
+    if (!expandable) el.classList.add('onode-static');
     el.id = d.id;
-    el.setAttribute('role', 'button');
-    el.setAttribute('tabindex', '0');
-    el.setAttribute('aria-label', 'Подробнее: ' + d.role);
+    if (expandable) {
+      el.setAttribute('role', 'button');
+      el.setAttribute('tabindex', '0');
+      el.setAttribute('aria-label', 'Подробнее: ' + d.role);
+    }
     el.style.left = d.x + 'px';
     el.style.top = d.y + 'px';
     const c1 = ha(d.color, .5);
     const c2 = ha(d.color, .93);
     const subtitle = d.kind === 'group' ? esc(d.dept) : (esc(d.dept) + ' \u00B7 ' + esc(d.sched));
     const subtitleHtml = subtitle ? '<div class="on-dept">' + subtitle + '</div>' : '';
+    const arrHtml = expandable
+      ? '<div class="on-arr"><svg viewBox="0 0 8 8" fill="none"><path d="M2 1.5l3.5 3L2 7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>'
+      : '';
     el.innerHTML =
       '<div class="on-head" style="background:linear-gradient(135deg,' + c1 + ',' + c2 + ')">' +
       '<div class="on-texts"><div class="on-role">' + esc(d.role) + '</div>' +
       subtitleHtml + '</div>' +
-      '<div class="on-arr"><svg viewBox="0 0 8 8" fill="none"><path d="M2 1.5l3.5 3L2 7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>' +
+      arrHtml +
       '</div>';
+    if (!expandable) { stage.appendChild(el); return; }
     el.addEventListener('click', function(e) {
       e.stopPropagation();
       openNode(d.id);
@@ -333,7 +344,10 @@ function init() {
     stage.appendChild(el);
   });
 
-  const maxX = Math.max.apply(null, NODES.map(function(n){ return n.x + 200; }));
+  const maxX = Math.max.apply(null, NODES.map(function(n){
+    const el = document.getElementById(n.id);
+    return n.x + (el ? el.offsetWidth : 200);
+  }));
   const maxY = Math.max.apply(null, NODES.map(function(n){
     const el = document.getElementById(n.id);
     return n.y + (el ? el.offsetHeight : 70);
@@ -415,10 +429,11 @@ function posDP(id) {
   if (!d) return;
   const MARGIN = 24; // keeps the panel's own drop shadow clear of the viewport/embed edge
   const r = body.getBoundingClientRect();
-  const nx = (d.x + 200) * zoom + vx + r.left;
+  const cw = document.getElementById(id)?.offsetWidth || 200;
+  const nx = (d.x + cw) * zoom + vx + r.left;
   const ny = d.y * zoom + vy + r.top;
   let left = nx + 12;
-  if (left + 320 > window.innerWidth - MARGIN) left = Math.max(MARGIN, nx - 200 * zoom - 328);
+  if (left + 320 > window.innerWidth - MARGIN) left = Math.max(MARGIN, nx - cw * zoom - 328);
   left = Math.max(MARGIN, left);
   const dp = document.getElementById('dp');
   // Cap height to what actually fits — .dp-body scrolls internally past this instead of the panel overflowing the viewport
@@ -454,7 +469,7 @@ function nbox(id) {
   const el = document.getElementById(id);
   const d = NODES.find(function(n){ return n.id === id; });
   if (!el || !d) return null;
-  return {cx: d.x + 100, top: d.y, bot: d.y + el.offsetHeight};
+  return {cx: d.x + el.offsetWidth / 2, top: d.y, bot: d.y + el.offsetHeight};
 }
 
 function drawLines() {
