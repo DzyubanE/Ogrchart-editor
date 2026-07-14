@@ -157,7 +157,7 @@ input[type=text]:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(55,4
 ::-webkit-scrollbar-thumb{background:var(--b2);border-radius:50%}
 
 /* Mobile elements hidden by default on all screen sizes */
-.mob-toolbar,.mob-topbar,.mob-zoom,.mob-sel-bar{display:none}
+.mob-toolbar,.mob-topbar,.mob-zoom,.mob-sel-bar,.mob-menu{display:none}
 
 /* ═══════════════ MOBILE ═══════════════ */
 @media(max-width:768px){
@@ -1703,7 +1703,7 @@ snapshot = function() { _origSnapshot(); if(!_undoRedoing && DIAGRAM_ID) schedul
 
 <!-- Dropdown menu -->
 <div class="mob-menu-ov" id="mob-menu-ov" onclick="closeMobMenu()"></div>
-<div class="mob-menu" id="mob-menu">
+<div class="mob-menu" id="mob-menu" style="display:none">
   <div class="mob-menu-item" onclick="forceSave();closeMobMenu()">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M4 3h13l4 4v13a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M8 3v6h8V3"/><rect x="7" y="13" width="10" height="7"/></svg>
     Сохранить сейчас
@@ -1843,14 +1843,16 @@ function toggleMobMenu(){
   const isOpen = menu.classList.contains('open');
   if(isOpen){ closeMobMenu(); }
   else {
+    menu.style.display = 'block';
     ov.style.display = 'block';
+    void menu.offsetHeight; // force layout so the opacity/transform open transition actually animates
     menu.classList.add('open');
   }
 }
 function closeMobMenu(){
   const menu = document.getElementById('mob-menu');
   const ov = document.getElementById('mob-menu-ov');
-  if(menu) menu.classList.remove('open');
+  if(menu){ menu.classList.remove('open'); menu.style.display = 'none'; }
   if(ov) ov.style.display = 'none';
 }
 
