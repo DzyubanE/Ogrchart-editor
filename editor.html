@@ -1456,13 +1456,23 @@ function drawLines(){
 var rf;function sd(){cancelAnimationFrame(rf);rf=requestAnimationFrame(drawLines);}
 window.addEventListener('resize',sd);document.getElementById('body').addEventListener('scroll',sd);
 window.addEventListener('load',function(){
-  init();
-  setTimeout(function(){drawLines();fitV();},100);
-  // Show pan hint briefly on first load
-  setTimeout(function(){
-    var hint=document.getElementById('pan-hint');
-    if(hint){hint.style.opacity='1';setTimeout(function(){hint.style.opacity='0';},3500);}
-  },600);
+  function boot(){
+    // Group-card widths are measured from rendered text (see groupCardWidth) — wait for the
+    // real font first, or a fallback-font measurement can leave lines anchored slightly off
+    // from where the box ends up once Geist swaps in.
+    init();
+    setTimeout(function(){drawLines();fitV();},100);
+    // Show pan hint briefly on first load
+    setTimeout(function(){
+      var hint=document.getElementById('pan-hint');
+      if(hint){hint.style.opacity='1';setTimeout(function(){hint.style.opacity='0';},3500);}
+    },600);
+  }
+  if(document.fonts&&document.fonts.ready){
+    // Race against a timeout — a slow/blocked font request can otherwise stall boot() for a
+    // long time; better to render once with a fallback font than delay indefinitely.
+    Promise.race([document.fonts.ready,new Promise(function(r){setTimeout(r,1000);})]).then(boot);
+  }else{boot();}
 });
 <\/script>
 </body></html>`;

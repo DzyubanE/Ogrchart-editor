@@ -562,6 +562,13 @@ window.addEventListener('resize', sd);
       return;
     }
     document.getElementById('app').style.display = 'flex';
+    // Group-card widths are measured from rendered text (see groupCardWidth) — wait for the
+    // real font first, or a fallback-font measurement can leave lines anchored slightly off
+    // from where the box ends up once Geist swaps in. Race against a timeout — a slow/blocked
+    // font request can otherwise stall rendering for a long time.
+    if (document.fonts && document.fonts.ready) {
+      await Promise.race([document.fonts.ready, new Promise(r => setTimeout(r, 1000))]);
+    }
     init();
   } catch (e) {
     document.getElementById('err-view').style.display = 'flex';
