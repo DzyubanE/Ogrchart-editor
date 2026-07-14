@@ -419,7 +419,7 @@ function openNode(id) {
       empSlb.style.display = 'block';
       empDiv.innerHTML = d.emps.length === 0
         ? '<div class="dp-none">Список уточняется</div>'
-        : d.emps.map(function(e) {
+        : d.emps.slice().sort(function(a, b) { return (a.name || '').localeCompare(b.name || '', 'ru'); }).map(function(e) {
             const ini = (e.name || '').split(' ').map(function(w){ return w[0] || ''; }).join('').slice(0,2).toUpperCase();
             const avHtml = e.avatar ? '<img src="' + esc(e.avatar) + '" alt="">' : ini;
             const reddyHtml = e.reddy ? '<div class="dp-eid"><img class="reddy-ic" src="' + REDDY + '" alt="Reddy">' + esc(e.reddy) + '</div>' : '';

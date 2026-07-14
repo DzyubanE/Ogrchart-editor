@@ -1391,7 +1391,7 @@ function openNode(id){
     document.getElementById('dp-slb-duties').textContent='Обязанности';
     document.getElementById('dp-duties').innerHTML=d.duties&&d.duties.length?d.duties.map(function(t){return'<div class="dp-duty"><span class="dp-dd" style="background:'+esc(d.color)+'"></span>'+esc(t)+'</div>';}).join(''):'<div class="dp-none">—</div>';
     document.getElementById('dp-slb-emps').style.display=(d.emps===null||d.emps===undefined)?'none':'block';
-    document.getElementById('dp-emps').innerHTML=(d.emps===null||d.emps===undefined)?'':(!d.emps.length)?'<div class="dp-none">Список уточняется</div>':d.emps.map(function(e){
+    document.getElementById('dp-emps').innerHTML=(d.emps===null||d.emps===undefined)?'':(!d.emps.length)?'<div class="dp-none">Список уточняется</div>':d.emps.slice().sort(function(a,b){return(a.name||'').localeCompare(b.name||'','ru');}).map(function(e){
       var ini=(e.name||'').split(' ').map(function(w){return w[0]||'';}).join('').slice(0,2).toUpperCase();
       var avHtml=e.avatar?'<img src="'+esc(e.avatar)+'" alt="">':ini;
       var reddyHtml=e.reddy?'<div class="dp-eid"><img class="reddy-ic" src="'+REDDY_IC+'" alt="Reddy">'+esc(e.reddy)+'</div>':'';
