@@ -181,6 +181,70 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;c
 #import-in:focus{border-color:var(--accent)}
 .import-note{font-size:11.5px;line-height:1.6;color:var(--t2);background:var(--s2);border:1px solid var(--b1);border-left:2.5px solid var(--accent);border-radius:8px;padding:9px 11px;margin-bottom:11px}
 
+/* ── ТУР ПО ИНТЕРФЕЙСУ ──────────────────────────────── */
+.tour-block{position:fixed;inset:0;z-index:899;display:none}
+.tour-block.on{display:block}
+/* «дырка» в затемнении: огромная тень вокруг подсвеченного элемента */
+.tour-hole{
+  position:fixed;z-index:900;border-radius:12px;pointer-events:none;display:none;
+  box-shadow:0 0 0 9999px rgba(0,0,0,.58);
+  transition:top .28s cubic-bezier(.4,0,.2,1),left .28s cubic-bezier(.4,0,.2,1),
+             width .28s cubic-bezier(.4,0,.2,1),height .28s cubic-bezier(.4,0,.2,1);
+}
+.tour-hole.on{display:block}
+.tour-pop{
+  position:fixed;z-index:901;width:312px;max-width:calc(100vw - 24px);display:none;
+  background:var(--surface);border:1px solid var(--b2);border-radius:14px;
+  box-shadow:0 12px 48px rgba(0,0,0,.28);padding:16px 17px 13px;
+  transition:top .28s cubic-bezier(.4,0,.2,1),left .28s cubic-bezier(.4,0,.2,1);
+}
+.tour-pop.on{display:block}
+.tour-pop::after{content:'';position:absolute;width:11px;height:11px;background:var(--surface);
+  border:1px solid var(--b2);transform:rotate(45deg)}
+.tour-pop.p-right::after {left:-6.5px;top:26px;border-right:none;border-top:none}
+.tour-pop.p-left::after  {right:-6.5px;top:26px;border-left:none;border-bottom:none}
+.tour-pop.p-bottom::after{top:-6.5px;right:26px;border-right:none;border-bottom:none}
+.tour-pop.p-top::after   {bottom:-6.5px;left:26px;border-left:none;border-top:none}
+.tour-pop.p-center::after{display:none}
+.tour-step{font-size:10.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--accent);margin-bottom:6px}
+.tour-title{font-size:14.5px;font-weight:700;letter-spacing:-.01em;margin-bottom:6px}
+.tour-text{font-size:12.5px;line-height:1.6;color:var(--t2)}
+.tour-text b{color:var(--t1);font-weight:600}
+.tour-ft{display:flex;align-items:center;gap:7px;margin-top:14px}
+.tour-dots{display:flex;gap:4px;margin-right:auto}
+.tour-dots i{width:5px;height:5px;border-radius:50%;background:var(--b3);transition:background .15s,width .15s}
+.tour-dots i.on{background:var(--accent);width:14px;border-radius:3px}
+.tour-skip{font-size:11.5px;color:var(--t3);background:none;border:none;cursor:pointer;font-family:'Geist',sans-serif;padding:4px 2px}
+.tour-skip:hover{color:var(--t1)}
+@media(prefers-reduced-motion:reduce){.tour-hole,.tour-pop{transition:none}}
+
+/* ── ПОЛНАЯ ИНСТРУКЦИЯ ──────────────────────────────── */
+.help-wrap{display:flex;min-height:0;flex:1;overflow:hidden}
+.help-nav{width:196px;flex-shrink:0;border-right:1px solid var(--b1);padding:10px 8px;overflow-y:auto}
+.help-nav button{
+  display:block;width:100%;text-align:left;padding:7px 10px;border-radius:8px;border:none;
+  background:none;color:var(--t2);font-family:'Geist',sans-serif;font-size:12.5px;font-weight:500;cursor:pointer;
+}
+.help-nav button:hover{background:var(--s2);color:var(--t1)}
+.help-nav button.on{background:rgba(59,130,246,.12);color:var(--accent);font-weight:600}
+.help-body{flex:1;min-width:0;overflow-y:auto;padding:18px 20px 22px}
+.help-body h4{font-size:15px;font-weight:700;letter-spacing:-.01em;margin-bottom:10px}
+.help-body h5{font-size:12.5px;font-weight:700;margin:16px 0 6px}
+.help-body p{font-size:12.5px;line-height:1.7;color:var(--t2);margin-bottom:9px}
+.help-body b{color:var(--t1);font-weight:600}
+.help-body ul{margin:0 0 10px;padding-left:17px}
+.help-body li{font-size:12.5px;line-height:1.7;color:var(--t2);margin-bottom:4px}
+.help-body code{font-family:'Geist Mono',ui-monospace,monospace;font-size:11.5px;background:var(--s2);border:1px solid var(--b1);border-radius:5px;padding:1px 5px;color:var(--t1)}
+.help-body .note{background:var(--s2);border:1px solid var(--b1);border-left:2.5px solid var(--accent);border-radius:9px;padding:10px 12px;margin:12px 0}
+.help-body .note p{margin:0}
+.help-kbd{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+.help-kbd div{display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--t2)}
+.help-kbd kbd{
+  font-family:'Geist',sans-serif;font-size:11px;font-weight:600;background:var(--s2);
+  border:1px solid var(--b2);border-bottom-width:2px;border-radius:6px;padding:2px 7px;color:var(--t1);
+  min-width:74px;text-align:center;flex-shrink:0;
+}
+
 @media(max-width:1100px){
   .pane-l{width:220px}.pane-r{width:280px}
 }
@@ -219,6 +283,9 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;c
     </button>
 
     <div class="hdr-right">
+      <button class="btn-ic" id="btn-help" title="Инструкция и тур по редактору">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.2a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.1-2.4 3.6"/><path d="M12 17.2h.01"/></svg>
+      </button>
       <button class="btn" id="btn-lib" title="Свои цвета, бейджи и иконки">
         <svg viewBox="0 0 24 24"><path d="M12 3 4 7l8 4 8-4-8-4Z"/><path d="m4 12 8 4 8-4M4 17l8 4 8-4"/></svg>
         Библиотека
@@ -364,6 +431,38 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;c
       <button class="btn primary" id="code-dl">Скачать файл</button>
       <button class="btn" data-close>Закрыть</button>
     </div>
+  </div>
+</div>
+
+<div class="ov" id="ov-help">
+  <div class="modal" style="max-width:800px;height:76vh;max-height:660px">
+    <div class="modal-hd">
+      <h3>Как пользоваться конструктором хабов</h3>
+      <p>Хаб — страница-агрегатор раздела: секции с плитками-ссылками и блоки контактов.</p>
+    </div>
+    <div class="help-wrap">
+      <nav class="help-nav" id="help-nav"></nav>
+      <div class="help-body" id="help-body"></div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn" id="help-tour">Пройти тур по интерфейсу</button>
+      <button class="btn primary" data-close>Закрыть</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ТУР ══════════════════════════════════════════ -->
+<div class="tour-block" id="tour-block"></div>
+<div class="tour-hole" id="tour-hole"></div>
+<div class="tour-pop" id="tour-pop">
+  <div class="tour-step" id="tour-step"></div>
+  <div class="tour-title" id="tour-title"></div>
+  <div class="tour-text" id="tour-text"></div>
+  <div class="tour-ft">
+    <div class="tour-dots" id="tour-dots"></div>
+    <button class="tour-skip" id="tour-skip">Пропустить</button>
+    <button class="btn" id="tour-prev">Назад</button>
+    <button class="btn primary" id="tour-next">Далее</button>
   </div>
 </div>
 
@@ -2551,7 +2650,7 @@ document.addEventListener('click', function(e){
   if (e.target.closest('[data-close]')) closeOv();
 });
 document.addEventListener('keydown', function(e){
-  if (e.key === 'Escape') closeOv();
+  if (e.key === 'Escape') { if (tourAt >= 0) endTour(false); else closeOv(); }
   var mod = e.ctrlKey || e.metaKey;
   if (mod && e.key.toLowerCase() === 's') { e.preventDefault(); saveHub(); }
   if (mod && e.key.toLowerCase() === 'z' && !e.shiftKey) {
@@ -2625,6 +2724,261 @@ window.addEventListener('resize', sizeFrame);
 
 
 /* ═══════════════════════════════════════════════════
+   12b. ОБУЧЕНИЕ: ТУР ПО ИНТЕРФЕЙСУ
+   Коуч-марки по реальным элементам — так запоминается,
+   где что лежит. Карусель скриншотов этого не даёт.
+   ═══════════════════════════════════════════════════ */
+
+var LS_TOUR = 'hubs:onboarded:v1';
+
+var TOUR = [
+  { place:'center',
+    title:'Соберём хаб-страницу',
+    text:'Хаб — это страница-агрегатор раздела: секции с плитками-ссылками и блоки контактов. Здесь вы собираете её мышью, а на выходе получаете готовый HTML. Тур займёт минуту.' },
+
+  { hole:'.pane-l', place:'right',
+    title:'Структура',
+    text:'Всё дерево страницы: шапка, секции, плитки и группы контактов. Клик выбирает элемент, стрелки на строке двигают его, а кнопки внизу добавляют <b>секцию плиток</b> или <b>секцию контактов</b>.' },
+
+  { hole:'.stage', anchor:'.stage-bar', place:'bottom',
+    title:'Живое превью',
+    text:'Это ровно то, что уедет в экспорт — тот же генератор. Кликните по любому элементу прямо в превью, чтобы выбрать его. Справа сверху — проверка в <b>тёмной теме</b> и на узких экранах.' },
+
+  { hole:'.pane-r', place:'left',
+    title:'Свойства',
+    text:'Здесь правится выбранный элемент. У плитки — название, ссылка, тип контента и иконка. <b>Пока ссылка пуста</b>, плитка остаётся серой заглушкой «В работе»; как только вставите URL, она станет кликабельной и получит свой бейдж.' },
+
+  { hole:'#btn-lib', place:'bottom',
+    title:'Своя библиотека',
+    text:'Не хватает цвета секции, типа контента или иконки — добавьте свои. Библиотека хранится внутри хаба, поэтому уезжает вместе с экспортом и возвращается при импорте.' },
+
+  { hole:['#btn-import','#btn-export'], anchor:'#btn-import', place:'bottom',
+    title:'Импорт и экспорт',
+    text:'<b>Импорт HTML</b> — вставьте разметку существующей страницы, и она разберётся на секции и плитки. <b>Экспорт HTML</b> — готовая страница, которую можно скопировать в Confluence или скачать файлом.' },
+
+  { hole:'#save-status', place:'bottom',
+    title:'Сохранение',
+    text:'Правки уходят в облако сами, через пару секунд после того, как вы перестали печатать. Здесь видно текущий статус. Хаб лежит в общем списке документов рядом со схемами.' },
+
+  { hole:'#btn-help', place:'bottom',
+    title:'Инструкция всегда под рукой',
+    text:'Эта кнопка открывает полную инструкцию по всем разделам — и отсюда же можно пройти тур заново.' }
+];
+
+var tourAt = -1;
+
+function rectOf(selOrList){
+  var list = Array.isArray(selOrList) ? selOrList : [selOrList];
+  var r = null;
+  list.forEach(function(s){
+    var el = document.querySelector(s);
+    if (!el) return;
+    var b = el.getBoundingClientRect();
+    r = r ? { top:Math.min(r.top,b.top), left:Math.min(r.left,b.left),
+              right:Math.max(r.right,b.right), bottom:Math.max(r.bottom,b.bottom) }
+          : { top:b.top, left:b.left, right:b.right, bottom:b.bottom };
+  });
+  return r;
+}
+
+function placePop(pop, rect, side){
+  var pad = 14, vw = window.innerWidth, vh = window.innerHeight;
+  var pw = pop.offsetWidth, ph = pop.offsetHeight, top, left;
+
+  if (side === 'right')       { left = rect.right + pad;  top = rect.top + 8; }
+  else if (side === 'left')   { left = rect.left - pw - pad; top = rect.top + 8; }
+  else if (side === 'bottom') { top = rect.bottom + pad;  left = rect.right - pw; }
+  else if (side === 'top')    { top = rect.top - ph - pad; left = rect.left; }
+  else                        { top = (vh - ph) / 2; left = (vw - pw) / 2; }
+
+  pop.style.left = Math.max(12, Math.min(left, vw - pw - 12)) + 'px';
+  pop.style.top  = Math.max(12, Math.min(top,  vh - ph - 12)) + 'px';
+}
+
+function showTourStep(i){
+  var s = TOUR[i];
+  if (!s) { endTour(true); return; }
+  tourAt = i;
+
+  var hole = $('tour-hole'), pop = $('tour-pop');
+  var r = s.hole ? rectOf(s.hole) : null;
+
+  if (r) {
+    var pad = 6;
+    hole.style.top = (r.top - pad) + 'px';
+    hole.style.left = (r.left - pad) + 'px';
+    hole.style.width = (r.right - r.left + pad * 2) + 'px';
+    hole.style.height = (r.bottom - r.top + pad * 2) + 'px';
+  } else {
+    /* без подсветки — просто затемняем всё */
+    hole.style.top = (window.innerHeight / 2) + 'px';
+    hole.style.left = (window.innerWidth / 2) + 'px';
+    hole.style.width = '0px';
+    hole.style.height = '0px';
+  }
+
+  $('tour-step').textContent = 'Шаг ' + (i + 1) + ' из ' + TOUR.length;
+  $('tour-title').textContent = s.title;
+  $('tour-text').innerHTML = s.text;
+  $('tour-dots').innerHTML = TOUR.map(function(_, k){
+    return '<i class="' + (k === i ? 'on' : '') + '"></i>';
+  }).join('');
+  $('tour-prev').style.display = i ? '' : 'none';
+  $('tour-next').textContent = i === TOUR.length - 1 ? 'Готово' : 'Далее';
+
+  pop.className = 'tour-pop on p-' + (s.place || 'center');
+  var anchorRect = s.anchor ? rectOf(s.anchor) : r;
+  placePop(pop, anchorRect || { top:0, left:0, right:0, bottom:0 }, s.place || 'center');
+}
+
+function startTour(){
+  /* с выбранной плиткой панель свойств на шаге 4 не пустая */
+  var firstTile = null;
+  model.sections.some(function(s){
+    if (s.type === 'tiles' && s.tiles.length) { firstTile = s.tiles[0]; return true; }
+    return false;
+  });
+  if (firstTile) {
+    selId = 't:' + firstTile.id;
+    renderOutline();
+    renderInspector();
+    if (frameReady) post({ t:'sel', id:selId });
+  }
+
+  closeOv();
+  $('tour-block').classList.add('on');
+  $('tour-hole').classList.add('on');
+  showTourStep(0);
+}
+
+function endTour(done){
+  tourAt = -1;
+  $('tour-block').classList.remove('on');
+  $('tour-hole').classList.remove('on');
+  $('tour-pop').classList.remove('on');
+  try { localStorage.setItem(LS_TOUR, '1'); } catch (e) {}
+  if (done) toast('Инструкция всегда доступна по кнопке «?»');
+}
+
+$('tour-next').addEventListener('click', function(){ showTourStep(tourAt + 1); });
+$('tour-prev').addEventListener('click', function(){ showTourStep(tourAt - 1); });
+$('tour-skip').addEventListener('click', function(){ endTour(false); });
+window.addEventListener('resize', function(){ if (tourAt >= 0) showTourStep(tourAt); });
+
+function maybeStartTour(){
+  var seen = null;
+  try { seen = localStorage.getItem(LS_TOUR); } catch (e) {}
+  if (seen) return;
+  setTimeout(startTour, 700);
+}
+
+
+/* ═══════════════════════════════════════════════════
+   12c. ПОЛНАЯ ИНСТРУКЦИЯ
+   ═══════════════════════════════════════════════════ */
+
+var HELP = [
+  { id:'start', name:'С чего начать', html:
+    '<h4>С чего начать</h4>' +
+    '<p>Хаб-страница собирается из трёх вещей: <b>шапки</b>, <b>секций с плитками</b> и <b>секций с контактами</b>. Порядок работы обычно такой:</p>' +
+    '<ul>' +
+      '<li>В панели «Структура» выберите <b>Шапку</b> и впишите заголовок, кикер и лид-текст.</li>' +
+      '<li>Добавьте секцию плиток и наполните её ссылками на статьи, таблицы и другие хабы.</li>' +
+      '<li>Добавьте секцию контактов — по группе на роль: Supervisors, Поддержка, QC.</li>' +
+      '<li>Проверьте страницу в тёмной теме и на узком экране переключателями над превью.</li>' +
+      '<li>Нажмите «Экспорт HTML» и вставьте результат в Confluence.</li>' +
+    '</ul>' +
+    '<div class="note"><p>Всё, что видно в превью, и есть то, что уйдёт в экспорт: превью рисует тот же генератор, что и готовую страницу.</p></div>' },
+
+  { id:'sections', name:'Секции и плитки', html:
+    '<h4>Секции и плитки</h4>' +
+    '<p>Секция — это заголовок с цветной полоской слева и карточка под ним. Цвет полоски ни к чему не привязан жёстко: он нужен, чтобы соседние блоки визуально различались.</p>' +
+    '<h5>Ширина плиток</h5>' +
+    '<p>В свойствах секции задаётся минимальная ширина колонки. <code>220px</code> — стандарт, <code>240–280px</code> берите для длинных названий и плиток с подписью.</p>' +
+    '<h5>Плитка</h5>' +
+    '<ul>' +
+      '<li><b>Название</b> — короткое. Если это аббревиатура, расшифровку кладите в <b>Подпись</b>, а не в скобки после названия.</li>' +
+      '<li><b>Ссылка</b> — пока она пуста, плитка остаётся серой некликабельной заглушкой с бейджем «В работе» и строкой статуса. Вставили URL — плитка стала ссылкой и получила бейдж своего типа.</li>' +
+      '<li><b>Тип контента</b> — бейдж в правом верхнем углу: статья, список, таблица, хаб, курс. Каждый тип имеет свой цвет.</li>' +
+      '<li><b>Иконка</b> — контурная, слева от бейджа.</li>' +
+    '</ul>' +
+    '<div class="note"><p>Правило дизайн-системы: разные смыслы — разные цвета бейджей. Не переиспользуйте цвет существующего типа для нового.</p></div>' },
+
+  { id:'contacts', name:'Контакты', html:
+    '<h4>Контакты</h4>' +
+    '<p>Секция контактов состоит из <b>групп</b>. Каждая группа — отдельная карточка со своим заголовком и коротким описанием роли: Supervisors, Поддержка, QC, Telegram. Не сваливайте всех в одну группу.</p>' +
+    '<h5>Человек</h5>' +
+    '<ul>' +
+      '<li><b>Фото</b> — ссылка на изображение. Если фото нет, рисуется нейтральная серая заглушка-силуэт; цветной кружок с инициалами дизайн-система не разрешает.</li>' +
+      '<li><b>ID / логин</b> — рядом появляется кнопка копирования в один клик.</li>' +
+      '<li><b>Иконка перед ID</b> задаётся на уровне группы: Reddy, Telegram или без иконки.</li>' +
+    '</ul>' },
+
+  { id:'library', name:'Библиотека', html:
+    '<h4>Библиотека хаба</h4>' +
+    '<p>Кнопка «Библиотека» в шапке. Здесь заводятся <b>свои цвета</b> полосок секций, <b>свои бейджи</b> типов контента и <b>свои иконки</b>.</p>' +
+    '<p>Библиотека хранится внутри самого хаба. Поэтому экспорт самодостаточен, а импорт возвращает страницу вместе со всеми её цветами и бейджами. Обратная сторона: в новый хаб библиотеку нужно перенести — проще всего импортом готовой страницы.</p>' +
+    '<h5>Иконки</h5>' +
+    '<p>Вставьте <code>&lt;svg&gt;</code> целиком или только значение атрибута <code>d</code>. Иконка должна быть контурной с <code>viewBox="0 0 24 24"</code> — тогда тёмная тема сможет её перекрасить.</p>' +
+    '<div class="note"><p>Удалите свой бейдж или иконку — плитки, которые на них ссылались, автоматически вернутся к стандартным, а не сломаются.</p></div>' },
+
+  { id:'import', name:'Импорт HTML', html:
+    '<h4>Импорт HTML</h4>' +
+    '<p>Кнопка «Импорт HTML» принимает разметку любой хаб-страницы и разбирает её обратно в конструктор — удобно, чтобы не пересобирать руками уже существующие хабы.</p>' +
+    '<ul>' +
+      '<li><b>Страницы из этого конструктора</b> возвращаются один в один: модель лежит внутри страницы, вместе с библиотекой.</li>' +
+      '<li><b>Страницы, свёрстанные руками</b>, читаются по структуре дизайн-системы. Незнакомые иконки, цвета и типы бейджей не теряются — они попадают в библиотеку документа.</li>' +
+    '</ul>' +
+    '<div class="note"><p>Импорт заменяет текущее содержимое хаба. Если хотите сохранить и то, и другое — создайте новый хаб в списке документов и импортируйте туда.</p></div>' },
+
+  { id:'export', name:'Экспорт', html:
+    '<h4>Экспорт и вставка в Confluence</h4>' +
+    '<p>«Экспорт HTML» открывает готовую страницу: её можно скопировать в буфер или скачать файлом.</p>' +
+    '<p>Страница автономна — вся вёрстка и логика внутри, внешних зависимостей нет, кроме шрифтов Google Fonts. Ссылки открываются в новой вкладке, плитки без ссылки остаются заглушками, у контактов работает кнопка копирования ID.</p>' +
+    '<h5>Цвета не теряются</h5>' +
+    '<p>CSS-классы для цветов генерируются из тех цветов, что реально встречаются на странице. Это закрывает старую проблему дизайн-системы, когда забытый класс делал элемент невидимым.</p>' },
+
+  { id:'theme', name:'Тема и сохранение', html:
+    '<h4>Тема, ширина, сохранение</h4>' +
+    '<h5>Проверка вида</h5>' +
+    '<p>Переключатели над превью показывают страницу в <b>светлой и тёмной</b> теме и на ширине планшета и телефона. На готовой странице тема определяется автоматически — по теме Confluence у читателя.</p>' +
+    '<h5>Сохранение</h5>' +
+    '<p>Правки уходят в облако сами, примерно через две секунды после последнего изменения; статус виден в шапке. <code>Ctrl+S</code> сохраняет немедленно. Хабы лежат в общем списке документов рядом со схемами.</p>' },
+
+  { id:'keys', name:'Горячие клавиши', html:
+    '<h4>Горячие клавиши</h4>' +
+    '<div class="help-kbd">' +
+      '<div><kbd>Ctrl+S</kbd> сохранить немедленно</div>' +
+      '<div><kbd>Ctrl+Z</kbd> отменить</div>' +
+      '<div><kbd>Ctrl+Shift+Z</kbd> вернуть</div>' +
+      '<div><kbd>Esc</kbd> закрыть окно или прервать тур</div>' +
+    '</div>' +
+    '<p>Отмена работает и по структурным правкам, и по тексту. Внутри полей ввода <code>Ctrl+Z</code> отдаётся браузеру — это обычная отмена набора.</p>' }
+];
+
+var helpAt = 'start';
+
+function renderHelp(){
+  $('help-nav').innerHTML = HELP.map(function(s){
+    return '<button data-help="' + s.id + '" class="' + (s.id === helpAt ? 'on' : '') + '">' + esc(s.name) + '</button>';
+  }).join('');
+  var sec = HELP.filter(function(s){ return s.id === helpAt; })[0] || HELP[0];
+  $('help-body').innerHTML = sec.html;
+  $('help-body').scrollTop = 0;
+}
+
+$('help-nav').addEventListener('click', function(e){
+  var b = e.target.closest('[data-help]');
+  if (!b) return;
+  helpAt = b.dataset.help;
+  renderHelp();
+});
+
+$('btn-help').addEventListener('click', function(){ renderHelp(); openOv('ov-help'); });
+$('help-tour').addEventListener('click', startTour);
+
+
+/* ═══════════════════════════════════════════════════
    13. АВТОРИЗАЦИЯ И СТАРТ
    ═══════════════════════════════════════════════════ */
 
@@ -2669,7 +3023,7 @@ function showAuth(){
     return;
   }
 
-  await loadHub();
+  if (await loadHub()) maybeStartTour();
 })();
 
 })();
