@@ -1122,7 +1122,8 @@ var ACCENTS = ['#5B4670','#7A4A2B','#3D5A73','#6B2B3A','#2E6B4F','#5C7A6E','#7A5
 
 /* Иконки-кружки перед ID контакта */
 var HANDLE_ICONS = {
-  id:       { label:'ID',       img:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTIiIGZpbGw9IiM2NDc0OGIiLz48cGF0aCBkPSJNMTUuNCAxMmEzLjQgMy40IDAgMSAxLTMuNC0zLjRBMy40IDMuNCAwIDAgMSAxNS40IDEyem0wIDB2MS4zYTIuMSAyLjEgMCAwIDAgNC4yIDBWMTJhNy42IDcuNiAwIDEgMC0zIDYuMSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjEuNiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PC9zdmc+', title:'Скопировать ID' },
+  reddy:    { label:'Reddy',    img:'https://i.postimg.cc/1tn0HMbX/1200x630wa.png', title:'Скопировать логин' },
+  id:       { label:'Нейтральная', img:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTIiIGZpbGw9IiM2NDc0OGIiLz48cGF0aCBkPSJNMTUuNCAxMmEzLjQgMy40IDAgMSAxLTMuNC0zLjRBMy40IDMuNCAwIDAgMSAxNS40IDEyem0wIDB2MS4zYTIuMSAyLjEgMCAwIDAgNC4yIDBWMTJhNy42IDcuNiAwIDEgMC0zIDYuMSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjEuNiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PC9zdmc+', title:'Скопировать ID' },
   telegram: { label:'Telegram', bg:'#229ED9', path:'m22 4-3.5 16.5-6-4.5-3 3-.5-5.5L20 6 6.5 12.5 2 11l20-7Z', title:'Скопировать ник' },
   none:     { label:'Без иконки', title:'Скопировать' }
 };
@@ -1224,7 +1225,7 @@ function newPerson(){
 }
 function newGroup(t){
   return { id:uid('g'), title:t||'Новая группа', description:'Короткое описание роли группы.',
-           handleIcon:'id', people:[newPerson()] };
+           handleIcon:'reddy', people:[newPerson()] };
 }
 function newTilesSection(t){
   return { id:uid('s'), type:'tiles', title:t||'Новая секция',
@@ -1348,7 +1349,7 @@ function personHtml(p, hi, editing){
     h += '            <span class="contact-role text-[10px] text-[#44546F] uppercase tracking-wide">' + esc(p.role) + '</span>\n';
   }
   if (p.handle) {
-    var cfg = HANDLE_ICONS[hi] || HANDLE_ICONS.id;
+    var cfg = HANDLE_ICONS[hi] || HANDLE_ICONS.reddy;
     h += '            <div class="flex items-center gap-1.5">\n';
     if (cfg.img) {
       h += '              <div class="flex-shrink-0 w-3.5 h-3.5 rounded-full overflow-hidden">\n';
@@ -2365,7 +2366,8 @@ function parseHubHtml(html){
       var handleImg = art.querySelector('.contact-handle');
       if (handleImg) {
         var box = handleImg.parentElement;
-        if (box.querySelector('img')) hi = 'id';
+        var hImg = box.querySelector('img');
+        if (hImg) hi = /postimg/.test(hImg.getAttribute('src') || '') ? 'reddy' : 'id';
         else if (box.querySelector('svg[stroke]') && box.querySelector('div[class*="bg-["]')) hi = 'telegram';
       }
       var g = {
@@ -2911,7 +2913,7 @@ var HELP = [
     '<ul>' +
       '<li><b>Фото</b> — ссылка на изображение. Если фото нет, рисуется нейтральная серая заглушка-силуэт; цветной кружок с инициалами дизайн-система не разрешает.</li>' +
       '<li><b>ID / логин</b> — рядом появляется кнопка копирования в один клик.</li>' +
-      '<li><b>Иконка перед ID</b> задаётся на уровне группы: нейтральная, Telegram или без иконки.</li>' +
+      '<li><b>Иконка перед ID</b> задаётся на уровне группы: Reddy, Telegram, нейтральная или без иконки.</li>' +
     '</ul>' },
 
   { id:'library', name:'Библиотека', html:
