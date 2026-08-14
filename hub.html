@@ -1,13 +1,14 @@
 <!DOCTYPE html>
-<!-- OrgChart Editor · Hub Builder · Copyright (C) 2026 Studio · AGPL v3.0 · https://github.com/DzyubanE/Ogrchart-editor/blob/main/LICENSE -->
+<!-- Studio · Hubs · Copyright (C) 2026 Studio · AGPL v3.0 · https://github.com/DzyubanE/Ogrchart-editor/blob/main/LICENSE -->
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Hub Builder — конструктор хаб-страниц</title>
+<title>Studio · Hubs — конструктор хаб-страниц</title>
 <meta name="description" content="Визуальный конструктор хаб-страниц: секции, плитки, контакты. Экспорт в готовый HTML по дизайн-системе.">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNyIgZmlsbD0iIzM3MzBhMyIvPjxyZWN0IHg9IjUiIHk9IjYiIHdpZHRoPSIyMiIgaGVpZ2h0PSI1IiByeD0iMiIgZmlsbD0id2hpdGUiLz48cmVjdCB4PSI1IiB5PSIxNCIgd2lkdGg9IjEwIiBoZWlnaHQ9IjEyIiByeD0iMiIgZmlsbD0id2hpdGUiIG9wYWNpdHk9IjAuODUiLz48cmVjdCB4PSIxNyIgeT0iMTQiIHdpZHRoPSIxMCIgaGVpZ2h0PSIxMiIgcng9IjIiIGZpbGw9IndoaXRlIiBvcGFjaXR5PSIwLjg1Ii8+PC9zdmc+">
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -149,6 +150,37 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;c
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(70px);background:var(--t1);color:var(--bg);padding:10px 18px;border-radius:10px;font-size:12.5px;font-weight:600;z-index:900;opacity:0;transition:transform .22s,opacity .22s;pointer-events:none;box-shadow:var(--sh2)}
 .toast.on{transform:translateX(-50%) translateY(0);opacity:1}
 
+/* ── AUTH ───────────────────────────────────────────── */
+.auth-screen{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:var(--bg);z-index:800;padding:20px}
+.auth-screen.on{display:flex}
+.auth-box{background:var(--surface);border:1px solid var(--b1);border-radius:18px;padding:34px 30px;max-width:390px;width:100%;text-align:center;box-shadow:var(--sh2)}
+.auth-logo{width:46px;height:46px;border-radius:13px;background:#3730a3;display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+.auth-logo svg{width:24px;height:24px}
+.auth-title{font-size:18px;font-weight:700;letter-spacing:-.02em;margin-bottom:7px}
+.auth-sub{font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:22px}
+.google-btn{width:100%;display:flex;align-items:center;justify-content:center;gap:9px;padding:11px;border-radius:10px;border:1px solid var(--b2);background:var(--surface);color:var(--t1);font-family:'Geist',sans-serif;font-size:13.5px;font-weight:600;cursor:pointer;transition:background .12s}
+.google-btn:hover{background:var(--s2)}
+.google-btn svg{width:17px;height:17px;flex-shrink:0}
+#save-status{font-size:11.5px;font-weight:600;color:var(--t3);white-space:nowrap;min-width:74px}
+
+/* ── БИБЛИОТЕКА ─────────────────────────────────────── */
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--b1);padding:0 18px;flex-shrink:0}
+.tabs button{padding:10px 12px;font-size:12.5px;font-weight:600;background:none;border:none;border-bottom:2px solid transparent;color:var(--t2);cursor:pointer;font-family:'Geist',sans-serif;margin-bottom:-1px}
+.tabs button.on{color:var(--accent);border-bottom-color:var(--accent)}
+.lib-row{display:flex;align-items:center;gap:8px;padding:8px 9px;border:1px solid var(--b1);border-radius:10px;margin-bottom:6px}
+.lib-row .sw-lg{width:28px;height:28px;border-radius:8px;flex-shrink:0;border:1px solid var(--b2)}
+.lib-row .ic-lg{width:30px;height:30px;border-radius:8px;border:1px solid var(--b1);background:var(--s2);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--t1)}
+.lib-row .ic-lg svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.lib-row input[type=text]{flex:1;min-width:0}
+.lib-row .mono{font-family:'Geist Mono',ui-monospace,monospace;font-size:11.5px}
+.lib-add{border:1px dashed var(--b2);border-radius:10px;padding:11px;margin-top:10px}
+.lib-add .fl{margin-top:10px}
+.lib-add .fl:first-child{margin-top:0}
+.lib-empty{font-size:12px;color:var(--t3);line-height:1.7;padding:4px 2px 10px}
+#import-in{width:100%;height:230px;font-family:'Geist Mono',ui-monospace,monospace;font-size:11px;line-height:1.5;background:var(--s2);border:1px solid var(--b1);border-radius:9px;padding:11px;color:var(--t1);resize:vertical;outline:none}
+#import-in:focus{border-color:var(--accent)}
+.import-note{font-size:11.5px;line-height:1.6;color:var(--t2);background:var(--s2);border:1px solid var(--b1);border-left:2.5px solid var(--accent);border-radius:8px;padding:9px 11px;margin-bottom:11px}
+
 @media(max-width:1100px){
   .pane-l{width:220px}.pane-r{width:280px}
 }
@@ -165,7 +197,7 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;c
 
   <!-- ══ HEADER ══════════════════════════════════════ -->
   <header class="hdr">
-    <a class="logo" href="index.html" title="На главную">
+    <a class="logo" href="dashboard.html" title="К списку документов">
       <span class="logo-ic">
         <svg viewBox="0 0 32 32" fill="none">
           <rect x="5" y="6" width="22" height="5" rx="2" fill="white"/>
@@ -173,10 +205,11 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;c
           <rect x="17" y="14" width="10" height="12" rx="2" fill="white" opacity=".85"/>
         </svg>
       </span>
-      Hub <b>Builder</b>
+      Studio <b>Hubs</b>
     </a>
     <div class="sep"></div>
     <input id="doc-title" type="text" placeholder="Название хаба" maxlength="90">
+    <span id="save-status"></span>
     <div class="sep"></div>
     <button class="btn-ic" id="btn-undo" title="Отменить (Ctrl+Z)">
       <svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg>
@@ -186,13 +219,13 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;c
     </button>
 
     <div class="hdr-right">
-      <button class="btn" id="btn-docs" title="Сохранённые хабы">
-        <svg viewBox="0 0 24 24"><path d="M3 7h18M3 12h18M3 17h18"/></svg>
-        Мои хабы
+      <button class="btn" id="btn-lib" title="Свои цвета, бейджи и иконки">
+        <svg viewBox="0 0 24 24"><path d="M12 3 4 7l8 4 8-4-8-4Z"/><path d="m4 12 8 4 8-4M4 17l8 4 8-4"/></svg>
+        Библиотека
       </button>
-      <button class="btn" id="btn-save" title="Сохранить в браузере (Ctrl+S)">
-        <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
-        Сохранить
+      <button class="btn" id="btn-import" title="Вставить HTML существующего хаба">
+        <svg viewBox="0 0 24 24"><path d="M3 15v4a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-4"/><path d="m7 8 5-5 5 5M12 3v12"/></svg>
+        Импорт HTML
       </button>
       <button class="btn primary" id="btn-export" title="Скачать готовую HTML-страницу">
         <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5M12 15V3"/></svg>
@@ -254,19 +287,67 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;c
   </div>
 </div>
 
-<!-- ══ MODALS ═══════════════════════════════════════ -->
-<div class="ov" id="ov-docs">
-  <div class="modal">
-    <div class="modal-hd">
-      <h3>Мои хабы</h3>
-      <p>Черновики хранятся в этом браузере. Для переноса используйте экспорт JSON.</p>
+<!-- ══ AUTH ═════════════════════════════════════════ -->
+<div class="auth-screen" id="auth-view">
+  <div class="auth-box">
+    <div class="auth-logo">
+      <svg viewBox="0 0 32 32" fill="none">
+        <rect x="5" y="6" width="22" height="5" rx="2" fill="white"/>
+        <rect x="5" y="14" width="10" height="12" rx="2" fill="white" opacity=".85"/>
+        <rect x="17" y="14" width="10" height="12" rx="2" fill="white" opacity=".85"/>
+      </svg>
     </div>
-    <div class="modal-bd" id="docs-list"></div>
+    <div class="auth-title">Studio · Hubs</div>
+    <div class="auth-sub">Конструктор хаб-страниц. Войдите, чтобы хабы сохранялись в облако рядом с вашими схемами.</div>
+    <button class="google-btn" id="btn-signin">
+      <svg viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+        <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
+        <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#34A853"/>
+        <path d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
+        <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
+      </svg>
+      Войти через Google
+    </button>
+  </div>
+</div>
+
+<!-- ══ MODALS ═══════════════════════════════════════ -->
+<div class="ov" id="ov-import">
+  <div class="modal" style="max-width:760px">
+    <div class="modal-hd">
+      <h3>Импорт HTML</h3>
+      <p>Вставьте разметку существующей хаб-страницы — она разберётся на секции, плитки и контакты.</p>
+    </div>
+    <div class="modal-bd">
+      <div class="import-note">
+        Страницы, выгруженные отсюда, возвращаются один в один — вместе с библиотекой цветов, бейджей и иконок.
+        Хабы, свёрстанные руками, разбираются по структуре дизайн-системы: незнакомые иконки и цвета
+        попадут в библиотеку документа автоматически.
+      </div>
+      <textarea id="import-in" spellcheck="false" placeholder="&lt;!doctype html&gt; ..."></textarea>
+      <div id="import-err" class="insp-empty" style="margin-top:9px"></div>
+    </div>
     <div class="modal-ft">
-      <button class="btn" id="docs-import">Импорт JSON</button>
-      <button class="btn" id="docs-json">Экспорт JSON</button>
-      <button class="btn" id="docs-new">Новый хаб</button>
-      <button class="btn primary" data-close>Закрыть</button>
+      <button class="btn" data-close>Отмена</button>
+      <button class="btn primary" id="import-go">Разобрать и открыть</button>
+    </div>
+  </div>
+</div>
+
+<div class="ov" id="ov-lib">
+  <div class="modal" style="max-width:620px">
+    <div class="modal-hd">
+      <h3>Библиотека хаба</h3>
+      <p>Свои цвета, бейджи и иконки. Хранятся внутри этого хаба и уезжают вместе с экспортом.</p>
+    </div>
+    <div class="tabs" id="lib-tabs">
+      <button data-tab="colors" class="on">Цвета</button>
+      <button data-tab="badges">Бейджи</button>
+      <button data-tab="icons">Иконки</button>
+    </div>
+    <div class="modal-bd" id="lib-body"></div>
+    <div class="modal-ft">
+      <button class="btn primary" data-close>Готово</button>
     </div>
   </div>
 </div>
@@ -286,7 +367,6 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;c
   </div>
 </div>
 
-<input type="file" id="file-in" accept=".json,application/json" style="display:none">
 <div class="toast" id="toast"></div>
 
 
@@ -953,6 +1033,83 @@ var BASE_COLORS = ['#0052CC','#172B4D','#253858','#42526E','#44546F','#5E6C84','
 
 
 /* ═══════════════════════════════════════════════════
+   1b. БИБЛИОТЕКА ДОКУМЕНТА
+   Свои цвета/бейджи/иконки живут в самом хабе (model.lib),
+   поэтому экспорт и импорт самодостаточны.
+   ═══════════════════════════════════════════════════ */
+
+function lib(){
+  if (!model.lib) model.lib = {};
+  var l = model.lib;
+  if (!Array.isArray(l.colors)) l.colors = [];
+  if (!l.badges || typeof l.badges !== 'object') l.badges = {};
+  if (!l.icons  || typeof l.icons  !== 'object') l.icons  = {};
+  return l;
+}
+
+/* Встроенные иконки хранятся строкой, где подпути разделены ' M'.
+   Пользовательские — массивом путей. Приводим к массиву. */
+function splitPaths(d){
+  return String(d).split(' M').map(function(p, i){ return i ? 'M' + p : p; });
+}
+
+/** {key: {name, paths[], std}} — встроенные плюс пользовательские. */
+function allIcons(){
+  var out = {};
+  ICON_KEYS.forEach(function(k){ out[k] = { name:k, paths:splitPaths(ICONS[k]), std:true }; });
+  var li = lib().icons;
+  Object.keys(li).forEach(function(k){
+    out[k] = { name: li[k].name || k, paths: li[k].paths || [], std:false };
+  });
+  return out;
+}
+
+/** {key: {label, color, icon, std}} — встроенные плюс пользовательские. */
+function allBadges(){
+  var out = {};
+  BADGE_KEYS.forEach(function(k){
+    out[k] = { label:BADGES[k].label, color:BADGES[k].color, icon:BADGES[k].icon, std:true };
+  });
+  var lb = lib().badges;
+  Object.keys(lb).forEach(function(k){
+    out[k] = { label: lb[k].label || k, color: lb[k].color || '#42526E', icon: lb[k].icon || 'doc', std:false };
+  });
+  return out;
+}
+
+/** Палитра полосок секций: стандартная плюс своя. */
+function allAccents(){
+  return ACCENTS.concat(lib().colors.filter(function(c){ return ACCENTS.indexOf(c) < 0; }));
+}
+
+function normHex(v){
+  var s = String(v || '').trim();
+  if (/^[0-9a-fA-F]{6}$/.test(s)) s = '#' + s;
+  if (/^#[0-9a-fA-F]{3}$/.test(s)) {
+    s = '#' + s[1] + s[1] + s[2] + s[2] + s[3] + s[3];
+  }
+  return /^#[0-9a-fA-F]{6}$/.test(s) ? s.toUpperCase() : null;
+}
+
+/** Достаёт пути из вставленного <svg> или из голого значения d. */
+function parseIconInput(text){
+  var s = String(text || '').trim();
+  if (!s) return null;
+  if (s.indexOf('<') >= 0) {
+    var doc = new DOMParser().parseFromString(
+      s.indexOf('<svg') >= 0 ? s : '<svg>' + s + '</svg>', 'image/svg+xml');
+    var ds = [];
+    doc.querySelectorAll('path').forEach(function(p){
+      var d = p.getAttribute('d');
+      if (d) ds.push(d.trim());
+    });
+    return ds.length ? ds : null;
+  }
+  return [s];
+}
+
+
+/* ═══════════════════════════════════════════════════
    2. МОДЕЛЬ
    ═══════════════════════════════════════════════════ */
 
@@ -986,6 +1143,7 @@ function starterModel(){
     pageTitle: 'Новый хаб',
     lang: 'ru',
     sdk: true,
+    lib: { colors: [], badges: {}, icons: {} },
     hero: {
       kicker: 'Название раздела',
       titleMain: 'Название',
@@ -1014,11 +1172,7 @@ function starterModel(){
    3. СОСТОЯНИЕ
    ═══════════════════════════════════════════════════ */
 
-var LS_DOCS = 'hubbuilder:docs';
-var LS_LAST = 'hubbuilder:last';
-
 var model = starterModel();
-var docId = null;
 var selId = 'hero';
 var theme = 'light';
 var scrollY = 0;
@@ -1045,10 +1199,10 @@ function colorRules(hex){
 }
 
 function iconSvg(key, cls, sw){
-  var d = ICONS[key] || ICONS.doc;
-  var paths = d.split(' M').map(function(p,i){ return i ? 'M' + p : p; });
-  var body = paths.map(function(p){
-    return '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="' + sw + '" d="' + p + '"/>';
+  var reg = allIcons();
+  var ic = reg[key] || reg.doc;
+  var body = (ic.paths || []).map(function(p){
+    return '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="' + sw + '" d="' + att(p) + '"/>';
   }).join('');
   return '<svg class="' + cls + '" fill="none" stroke="currentColor" viewBox="0 0 24 24">' + body + '</svg>';
 }
@@ -1206,21 +1360,23 @@ function usedColors(m){
   var set = {};
   BASE_COLORS.forEach(function(c){ set[c] = 1; });
   set[WIP_COLOR] = 1;
-  BADGE_KEYS.forEach(function(k){ set[BADGES[k].color] = 1; });
+  var badges = allBadges();
+  Object.keys(badges).forEach(function(k){ set[badges[k].color] = 1; });
   Object.keys(HANDLE_ICONS).forEach(function(k){
     if (HANDLE_ICONS[k].bg) set[HANDLE_ICONS[k].bg] = 1;
   });
+  allAccents().forEach(function(c){ set[c] = 1; });
   (m.sections || []).forEach(function(s){ if (s.accent) set[s.accent] = 1; });
   return Object.keys(set);
 }
 
 function badgeTypesJs(){
-  var out = [];
-  BADGE_KEYS.forEach(function(k){
-    var b = BADGES[k];
-    out.push('    ' + k + ': { label: ' + JSON.stringify(b.label) +
+  var badges = allBadges();
+  var out = Object.keys(badges).map(function(k){
+    var b = badges[k];
+    return '    ' + JSON.stringify(k) + ': { label: ' + JSON.stringify(b.label) +
       ', color: ' + JSON.stringify('bg-[' + b.color + ']') +
-      ', icon: ' + JSON.stringify(iconSvg(b.icon, 'w-3 h-3', 2)) + ' }');
+      ', icon: ' + JSON.stringify(iconSvg(b.icon, 'w-3 h-3', 2)) + ' }';
   });
   return '  var BADGE_TYPES = {\n' + out.join(',\n') + '\n  };';
 }
@@ -1271,6 +1427,11 @@ function buildHub(m, opts){
     h += '<script>\n' + tpl('tpl-preview') + '<\/script>\n';
   } else {
     h += '<script>\n' + tpl('tpl-nav') + '<\/script>\n';
+    /* Модель кладём в страницу — тогда «Импорт HTML» возвращает хаб
+       один в один, вместе с библиотекой. На рендер не влияет. */
+    h += '\n<!-- Studio · Hubs: исходная модель страницы, нужна для импорта обратно в конструктор -->\n';
+    h += '<script type="application/json" id="hub-model">' +
+         JSON.stringify(m).replace(/</g, '\\u003c') + '<\/script>\n';
   }
   h += '</body>\n';
   h += '</html>\n';
@@ -1348,7 +1509,7 @@ function redo(){ if (hpos < hist.length - 1) { hpos++; model = JSON.parse(hist[h
 function afterHistory(){
   if (!resolve(selId)) selId = 'hero';
   $('doc-title').value = model.docTitle;
-  dirty = true;
+  scheduleSave();
   syncHistBtns();
   renderAll();
 }
@@ -1398,8 +1559,8 @@ function renderAll(){
 }
 /** Правка текста: превью и дерево обновляем, инспектор не трогаем (фокус). */
 function commit(structural){
-  dirty = true;
   snapshot(!!structural);
+  scheduleSave();
   renderOutline();
   schedulePreview();
   if (structural) renderInspector();
@@ -1530,15 +1691,21 @@ function fLabel(t, note){
   return '<div class="fl">' + esc(t) + (note ? ' <span class="note">' + esc(note) + '</span>' : '') + '</div>';
 }
 function fAccents(cur){
-  return '<div class="swatches">' + ACCENTS.map(function(c){
+  var list = allAccents();
+  if (cur && list.indexOf(cur) < 0) list = list.concat([cur]);
+  return '<div class="swatches">' + list.map(function(c){
     return '<button class="sw' + (c === cur ? ' on' : '') + '" data-accent="' + c + '" style="background:' + c + '" title="' + c + '"></button>';
-  }).join('') + '</div>';
+  }).join('') +
+  '<button class="sw" data-open-lib="colors" title="Добавить свой цвет" ' +
+  'style="background:var(--s2);border:1px dashed var(--b3);color:var(--t2);font-size:14px;line-height:1">+</button></div>';
 }
 function fIcons(cur){
-  return '<div class="icons">' + ICON_KEYS.map(function(k){
-    return '<button class="ic-btn' + (k === cur ? ' on' : '') + '" data-icon="' + k + '" title="' + k + '">' +
+  var reg = allIcons();
+  return '<div class="icons">' + Object.keys(reg).map(function(k){
+    return '<button class="ic-btn' + (k === cur ? ' on' : '') + '" data-icon="' + att(k) + '" title="' + att(reg[k].name) + '">' +
       iconSvg(k, '', 1.6) + '</button>';
-  }).join('') + '</div>';
+  }).join('') +
+  '<button class="ic-btn" data-open-lib="icons" title="Добавить свою иконку" style="font-size:15px;color:var(--t2)">+</button></div>';
 }
 
 function renderInspector(){
@@ -1597,11 +1764,15 @@ function renderInspector(){
     h += fLabel('Название') + fText('title', o.title, 'Название плитки');
     h += fLabel('Подпись', 'расшифровка, необязательно') + fText('subtitle', o.subtitle, 'Египет');
     h += fLabel('Ссылка') + fText('href', o.href, 'https://example.com/...');
-    h += fLabel('Тип контента') + fSel('badge', o.badge, BADGE_KEYS.map(function(k){
-      return [k, BADGES[k].label];
+    var badges = allBadges();
+    h += fLabel('Тип контента') + fSel('badge', o.badge, Object.keys(badges).map(function(k){
+      return [k, badges[k].label + (badges[k].std ? '' : ' ·')];
     }));
-    var b = BADGES[o.badge] || BADGES.article;
-    h += '<span class="badge-prev" style="background:' + b.color + '">' + esc(b.label) + '</span>';
+    var b = badges[o.badge] || badges.article;
+    h += '<span class="badge-prev" style="background:' + b.color + '">' +
+         iconSvg(b.icon, '', 2).replace('<svg ', '<svg style="width:11px;height:11px;stroke-width:2" ') +
+         esc(b.label) + '</span>';
+    h += '<button class="btn" data-open-lib="badges" style="width:100%;justify-content:center;margin-top:8px">Свои бейджи</button>';
     h += fLabel('Иконка') + fIcons(o.icon);
     h += fLabel('Текст «в работе»', 'пока ссылка пуста') + fText('status', o.status, 'Статья в работе...');
     if (!o.href) {
@@ -1657,6 +1828,17 @@ insp.addEventListener('change', function(e){
 });
 
 insp.addEventListener('click', function(e){
+  var openLib = e.target.closest('[data-open-lib]');
+  if (openLib) {
+    libTab = openLib.dataset.openLib;
+    [].forEach.call($('lib-tabs').children, function(c){
+      c.classList.toggle('on', c.dataset.tab === libTab);
+    });
+    renderLib();
+    openOv('ov-lib');
+    return;
+  }
+
   var r = sel();
   if (!r) return;
 
@@ -1696,43 +1878,117 @@ insp.addEventListener('click', function(e){
 
 
 /* ═══════════════════════════════════════════════════
-   10. ХРАНИЛИЩЕ
+   10. ХРАНИЛИЩЕ (Supabase, как у схем)
    ═══════════════════════════════════════════════════ */
 
-function loadDocs(){
-  try { return JSON.parse(localStorage.getItem(LS_DOCS)) || []; }
-  catch (e) { return []; }
-}
-function saveDocs(d){
-  try { localStorage.setItem(LS_DOCS, JSON.stringify(d)); return true; }
-  catch (e) { toast('Не хватает места в хранилище браузера'); return false; }
+var SB_URL = 'https://ivctluihkskhtsuopzwz.supabase.co';
+var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2Y3RsdWloa3NraHRzdW9wend6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgyMzA1NDAsImV4cCI6MjA5MzgwNjU0MH0.geomdYuAul2xCv8gVNz4NLuWLbZfLyksXAiEE_iYVQY';
+/* Если CDN supabase-js не доехал, конструктор остаётся рабочим
+   черновиком: превью и экспорт не зависят от облака. */
+var sb = window.supabase ? window.supabase.createClient(SB_URL, SB_KEY) : null;
+
+var HUB_ID = new URLSearchParams(location.search).get('id');
+var currentUser = null;
+var saveTimer = 0;
+
+async function sbFetch(path, opts){
+  opts = opts || {};
+  var sess = await sb.auth.getSession();
+  var token = sess.data.session ? sess.data.session.access_token : '';
+  var headers = Object.assign({ apikey: SB_KEY, 'Content-Type': 'application/json' },
+    token ? { Authorization: 'Bearer ' + token } : {}, opts.headers || {});
+  var r = await fetch(SB_URL + path, Object.assign({}, opts, { headers: headers }));
+  if (!r.ok) {
+    var e = {};
+    try { e = await r.json(); } catch (_) {}
+    var msg = e.message || r.statusText;
+    /* Таблицы ещё нет — подсказываем, что делать, вместо «404». */
+    if (r.status === 404 || /relation .*hubs.* does not exist/i.test(msg)) {
+      msg = 'таблица hubs не создана. Примените supabase/hubs.sql в Supabase → SQL Editor';
+    }
+    throw new Error(msg);
+  }
+  if (r.status === 204) return null;
+  return r.json();
 }
 
-function saveDoc(silent){
-  var docs = loadDocs();
-  if (!docId) docId = uid('d');
-  var rec = { id:docId, title:model.docTitle || 'Без названия', updated:Date.now(), model:model };
-  var i = docs.findIndex(function(d){ return d.id === docId; });
-  if (i >= 0) docs[i] = rec; else docs.unshift(rec);
-  if (!saveDocs(docs)) return;
-  try { localStorage.setItem(LS_LAST, docId); } catch (e) {}
-  dirty = false;
-  if (!silent) toast('Сохранено');
+function setStatus(s){
+  var el = $('save-status');
+  if (s === 'saving')      { el.textContent = 'Сохраняю…';    el.style.color = 'var(--t3)'; }
+  else if (s === 'saved')  { el.textContent = 'Сохранено';    el.style.color = '#16a34a'; }
+  else if (s === 'unsaved'){ el.textContent = 'Не сохранено'; el.style.color = 'var(--t3)'; }
+  else if (s === 'error')  { el.textContent = 'Ошибка';       el.style.color = '#dc2626'; }
+  else                     { el.textContent = '';             el.style.color = 'var(--t3)'; }
 }
 
-function openDoc(id){
-  var d = loadDocs().find(function(x){ return x.id === id; });
-  if (!d) return;
-  docId = d.id;
-  model = d.model;
-  normalize(model);
+function scheduleSave(){
+  if (!sb || !HUB_ID) return;
+  dirty = true;
+  setStatus('unsaved');
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveHub, 1800);
+}
+
+async function saveHub(){
+  if (!sb || !HUB_ID) return;
+  clearTimeout(saveTimer);
+  setStatus('saving');
+  try {
+    await sbFetch('/rest/v1/hubs?id=eq.' + HUB_ID, {
+      method: 'PATCH',
+      body: JSON.stringify({ title: model.docTitle || 'Без названия', doc: model })
+    });
+    dirty = false;
+    setStatus('saved');
+  } catch (e) {
+    setStatus('error');
+    toast('Ошибка сохранения: ' + e.message);
+  }
+}
+
+async function loadHub(){
+  if (!HUB_ID) {
+    /* Без ?id создаём новый хаб и переходим на его адрес. */
+    try {
+      var made = await sbFetch('/rest/v1/hubs', {
+        method: 'POST',
+        headers: { Prefer: 'return=representation' },
+        body: JSON.stringify({ user_id: currentUser.id, title: 'Новый хаб', doc: starterModel() })
+      });
+      var id = (made && made[0] && made[0].id) || (made && made.id);
+      if (id) { location.replace('hub.html?id=' + id); return false; }
+      toast('Не удалось создать хаб');
+    } catch (e) {
+      toast('Ошибка: ' + e.message);
+    }
+    return false;
+  }
+
+  try {
+    var data = await sbFetch('/rest/v1/hubs?id=eq.' + HUB_ID + '&select=title,doc');
+    if (!data || !data.length) { toast('Хаб не найден'); return false; }
+    var d = data[0];
+    var m = d.doc && d.doc.hero ? d.doc : starterModel();
+    m.docTitle = d.title || m.docTitle;
+    adopt(m);
+    setStatus('saved');
+    return true;
+  } catch (e) {
+    toast('Ошибка загрузки: ' + e.message);
+    return false;
+  }
+}
+
+/** Делает переданную модель текущей и перерисовывает всё. */
+function adopt(m){
+  normalize(m);
+  model = m;
   selId = 'hero';
   $('doc-title').value = model.docTitle;
-  hist = []; hpos = -1; snapshot(true);
+  hist = []; hpos = -1;
+  snapshot(true);
   dirty = false;
   renderAll();
-  closeOv();
-  toast('Открыт «' + model.docTitle + '»');
 }
 
 /** Достраивает поля, которых нет в старых/импортированных моделях. */
@@ -1743,12 +1999,17 @@ function normalize(m){
   m.docTitle = m.docTitle || 'Без названия';
   m.pageTitle = m.pageTitle || m.docTitle;
   if (m.sdk === undefined) m.sdk = true;
+  m.lib = m.lib || {};
+  if (!Array.isArray(m.lib.colors)) m.lib.colors = [];
+  if (!m.lib.badges || typeof m.lib.badges !== 'object') m.lib.badges = {};
+  if (!m.lib.icons  || typeof m.lib.icons  !== 'object') m.lib.icons  = {};
   m.sections.forEach(function(s){
     if (!s.id) s.id = uid('s');
     if (s.type === 'tiles') {
       s.tiles = s.tiles || [];
       s.tiles.forEach(function(t){ if (!t.id) t.id = uid('t'); });
     } else {
+      s.type = 'contacts';
       s.groups = s.groups || [];
       s.groups.forEach(function(g){
         if (!g.id) g.id = uid('g');
@@ -1758,37 +2019,6 @@ function normalize(m){
     }
   });
 }
-
-function renderDocs(){
-  var docs = loadDocs();
-  if (!docs.length) {
-    $('docs-list').innerHTML = '<div class="insp-empty">Сохранённых хабов пока нет. Нажмите «Сохранить» в шапке.</div>';
-    return;
-  }
-  docs.sort(function(a, b){ return b.updated - a.updated; });
-  $('docs-list').innerHTML = docs.map(function(d){
-    var n = (d.model.sections || []).length;
-    return '<div class="doc-row">' +
-      '<div class="info"><div class="nm">' + esc(d.title) + (d.id === docId ? ' ·' : '') + '</div>' +
-      '<div class="mt">' + n + ' секц. · ' + new Date(d.updated).toLocaleString('ru') + '</div></div>' +
-      '<button class="btn" data-open="' + d.id + '">Открыть</button>' +
-      '<button class="mini del" data-del="' + d.id + '" title="Удалить">' + SVG_DEL + '</button>' +
-      '</div>';
-  }).join('');
-}
-
-$('docs-list').addEventListener('click', function(e){
-  var o = e.target.closest('[data-open]');
-  if (o) { openDoc(o.dataset.open); return; }
-  var d = e.target.closest('[data-del]');
-  if (d) {
-    if (!confirm('Удалить этот хаб из браузера?')) return;
-    var docs = loadDocs().filter(function(x){ return x.id !== d.dataset.del; });
-    saveDocs(docs);
-    if (d.dataset.del === docId) docId = null;
-    renderDocs();
-  }
-});
 
 
 /* ═══════════════════════════════════════════════════
@@ -1814,21 +2044,285 @@ function download(name, text, mime){
   setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
 }
 
-var codeMode = 'html';
-
 function showCode(){
-  codeMode = 'html';
-  $('code-title').textContent = 'HTML страницы';
-  $('code-sub').textContent = 'Готовая страница по дизайн-системе. Вставьте в Confluence-элемент или сохраните файлом.';
   $('code-out').value = buildHub(model, { editing:false, theme:null });
   openOv('ov-code');
 }
-function showJson(){
-  codeMode = 'json';
-  $('code-title').textContent = 'JSON хаба';
-  $('code-sub').textContent = 'Структура для переноса между браузерами и правки вручную.';
-  $('code-out').value = JSON.stringify(model, null, 2);
-  openOv('ov-code');
+
+
+/* ── Разбор вставленного HTML ──────────────────────────
+   Сначала пробуем встроенную модель (страницы из этого
+   конструктора), иначе читаем структуру дизайн-системы. */
+
+function txt(el){ return el ? el.textContent.trim() : ''; }
+function hexIn(cls){
+  var m = String(cls || '').match(/(?:bg|text)-\[(#[0-9A-Fa-f]{6})\]/);
+  return m ? m[1].toUpperCase() : null;
+}
+
+/** Ищет иконку среди известных; незнакомую кладёт в библиотеку. */
+function iconKeyFor(svgEl, target, seen){
+  if (!svgEl) return 'doc';
+  var ds = [];
+  svgEl.querySelectorAll('path').forEach(function(p){
+    var d = p.getAttribute('d');
+    if (d) ds.push(d.trim());
+  });
+  if (!ds.length) return 'doc';
+  var sig = ds.join('|');
+
+  var std = {};
+  ICON_KEYS.forEach(function(k){ std[splitPaths(ICONS[k]).join('|')] = k; });
+  if (std[sig]) return std[sig];
+
+  var known = target.icons;
+  var hit = Object.keys(known).filter(function(k){
+    return (known[k].paths || []).join('|') === sig;
+  })[0];
+  if (hit) return hit;
+
+  seen.n = (seen.n || 0) + 1;
+  var key = 'ic' + seen.n;
+  known[key] = { name: 'Иконка ' + seen.n, paths: ds };
+  return key;
+}
+
+/** Первый svg плитки, не считая тот, что внутри бейджа. */
+function tileIcon(tl){
+  var found = null;
+  tl.querySelectorAll('svg').forEach(function(s){
+    if (!found && !s.closest('.tile-badge')) found = s;
+  });
+  return found;
+}
+
+/** Название и подпись плитки. У старых хабов классов .tile-title нет. */
+function tileTexts(tl){
+  var t = tl.querySelector('.tile-title');
+  var sub = tl.querySelector('.tile-subtitle');
+  if (t) return { title: txt(t), subtitle: txt(sub) };
+
+  var spans = [];
+  tl.querySelectorAll('span').forEach(function(s){
+    if (s.closest('.tile-badge')) return;
+    if (s.querySelector('span')) return;      /* только листовые */
+    if (!s.textContent.trim()) return;
+    spans.push(s);
+  });
+  if (!spans.length) return { title: txt(tl), subtitle: '' };
+  var second = spans[1];
+  var isSub = second && /text-\[1[01]px\]|text-xs/.test(second.className || '');
+  return { title: txt(spans[0]), subtitle: isSub ? txt(second) : '' };
+}
+
+/** Тип контента плитки: data-badge, иначе — по бейджу в разметке. */
+function badgeKeyFor(tl, target, seen){
+  var explicit = (tl.getAttribute('data-badge') || '').trim();
+  if (explicit) return explicit;
+
+  var b = tl.querySelector('.tile-badge');
+  if (!b) return 'article';
+  var label = b.textContent.trim();
+  var color = hexIn(b.className);
+  /* Серый «В работе» — это состояние плитки, а не тип контента. */
+  if (!label || color === WIP_COLOR || /в\s*работе/i.test(label)) return 'article';
+
+  var std = Object.keys(BADGES).filter(function(k){
+    return BADGES[k].label.toLowerCase() === label.toLowerCase();
+  })[0];
+  if (std) return std;
+
+  var own = Object.keys(target.badges).filter(function(k){
+    return String(target.badges[k].label).toLowerCase() === label.toLowerCase();
+  })[0];
+  if (own) return own;
+
+  seen.b = (seen.b || 0) + 1;
+  var key = 'bd' + seen.b;
+  target.badges[key] = {
+    label: label,
+    color: color || '#42526E',
+    icon: iconKeyFor(b.querySelector('svg'), target, seen)
+  };
+  return key;
+}
+
+/** Вытаскивает пользовательские бейджи из BADGE_TYPES экспортированной страницы. */
+function badgesFromScript(html, target){
+  var block = html.match(/BADGE_TYPES\s*=\s*\{([\s\S]*?)\n\s*\};/);
+  if (!block) return;
+  var re = /["']?([A-Za-z0-9_-]+)["']?\s*:\s*\{\s*label:\s*"((?:[^"\\]|\\.)*)"\s*,\s*color:\s*"bg-\[(#[0-9A-Fa-f]{6})\]"/g;
+  var m;
+  while ((m = re.exec(block[1]))) {
+    var key = m[1];
+    if (BADGES[key]) continue;
+    target.badges[key] = {
+      label: m[2].replace(/\\(.)/g, '$1'),
+      color: m[3].toUpperCase(),
+      icon: 'doc'
+    };
+  }
+}
+
+function parseHubHtml(html){
+  var doc = new DOMParser().parseFromString(html, 'text/html');
+
+  /* 1. Страница из конструктора — берём модель как есть. */
+  var emb = doc.getElementById('hub-model');
+  if (emb) {
+    try {
+      var m = JSON.parse(emb.textContent);
+      if (m && (m.hero || m.sections)) { normalize(m); return m; }
+    } catch (e) { /* повреждена — читаем структуру ниже */ }
+  }
+
+  /* 2. Разбор по структуре дизайн-системы. */
+  if (!doc.querySelector('.hero-h1') && !doc.querySelector('.section-title')) {
+    throw new Error('не похоже на хаб-страницу: нет ни .hero-h1, ни .section-title');
+  }
+
+  var out = starterModel();
+  out.sections = [];
+  out.lib = { colors: [], badges: {}, icons: {} };
+  var seen = { n: 0 };
+  badgesFromScript(html, out.lib);
+
+  out.pageTitle = txt(doc.querySelector('title')) || 'Импортированный хаб';
+  out.docTitle = out.pageTitle;
+  var htmlEl = doc.querySelector('html');
+  out.lang = (htmlEl && htmlEl.getAttribute('lang')) || 'ru';
+  out.sdk = /_sdk\/element_sdk\.js/.test(html);
+
+  /* ── hero ── */
+  var h1 = doc.querySelector('.hero-h1');
+  var hero = out.hero;
+  hero.kicker = txt(doc.querySelector('.hero-kicker'));
+  hero.lead = txt(doc.querySelector('.hero-lead'));
+  hero.sub = txt(doc.querySelector('.hero-sub'));
+  hero.logo = '';
+  hero.image = '';
+  hero.stats = [];
+
+  if (h1) {
+    var clone = h1.cloneNode(true);
+    var em = clone.querySelector('em');
+    hero.titleAccent = em ? em.textContent.trim() : '';
+    hero.accentNewLine = !!clone.querySelector('br');
+    var lg = clone.querySelector('.hero-logo');
+    if (lg) hero.logo = lg.getAttribute('src') || '';
+    if (em) em.remove();
+    if (lg) lg.remove();
+    hero.titleMain = clone.textContent.replace(/\s+/g, ' ').trim();
+  }
+  var img = doc.querySelector('.hero-img');
+  if (img) hero.image = img.getAttribute('src') || '';
+  doc.querySelectorAll('.hero-stat').forEach(function(st){
+    hero.stats.push({
+      num: txt(st.querySelector('.hero-stat-num')),
+      label: txt(st.querySelector('.hero-stat-label'))
+    });
+  });
+
+  /* ── секции ── */
+  doc.querySelectorAll('.section-title').forEach(function(titleEl){
+    var wrap = titleEl.closest('div.flex.flex-col') || titleEl.parentElement.parentElement;
+    if (!wrap) return;
+
+    var stripe = titleEl.parentElement.querySelector('span[class*="rounded-full"]');
+    var accent = hexIn(stripe && stripe.className) || ACCENTS[0];
+    if (ACCENTS.indexOf(accent) < 0 && out.lib.colors.indexOf(accent) < 0) out.lib.colors.push(accent);
+
+    /* .tile — свежая конвенция, .group — плитки в хабах постарше */
+    var tiles = wrap.querySelectorAll('.tile, .group');
+    if (tiles.length) {
+      var grid = wrap.querySelector('[class*="grid-auto-"]');
+      var gm = grid && grid.className.match(/grid-auto-(\d+)/);
+      var sec = {
+        id: uid('s'), type: 'tiles', title: txt(titleEl), accent: accent,
+        grid: gm ? gm[1] : '220', tiles: []
+      };
+      tiles.forEach(function(tl){
+        var texts = tileTexts(tl);
+        sec.tiles.push({
+          id: uid('t'),
+          title: texts.title,
+          subtitle: texts.subtitle,
+          href: (tl.getAttribute('data-href') || tl.getAttribute('href') || '').trim(),
+          badge: badgeKeyFor(tl, out.lib, seen),
+          icon: iconKeyFor(tileIcon(tl), out.lib, seen),
+          status: txt(tl.querySelector('.tile-status'))
+        });
+      });
+      out.sections.push(sec);
+      return;
+    }
+
+    var arts = wrap.querySelectorAll('article');
+    var groups = [];
+    arts.forEach(function(art){
+      var gt = art.querySelector('.group-title');
+      if (!gt) return;
+      var hi = 'none';
+      var handleImg = art.querySelector('.contact-handle');
+      if (handleImg) {
+        var box = handleImg.parentElement;
+        if (box.querySelector('img')) hi = 'reddy';
+        else if (box.querySelector('svg[stroke]') && box.querySelector('div[class*="bg-["]')) hi = 'telegram';
+      }
+      var g = {
+        id: uid('g'), title: txt(gt),
+        description: txt(art.querySelector('.contact-description')),
+        handleIcon: hi, people: []
+      };
+      art.querySelectorAll('.contact-photo').forEach(function(ph){
+        var row = ph.parentElement;
+        g.people.push({
+          id: uid('p'),
+          name: txt(row.querySelector('.contact-name')),
+          role: txt(row.querySelector('.contact-role')),
+          handle: txt(row.querySelector('.contact-handle')),
+          photo: (ph.getAttribute('data-photo') || (ph.querySelector('img') && ph.querySelector('img').getAttribute('src')) || '').trim()
+        });
+      });
+      groups.push(g);
+    });
+    if (groups.length) {
+      out.sections.push({ id: uid('s'), type: 'contacts', title: txt(titleEl), accent: accent, groups: groups });
+    }
+  });
+
+  if (!out.sections.length) throw new Error('не нашёл ни одной секции');
+
+  /* бейджи, встреченные в разметке, но не объявленные в скрипте */
+  out.sections.forEach(function(s){
+    (s.tiles || []).forEach(function(t){
+      if (!BADGES[t.badge] && !out.lib.badges[t.badge]) {
+        out.lib.badges[t.badge] = { label: t.badge, color: '#42526E', icon: t.icon || 'doc' };
+      }
+    });
+  });
+
+  normalize(out);
+  return out;
+}
+
+function runImport(){
+  var raw = $('import-in').value.trim();
+  var err = $('import-err');
+  if (!raw) { err.textContent = 'Вставьте HTML страницы.'; return; }
+  var m;
+  try {
+    m = parseHubHtml(raw);
+  } catch (e) {
+    err.textContent = 'Не удалось разобрать: ' + e.message;
+    return;
+  }
+  err.textContent = '';
+  adopt(m);
+  scheduleSave();
+  closeOv();
+  var custom = Object.keys(m.lib.icons).length + Object.keys(m.lib.badges).length + m.lib.colors.length;
+  toast('Импортировано: ' + m.sections.length + ' секц.' + (custom ? ', в библиотеку добавлено ' + custom : ''));
 }
 
 $('code-copy').addEventListener('click', function(){
@@ -1844,32 +2338,193 @@ $('code-copy').addEventListener('click', function(){
 });
 
 $('code-dl').addEventListener('click', function(){
-  if (codeMode === 'json') download(slug(model.docTitle) + '.json', $('code-out').value, 'application/json;charset=utf-8');
-  else download(slug(model.docTitle) + '.html', $('code-out').value, 'text/html;charset=utf-8');
+  download(slug(model.docTitle) + '.html', $('code-out').value, 'text/html;charset=utf-8');
 });
 
-$('file-in').addEventListener('change', function(e){
-  var f = e.target.files[0];
-  if (!f) return;
-  var rd = new FileReader();
-  rd.onload = function(){
-    try {
-      var m = JSON.parse(rd.result);
-      if (!m || typeof m !== 'object' || !('hero' in m || 'sections' in m)) throw new Error('bad');
-      normalize(m);
-      model = m; docId = null; selId = 'hero';
-      $('doc-title').value = model.docTitle;
-      hist = []; hpos = -1; snapshot(true);
-      dirty = true;
-      renderAll();
-      closeOv();
-      toast('Импортировано');
-    } catch (err) {
-      toast('Не похоже на JSON хаба');
-    }
-  };
-  rd.readAsText(f);
-  e.target.value = '';
+
+/* ═══════════════════════════════════════════════════
+   11b. БИБЛИОТЕКА: ЦВЕТА, БЕЙДЖИ, ИКОНКИ
+   ═══════════════════════════════════════════════════ */
+
+var libTab = 'colors';
+
+function renderLib(){
+  var l = lib(), h = '';
+
+  if (libTab === 'colors') {
+    var used = {};
+    model.sections.forEach(function(s){ if (s.accent) used[s.accent] = (used[s.accent] || 0) + 1; });
+
+    h += '<div class="lib-empty">Стандартная палитра полосок секций уже содержит 7 цветов. Здесь — ваши дополнительные.</div>';
+    h += l.colors.length ? '' : '<div class="lib-empty">Своих цветов пока нет.</div>';
+    l.colors.forEach(function(c, i){
+      h += '<div class="lib-row">' +
+        '<span class="sw-lg" style="background:' + att(c) + '"></span>' +
+        '<input type="color" value="' + att(c) + '" data-lc="' + i + '" style="width:44px;height:30px;padding:2px;border:1px solid var(--b2);border-radius:7px;cursor:pointer;flex-shrink:0">' +
+        '<input type="text" class="mono" value="' + att(c) + '" data-lct="' + i + '" maxlength="7">' +
+        (used[c] ? '<span class="sub" style="font-size:11px;color:var(--t3)">в ' + used[c] + ' секц.</span>' : '') +
+        '<button class="mini del" data-lcdel="' + i + '" title="Удалить">' + SVG_DEL + '</button>' +
+        '</div>';
+    });
+    h += '<div class="lib-add">' +
+      fLabel('Новый цвет') +
+      '<div class="row2"><input type="color" id="nc-pick" value="#5B4670" style="max-width:52px;height:34px;padding:2px;border:1px solid var(--b2);border-radius:8px;cursor:pointer">' +
+      '<input type="text" id="nc-hex" class="mono" placeholder="#5B4670" maxlength="7"></div>' +
+      '<button class="btn" data-lib-add="color" style="width:100%;justify-content:center;margin-top:8px">Добавить цвет</button></div>';
+  }
+
+  if (libTab === 'badges') {
+    var reg = allIcons();
+    h += '<div class="lib-empty">Правило дизайн-системы: каждый новый смысл — свой, ещё не занятый цвет.</div>';
+    var keys = Object.keys(l.badges);
+    h += keys.length ? '' : '<div class="lib-empty">Своих бейджей пока нет. Стандартные: ' +
+      BADGE_KEYS.map(function(k){ return BADGES[k].label; }).join(', ') + '.</div>';
+    keys.forEach(function(k){
+      var b = l.badges[k];
+      h += '<div class="lib-row">' +
+        '<span class="ic-lg" style="background:' + att(b.color) + ';color:#fff;border-color:transparent">' + iconSvg(b.icon, '', 1.8) + '</span>' +
+        '<input type="text" value="' + att(b.label) + '" data-lb="' + att(k) + '" data-lbk="label" placeholder="Название">' +
+        '<input type="color" value="' + att(b.color) + '" data-lb="' + att(k) + '" data-lbk="color" style="width:44px;height:30px;padding:2px;border:1px solid var(--b2);border-radius:7px;cursor:pointer;flex-shrink:0">' +
+        '<select data-lb="' + att(k) + '" data-lbk="icon" style="max-width:112px">' +
+          Object.keys(reg).map(function(ik){
+            return '<option value="' + att(ik) + '"' + (ik === b.icon ? ' selected' : '') + '>' + esc(reg[ik].name) + '</option>';
+          }).join('') +
+        '</select>' +
+        '<button class="mini del" data-lbdel="' + att(k) + '" title="Удалить">' + SVG_DEL + '</button>' +
+        '</div>';
+    });
+    h += '<div class="lib-add">' +
+      fLabel('Новый бейдж') +
+      '<input type="text" id="nb-label" placeholder="Регламент">' +
+      '<div class="row2" style="margin-top:6px">' +
+      '<input type="color" id="nb-color" value="#7A5230" style="max-width:52px;height:34px;padding:2px;border:1px solid var(--b2);border-radius:8px;cursor:pointer">' +
+      '<select id="nb-icon">' + Object.keys(reg).map(function(ik){
+        return '<option value="' + att(ik) + '">' + esc(reg[ik].name) + '</option>';
+      }).join('') + '</select></div>' +
+      '<button class="btn" data-lib-add="badge" style="width:100%;justify-content:center;margin-top:8px">Добавить бейдж</button></div>';
+  }
+
+  if (libTab === 'icons') {
+    h += '<div class="lib-empty">Вставьте <code>&lt;svg&gt;</code> целиком или только значение <code>d</code>. Иконка должна быть контурной (stroke), viewBox 0 0 24 24 — так тёмная тема сможет её перекрасить.</div>';
+    var ik = Object.keys(l.icons);
+    h += ik.length ? '' : '<div class="lib-empty">Своих иконок пока нет.</div>';
+    ik.forEach(function(k){
+      h += '<div class="lib-row">' +
+        '<span class="ic-lg">' + iconSvg(k, '', 1.6) + '</span>' +
+        '<input type="text" value="' + att(l.icons[k].name) + '" data-li="' + att(k) + '" placeholder="Название">' +
+        '<button class="mini del" data-lidel="' + att(k) + '" title="Удалить">' + SVG_DEL + '</button>' +
+        '</div>';
+    });
+    h += '<div class="lib-add">' +
+      fLabel('Новая иконка') +
+      '<input type="text" id="ni-name" placeholder="Название">' +
+      '<div style="margin-top:6px"><textarea id="ni-src" placeholder="&lt;svg viewBox=&quot;0 0 24 24&quot;&gt;&lt;path d=&quot;…&quot;/&gt;&lt;/svg&gt;"></textarea></div>' +
+      '<button class="btn" data-lib-add="icon" style="width:100%;justify-content:center;margin-top:8px">Добавить иконку</button></div>';
+  }
+
+  $('lib-body').innerHTML = h;
+}
+
+$('lib-tabs').addEventListener('click', function(e){
+  var b = e.target.closest('button');
+  if (!b) return;
+  libTab = b.dataset.tab;
+  [].forEach.call(this.children, function(c){ c.classList.toggle('on', c === b); });
+  renderLib();
+});
+
+/** Переименование ключа бейджа при удалении не нужно: плитки просто
+    откатятся на «Статья», поэтому чистим ссылки явно. */
+function dropBadge(key){
+  delete lib().badges[key];
+  model.sections.forEach(function(s){
+    (s.tiles || []).forEach(function(t){ if (t.badge === key) t.badge = 'article'; });
+  });
+}
+function dropIcon(key){
+  delete lib().icons[key];
+  model.sections.forEach(function(s){
+    (s.tiles || []).forEach(function(t){ if (t.icon === key) t.icon = 'doc'; });
+  });
+  var lb = lib().badges;
+  Object.keys(lb).forEach(function(k){ if (lb[k].icon === key) lb[k].icon = 'doc'; });
+}
+
+$('lib-body').addEventListener('input', function(e){
+  var t = e.target, l = lib();
+
+  if (t.dataset.lct !== undefined || t.dataset.lc !== undefined) {
+    var i = +(t.dataset.lct !== undefined ? t.dataset.lct : t.dataset.lc);
+    var hex = normHex(t.value);
+    if (!hex) return;
+    var old = l.colors[i];
+    l.colors[i] = hex;
+    model.sections.forEach(function(s){ if (s.accent === old) s.accent = hex; });
+    commit(false);
+    if (t.type === 'color') renderLib();
+    return;
+  }
+  if (t.dataset.lb) {
+    var b = l.badges[t.dataset.lb];
+    if (!b) return;
+    b[t.dataset.lbk] = t.dataset.lbk === 'color' ? (normHex(t.value) || b.color) : t.value;
+    commit(false);
+    if (t.type === 'color') renderLib();
+    return;
+  }
+  if (t.dataset.li) {
+    var ic = l.icons[t.dataset.li];
+    if (ic) { ic.name = t.value; commit(false); }
+  }
+});
+
+$('lib-body').addEventListener('change', function(e){
+  var t = e.target;
+  if (t.dataset.lb && t.tagName === 'SELECT') {
+    var b = lib().badges[t.dataset.lb];
+    if (b) { b.icon = t.value; commit(true); renderLib(); }
+  }
+});
+
+$('lib-body').addEventListener('click', function(e){
+  var l = lib(), n;
+
+  n = e.target.closest('[data-lcdel]');
+  if (n) { l.colors.splice(+n.dataset.lcdel, 1); commit(true); renderLib(); return; }
+
+  n = e.target.closest('[data-lbdel]');
+  if (n) { dropBadge(n.dataset.lbdel); commit(true); renderLib(); return; }
+
+  n = e.target.closest('[data-lidel]');
+  if (n) { dropIcon(n.dataset.lidel); commit(true); renderLib(); return; }
+
+  n = e.target.closest('[data-lib-add]');
+  if (!n) return;
+  var kind = n.dataset.libAdd;
+
+  if (kind === 'color') {
+    var hex = normHex($('nc-hex').value) || normHex($('nc-pick').value);
+    if (!hex) { toast('Нужен цвет в формате #RRGGBB'); return; }
+    if (allAccents().indexOf(hex) >= 0) { toast('Такой цвет уже есть'); return; }
+    l.colors.push(hex);
+  }
+  else if (kind === 'badge') {
+    var label = $('nb-label').value.trim();
+    if (!label) { toast('Дайте бейджу название'); return; }
+    var color = normHex($('nb-color').value) || '#42526E';
+    var taken = allBadges();
+    var clash = Object.keys(taken).filter(function(k){ return taken[k].color === color; })[0];
+    if (clash) { toast('Цвет уже занят бейджем «' + taken[clash].label + '»'); return; }
+    l.badges['b' + uid('')] = { label: label, color: color, icon: $('nb-icon').value };
+  }
+  else if (kind === 'icon') {
+    var paths = parseIconInput($('ni-src').value);
+    if (!paths) { toast('Не нашёл ни одного path'); return; }
+    l.icons['i' + uid('')] = { name: $('ni-name').value.trim() || 'Своя иконка', paths: paths };
+  }
+
+  commit(true);
+  renderLib();
 });
 
 
@@ -1898,7 +2553,7 @@ document.addEventListener('click', function(e){
 document.addEventListener('keydown', function(e){
   if (e.key === 'Escape') closeOv();
   var mod = e.ctrlKey || e.metaKey;
-  if (mod && e.key.toLowerCase() === 's') { e.preventDefault(); saveDoc(); }
+  if (mod && e.key.toLowerCase() === 's') { e.preventDefault(); saveHub(); }
   if (mod && e.key.toLowerCase() === 'z' && !e.shiftKey) {
     if (document.activeElement && /INPUT|TEXTAREA/.test(document.activeElement.tagName)) return;
     e.preventDefault(); undo();
@@ -1916,19 +2571,15 @@ $('doc-title').addEventListener('input', function(){
 
 $('btn-undo').addEventListener('click', undo);
 $('btn-redo').addEventListener('click', redo);
-$('btn-save').addEventListener('click', function(){ saveDoc(); });
 $('btn-export').addEventListener('click', showCode);
-$('btn-docs').addEventListener('click', function(){ renderDocs(); openOv('ov-docs'); });
-$('docs-json').addEventListener('click', showJson);
-$('docs-import').addEventListener('click', function(){ $('file-in').click(); });
-$('docs-new').addEventListener('click', function(){
-  if (dirty && !confirm('Несохранённые правки пропадут. Создать новый хаб?')) return;
-  model = starterModel(); docId = null; selId = 'hero';
-  $('doc-title').value = model.docTitle;
-  hist = []; hpos = -1; snapshot(true);
-  dirty = false;
-  renderAll(); closeOv();
+$('btn-lib').addEventListener('click', function(){ renderLib(); openOv('ov-lib'); });
+$('btn-import').addEventListener('click', function(){
+  $('import-err').textContent = '';
+  openOv('ov-import');
+  setTimeout(function(){ $('import-in').focus(); }, 60);
 });
+$('import-go').addEventListener('click', runImport);
+$('btn-signin').addEventListener('click', signInGoogle);
 
 $('add-tiles').addEventListener('click', function(){
   var s = newTilesSection();
@@ -1974,24 +2625,51 @@ window.addEventListener('resize', sizeFrame);
 
 
 /* ═══════════════════════════════════════════════════
-   13. СТАРТ
+   13. АВТОРИЗАЦИЯ И СТАРТ
    ═══════════════════════════════════════════════════ */
 
-(function init(){
-  var last = null;
-  try { last = localStorage.getItem(LS_LAST); } catch (e) {}
-  var docs = loadDocs();
-  var rec = last && docs.find(function(d){ return d.id === last; });
+async function signInGoogle(){
+  if (!sb) { toast('Не загрузился supabase-js — обновите страницу'); return; }
+  var res = await sb.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: location.href }
+  });
+  if (res.error) toast('Ошибка входа: ' + res.error.message);
+}
 
-  if (rec) { docId = rec.id; model = rec.model; normalize(model); }
-  else { normalize(model); }
+function showAuth(){
+  $('auth-view').classList.add('on');
+  setStatus('');
+}
 
+(async function init(){
+  normalize(model);
   $('doc-title').value = model.docTitle;
   snapshot(true);
   sizeFrame();
   renderOutline();
   renderInspector();
   refreshPreview();
+
+  if (!sb) {
+    setStatus('');
+    $('save-status').textContent = 'Облако недоступно';
+    toast('Не загрузился supabase-js — правки не сохраняются, но экспорт работает');
+    return;
+  }
+
+  try {
+    var sess = await sb.auth.getSession();
+    if (!sess.data.session) { showAuth(); return; }
+    var u = await sb.auth.getUser();
+    if (!u.data.user) { showAuth(); return; }
+    currentUser = u.data.user;
+  } catch (e) {
+    showAuth();
+    return;
+  }
+
+  await loadHub();
 })();
 
 })();

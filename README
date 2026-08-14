@@ -1,6 +1,29 @@
-OrgChart Editor
+Studio
 Copyright (C) 2026 Studio
 
+Два визуальных редактора для внутренней документации:
+
+  Charts (editor.html)  — организационные схемы: блоки, связи, карточки
+                          сотрудников, публичная ссылка на просмотр.
+  Hubs   (hub.html)     — хаб-страницы: секции с плитками, бейджи типов
+                          контента, блоки контактов. Экспорт готовой
+                          HTML-страницы по дизайн-системе, импорт
+                          существующей страницы обратно в конструктор.
+
+dashboard.html — общий список документов обоих типов.
+
+Установка
+---------
+Статический сайт, сборка не нужна. Хранилище — Supabase.
+Раздел Hubs требует одной миграции:
+
+  Supabase -> SQL Editor -> выполнить supabase/hubs.sql
+
+Пока миграция не применена, раздел «Хабы» в дашборде показывает об этом
+подсказку, остальное работает как раньше.
+
+Лицензия
+--------
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as published
 by the Free Software Foundation, either version 3 of the License, or

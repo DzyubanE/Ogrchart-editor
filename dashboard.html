@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<!-- OrgChart Editor · Copyright (C) 2026 Studio · AGPL v3.0 · https://github.com/DzyubanE/Ogrchart-editor/blob/main/LICENSE -->
+<!-- Studio · Copyright (C) 2026 Studio · AGPL v3.0 · https://github.com/DzyubanE/Ogrchart-editor/blob/main/LICENSE -->
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
 <meta name="google-site-verification" content="REMOVED" />
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>OrgChart — Мои схемы</title>
+<title>Studio — мои документы</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNyIgZmlsbD0iIzM3MzBhMyIvPjxyZWN0IHg9IjEyIiB5PSI0IiB3aWR0aD0iOCIgaGVpZ2h0PSI2IiByeD0iMiIgZmlsbD0id2hpdGUiLz48cmVjdCB4PSI0IiB5PSIxNCIgd2lkdGg9IjgiIGhlaWdodD0iNiIgcng9IjIiIGZpbGw9IndoaXRlIiBvcGFjaXR5PSIwLjg1Ii8+PHJlY3QgeD0iMjAiIHk9IjE0IiB3aWR0aD0iOCIgaGVpZ2h0PSI2IiByeD0iMiIgZmlsbD0id2hpdGUiIG9wYWNpdHk9IjAuODUiLz48L3N2Zz4=">
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -47,6 +47,25 @@ a{text-decoration:none;color:inherit}
 .page-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px}
 .page-title{font-size:20px;font-weight:700;letter-spacing:-.02em}
 .page-sub{font-size:13px;color:var(--t3);margin-top:2px}
+
+/* переключатель разделов Studio */
+.seg{display:inline-flex;border:1px solid var(--b2);border-radius:10px;overflow:hidden;margin-bottom:24px}
+.seg button{display:inline-flex;align-items:center;gap:7px;padding:8px 15px;font-size:13px;font-weight:600;background:var(--surface);color:var(--t2);border:none;cursor:pointer;font-family:'Geist',sans-serif;transition:background .12s,color .12s}
+.seg button+button{border-left:1px solid var(--b2)}
+.seg button.on{background:var(--accent);color:#fff}
+.seg button svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.seg .count{font-size:11px;opacity:.75;font-weight:600}
+
+/* превью хаба на карточке */
+/* Все элементы с flex-shrink:0 — иначе flex-контейнер сжимает
+   полоски в ноль, когда секций больше, чем влезает в 140px. */
+.hub-prev{padding:14px 15px;display:flex;flex-direction:column;gap:7px;height:100%;overflow:hidden;background:linear-gradient(160deg,var(--s2),var(--surface))}
+.hub-prev>*{flex-shrink:0}
+.hub-prev .hp-kick{width:52px;height:5px;border-radius:3px;background:var(--accent);opacity:.75}
+.hub-prev .hp-h1{width:78%;height:11px;border-radius:4px;background:var(--t3);opacity:.55}
+.hub-prev .hp-row{display:flex;gap:6px;margin-top:2px;height:22px}
+.hub-prev .hp-tile{flex:1;border-radius:5px;background:var(--surface);border:1px solid var(--b1)}
+.hub-prev .hp-bar{width:4px;border-radius:2px;flex-shrink:0}
 
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
 
@@ -127,8 +146,8 @@ a{text-decoration:none;color:inherit}
         <rect x="18" y="16" width="12" height="9" rx="2.5" fill="white" opacity=".8"/>
       </svg>
     </div>
-    <div class="auth-title">OrgChart Editor</div>
-    <div class="auth-sub">Создавайте и сохраняйте организационные схемы. Войдите чтобы начать.</div>
+    <div class="auth-title">Studio</div>
+    <div class="auth-sub">Схемы и хаб-страницы в одном месте. Войдите, чтобы начать.</div>
     <button class="google-btn" onclick="signInGoogle()">
       <svg viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
         <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
@@ -151,40 +170,50 @@ a{text-decoration:none;color:inherit}
           <rect x="18" y="16" width="12" height="9" rx="2.5" fill="white" opacity=".8"/>
         </svg>
       </div>
-      OrgChart
+      Studio
     </div>
     <div class="nav-right">
       <div class="user-chip">
         <div class="user-av" id="nav-av"></div>
         <span id="nav-name"></span>
       </div>
-      <a class="btn" href="hub.html" style="text-decoration:none">Конструктор хабов</a>
       <button class="btn" onclick="signOut()">Выйти</button>
     </div>
   </nav>
 
   <div class="main">
+    <div class="seg" id="seg-kind">
+      <button data-kind="charts" class="on" onclick="switchKind('charts')">
+        <svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="5" rx="1.5"/><rect x="2" y="15" width="6" height="5" rx="1.5"/><rect x="16" y="15" width="6" height="5" rx="1.5"/><path d="M12 8v4M5 15v-3h14v3"/></svg>
+        Схемы <span class="count" id="cnt-charts"></span>
+      </button>
+      <button data-kind="hubs" onclick="switchKind('hubs')">
+        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="4" rx="1.5"/><rect x="3" y="11" width="8" height="9" rx="1.5"/><rect x="13" y="11" width="8" height="9" rx="1.5"/></svg>
+        Хабы <span class="count" id="cnt-hubs"></span>
+      </button>
+    </div>
+
     <div class="page-head">
       <div>
-        <div class="page-title">Мои схемы</div>
+        <div class="page-title" id="page-title">Мои схемы</div>
         <div class="page-sub" id="page-sub">Загрузка...</div>
       </div>
-      <button class="btn primary" onclick="createDiagram()">
+      <button class="btn primary" id="new-btn" onclick="createCurrent()">
         <svg viewBox="0 0 13 13"><path d="M6.5 1v11M1 6.5h11"/></svg>
         Новая схема
       </button>
     </div>
 
-    <div id="loading" class="loading"><div class="spinner"></div> Загрузка схем...</div>
+    <div id="loading" class="loading"><div class="spinner"></div> Загрузка...</div>
     <div id="empty" class="empty" style="display:none">
-      <div class="empty-icon">
+      <div class="empty-icon" id="empty-icon">
         <svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="6" rx="1.5"/><rect x="13" y="3" width="8" height="6" rx="1.5"/><rect x="8" y="14" width="8" height="6" rx="1.5"/></svg>
       </div>
-      <div class="empty-title">Схем пока нет</div>
-      <div class="empty-sub">Нажмите «Новая схема» чтобы создать первую org-chart</div>
-      <button class="btn primary" onclick="createDiagram()" style="margin-top:8px">
+      <div class="empty-title" id="empty-title">Схем пока нет</div>
+      <div class="empty-sub" id="empty-sub">Нажмите «Новая схема» чтобы создать первую org-chart</div>
+      <button class="btn primary" onclick="createCurrent()" style="margin-top:8px">
         <svg viewBox="0 0 13 13"><path d="M6.5 1v11M1 6.5h11"/></svg>
-        Создать схему
+        Создать
       </button>
     </div>
     <div id="grid" class="grid" style="display:none"></div>
@@ -212,7 +241,33 @@ const sb = window.supabase.createClient(SB_URL, SB_KEY);
 
 let currentUser = null;
 let diagrams = [];
+let hubs = [];
+let hubsError = null;
+let kind = 'charts';
 let renameId = null;
+let renameKind = 'charts';
+
+const TABLE = {charts: 'diagrams', hubs: 'hubs'};
+
+function switchKind(k) {
+  kind = k;
+  document.querySelectorAll('#seg-kind button').forEach(function(b) {
+    b.classList.toggle('on', b.getAttribute('data-kind') === k);
+  });
+  const chart = k === 'charts';
+  document.getElementById('page-title').textContent = chart ? 'Мои схемы' : 'Мои хабы';
+  document.getElementById('new-btn').lastChild.textContent = chart ? ' Новая схема' : ' Новый хаб';
+  document.getElementById('empty-title').textContent = chart ? 'Схем пока нет' : 'Хабов пока нет';
+  document.getElementById('empty-sub').textContent = chart
+    ? 'Нажмите «Новая схема» чтобы создать первую org-chart'
+    : 'Хаб — это страница-агрегатор со ссылками, плитками и контактами';
+  try { localStorage.setItem('studio:kind', k); } catch (e) {}
+  render();
+}
+
+function createCurrent() {
+  if (kind === 'charts') createDiagram(); else createHub();
+}
 
 async function sbFetch(path, opts) {
   opts = opts || {};
@@ -263,27 +318,58 @@ function showApp(user) {
     av.textContent = (user.email || '?')[0].toUpperCase();
   }
   document.getElementById('nav-name').textContent = meta.full_name || user.email;
-  loadDiagrams();
+  loadAll();
 }
 
-async function loadDiagrams() {
+async function loadAll() {
   try {
     const data = await sbFetch('/rest/v1/diagrams?select=id,title,nodes,conns,updated_at,created_at&order=updated_at.desc');
     diagrams = data || [];
-    renderDiagrams();
   } catch (e) {
-    document.getElementById('loading').style.display = 'none';
-    toast('Ошибка загрузки: ' + e.message);
+    toast('Ошибка загрузки схем: ' + e.message);
   }
+
+  /* Хабы — отдельная таблица. Пока миграция не применена, раздел
+     показывает подсказку вместо пустого экрана. */
+  try {
+    const data = await sbFetch('/rest/v1/hubs?select=id,title,doc,updated_at,created_at&order=updated_at.desc');
+    hubs = data || [];
+    hubsError = null;
+  } catch (e) {
+    hubs = [];
+    hubsError = /404|not exist|schema cache/i.test(e.message)
+      ? 'Таблица hubs ещё не создана. Примените supabase/hubs.sql в Supabase → SQL Editor.'
+      : e.message;
+  }
+
+  try {
+    const saved = localStorage.getItem('studio:kind');
+    if (saved === 'hubs' || saved === 'charts') kind = saved;
+  } catch (e) {}
+  switchKind(kind);
+}
+
+function render() {
+  if (kind === 'hubs') renderHubs(); else renderDiagrams();
+}
+
+const ACT_RENAME = '<div class="card-act-btn" data-act="rename" title="Переименовать"><svg viewBox="0 0 13 13"><path d="M2 10l1.5-1.5 5-5L10 5l-5 5L3.5 11.5 2 10z"/></svg></div>';
+const ACT_DELETE = '<div class="card-act-btn del" data-act="delete" title="Удалить"><svg viewBox="0 0 13 13"><path d="M2 3.5h9M5 3.5V2h3v1.5M4 3.5l.6 7.5h3.8l.6-7.5"/></svg></div>';
+
+function newCard(label, fn) {
+  const nc = document.createElement('div');
+  nc.className = 'new-card';
+  nc.innerHTML = '<div class="new-card-icon"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M10 4v12M4 10h12"/></svg></div><span>' + esc(label) + '</span>';
+  nc.onclick = fn;
+  return nc;
 }
 
 function renderDiagrams() {
   const grid = document.getElementById('grid');
   const empty = document.getElementById('empty');
-  const loading = document.getElementById('loading');
-  const sub = document.getElementById('page-sub');
-  loading.style.display = 'none';
-  sub.textContent = diagrams.length + ' ' + plural(diagrams.length, 'схема','схемы','схем');
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('page-sub').textContent =
+    diagrams.length + ' ' + plural(diagrams.length, 'схема','схемы','схем');
   if (!diagrams.length) {
     empty.style.display = 'flex';
     grid.style.display = 'none';
@@ -292,25 +378,18 @@ function renderDiagrams() {
   empty.style.display = 'none';
   grid.style.display = 'grid';
   grid.innerHTML = '';
-
-  const nc = document.createElement('div');
-  nc.className = 'new-card';
-  nc.innerHTML = '<div class="new-card-icon"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M10 4v12M4 10h12"/></svg></div><span>Новая схема</span>';
-  nc.onclick = createDiagram;
-  grid.appendChild(nc);
+  grid.appendChild(newCard('Новая схема', createDiagram));
 
   diagrams.forEach(function(d) {
     const card = document.createElement('div');
     card.className = 'diag-card';
     const date = new Date(d.updated_at).toLocaleDateString('ru', {day:'numeric', month:'short', year:'numeric'});
     const nodesArr = Object.values(d.nodes || {});
-    const preview = buildPreview(nodesArr, d.conns || []);
     card.innerHTML =
-      '<div class="card-preview">' + preview + '</div>' +
+      '<div class="card-preview">' + buildPreview(nodesArr, d.conns || []) + '</div>' +
       '<div class="card-actions">' +
         '<div class="card-act-btn" data-act="share" title="Поделиться"><svg viewBox="0 0 13 13"><circle cx="10.5" cy="2.5" r="1.8"/><circle cx="2.5" cy="6.5" r="1.8"/><circle cx="10.5" cy="10.5" r="1.8"/><line x1="4.2" y1="7.4" x2="8.8" y2="9.6"/><line x1="8.8" y1="3.4" x2="4.2" y2="5.6"/></svg></div>' +
-        '<div class="card-act-btn" data-act="rename" title="Переименовать"><svg viewBox="0 0 13 13"><path d="M2 10l1.5-1.5 5-5L10 5l-5 5L3.5 11.5 2 10z"/></svg></div>' +
-        '<div class="card-act-btn del" data-act="delete" title="Удалить"><svg viewBox="0 0 13 13"><path d="M2 3.5h9M5 3.5V2h3v1.5M4 3.5l.6 7.5h3.8l.6-7.5"/></svg></div>' +
+        ACT_RENAME + ACT_DELETE +
       '</div>' +
       '<div class="card-body">' +
         '<div class="card-title">' + esc(d.title) + '</div>' +
@@ -322,14 +401,86 @@ function renderDiagrams() {
         e.stopPropagation();
         const t = act.getAttribute('data-act');
         if (t === 'share') shareDialog(d.id);
-        if (t === 'rename') startRename(d.id, d.title);
-        if (t === 'delete') deleteDiagram(d.id);
+        if (t === 'rename') startRename('charts', d.id, d.title);
+        if (t === 'delete') removeDoc('charts', d.id);
         return;
       }
-      openEditor(d.id);
+      window.location.href = 'editor.html?id=' + d.id;
     };
     grid.appendChild(card);
   });
+}
+
+function renderHubs() {
+  const grid = document.getElementById('grid');
+  const empty = document.getElementById('empty');
+  document.getElementById('loading').style.display = 'none';
+
+  if (hubsError) {
+    grid.style.display = 'none';
+    empty.style.display = 'flex';
+    document.getElementById('page-sub').textContent = 'Раздел недоступен';
+    document.getElementById('empty-title').textContent = 'Хабы ещё не подключены';
+    document.getElementById('empty-sub').textContent = hubsError;
+    return;
+  }
+
+  document.getElementById('page-sub').textContent =
+    hubs.length + ' ' + plural(hubs.length, 'хаб','хаба','хабов');
+  if (!hubs.length) {
+    empty.style.display = 'flex';
+    grid.style.display = 'none';
+    return;
+  }
+  empty.style.display = 'none';
+  grid.style.display = 'grid';
+  grid.innerHTML = '';
+  grid.appendChild(newCard('Новый хаб', createHub));
+
+  hubs.forEach(function(h) {
+    const card = document.createElement('div');
+    card.className = 'diag-card';
+    const date = new Date(h.updated_at).toLocaleDateString('ru', {day:'numeric', month:'short', year:'numeric'});
+    const doc = h.doc || {};
+    const secs = doc.sections || [];
+    let tiles = 0;
+    secs.forEach(function(s) { tiles += (s.tiles || []).length; });
+    card.innerHTML =
+      '<div class="card-preview">' + hubPreview(secs) + '</div>' +
+      '<div class="card-actions">' + ACT_RENAME + ACT_DELETE + '</div>' +
+      '<div class="card-body">' +
+        '<div class="card-title">' + esc(h.title) + '</div>' +
+        '<div class="card-meta">' + secs.length + ' ' + plural(secs.length, 'секция','секции','секций') +
+          ' · ' + tiles + ' ' + plural(tiles, 'плитка','плитки','плиток') + ' · ' + date +
+        '</div>' +
+      '</div>';
+    card.onclick = function(e) {
+      const act = e.target.closest('[data-act]');
+      if (act) {
+        e.stopPropagation();
+        const t = act.getAttribute('data-act');
+        if (t === 'rename') startRename('hubs', h.id, h.title);
+        if (t === 'delete') removeDoc('hubs', h.id);
+        return;
+      }
+      window.location.href = 'hub.html?id=' + h.id;
+    };
+    grid.appendChild(card);
+  });
+}
+
+/* Схематичное превью хаба: кикер, заголовок и по строке на секцию. */
+function hubPreview(secs) {
+  let rows = '';
+  secs.slice(0, 3).forEach(function(s) {
+    const n = Math.min((s.tiles || []).length || 2, 3);
+    let t = '';
+    for (let i = 0; i < n; i++) t += '<div class="hp-tile"></div>';
+    rows += '<div class="hp-row"><div class="hp-bar" style="background:' +
+      esc(s.accent || '#5B4670') + '"></div>' + t + '</div>';
+  });
+  if (!rows) rows = '<div class="hp-row"><div class="hp-tile"></div><div class="hp-tile"></div></div>';
+  return '<div class="hub-prev"><div class="hp-kick"></div><div class="hp-h1"></div>' + rows + '</div>';
 }
 
 function buildPreview(nodes, conns) {
@@ -407,18 +558,34 @@ async function createDiagram() {
       })
     });
     const id = (data && data[0] && data[0].id) || (data && data.id);
-    if (id) openEditor(id);
+    if (id) window.location.href = 'editor.html?id=' + id;
     else toast('Не удалось создать схему');
   } catch (e) {
     toast('Ошибка: ' + e.message);
   }
 }
 
-function openEditor(id) {
-  window.location.href = 'editor.html?id=' + id;
+async function createHub() {
+  try {
+    const data = await sbFetch('/rest/v1/hubs', {
+      method: 'POST',
+      headers: {'Prefer': 'return=representation'},
+      body: JSON.stringify({
+        user_id: currentUser.id,
+        title: 'Новый хаб',
+        doc: {}
+      })
+    });
+    const id = (data && data[0] && data[0].id) || (data && data.id);
+    if (id) window.location.href = 'hub.html?id=' + id;
+    else toast('Не удалось создать хаб');
+  } catch (e) {
+    toast('Ошибка: ' + e.message);
+  }
 }
 
-function startRename(id, title) {
+function startRename(k, id, title) {
+  renameKind = k;
   renameId = id;
   document.getElementById('rename-input').value = title;
   document.getElementById('rename-modal').classList.add('open');
@@ -432,13 +599,14 @@ async function confirmRename() {
   const title = document.getElementById('rename-input').value.trim();
   if (!title || !renameId) return;
   try {
-    await sbFetch('/rest/v1/diagrams?id=eq.' + renameId, {
+    await sbFetch('/rest/v1/' + TABLE[renameKind] + '?id=eq.' + renameId, {
       method: 'PATCH',
       body: JSON.stringify({title: title})
     });
-    const d = diagrams.find(function(x){ return x.id === renameId; });
+    const list = renameKind === 'hubs' ? hubs : diagrams;
+    const d = list.find(function(x){ return x.id === renameId; });
     if (d) d.title = title;
-    renderDiagrams();
+    render();
     closeRename();
     toast('Переименовано');
   } catch (e) {
@@ -446,13 +614,15 @@ async function confirmRename() {
   }
 }
 
-async function deleteDiagram(id) {
-  if (!confirm('Удалить схему? Это нельзя отменить.')) return;
+async function removeDoc(k, id) {
+  const isHub = k === 'hubs';
+  if (!confirm(isHub ? 'Удалить хаб? Это нельзя отменить.' : 'Удалить схему? Это нельзя отменить.')) return;
   try {
-    await sbFetch('/rest/v1/diagrams?id=eq.' + id, {method: 'DELETE'});
-    diagrams = diagrams.filter(function(d){ return d.id !== id; });
-    renderDiagrams();
-    toast('Схема удалена');
+    await sbFetch('/rest/v1/' + TABLE[k] + '?id=eq.' + id, {method: 'DELETE'});
+    if (isHub) hubs = hubs.filter(function(d){ return d.id !== id; });
+    else diagrams = diagrams.filter(function(d){ return d.id !== id; });
+    render();
+    toast(isHub ? 'Хаб удалён' : 'Схема удалена');
   } catch (e) {
     toast('Ошибка: ' + e.message);
   }
