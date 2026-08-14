@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Studio · Copyright (C) 2026 Studio · AGPL v3.0 · https://github.com/DzyubanE/Ogrchart-editor/blob/main/LICENSE -->
+<!-- Studio · Copyright (C) 2026 Studio · AGPL v3.0 · https://github.com/DzyubanE/studio/blob/main/LICENSE -->
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
@@ -1360,6 +1360,10 @@ snapshot(); updateUndoUI();
 const SB_URL = 'https://ivctluihkskhtsuopzwz.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2Y3RsdWloa3NraHRzdW9wend6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgyMzA1NDAsImV4cCI6MjA5MzgwNjU0MH0.geomdYuAul2xCv8gVNz4NLuWLbZfLyksXAiEE_iYVQY';
 const sb = window.supabase ? window.supabase.createClient(SB_URL, SB_KEY) : null;
+
+/* Базовый адрес сайта считаем из текущей страницы, а не зашиваем —
+   переименование репозитория меняет путь GitHub Pages. */
+const BASE = location.origin + location.pathname.replace(/[^/]*$/, '');
 const DIAGRAM_ID = new URLSearchParams(window.location.search).get('id');
 let saveTimer = null;
 
@@ -1464,7 +1468,7 @@ async function shareCurrentDiagram() {
     }
     const token = shares[0] && shares[0].token;
     if (!token) return;
-    const url = 'https://dzyubane.github.io/Ogrchart-editor/view.html?t=' + token;
+    const url = BASE + 'view.html?t=' + token;
     try { await navigator.clipboard.writeText(url); } catch(_) {}
     toast('Ссылка скопирована!');
   } catch (e) {
