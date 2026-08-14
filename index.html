@@ -99,6 +99,26 @@ html,body{font-family:'Geist',system-ui,sans-serif;background:var(--bg);color:va
 }
 .preview-dot{width:11px;height:11px;border-radius:50%;background:var(--b2)}
 .preview-svg{width:100%;height:calc(100% - 34px);display:block;background:radial-gradient(circle,var(--b1) 1px,transparent 1px);background-size:24px 24px}
+/* у хаб-страницы нет холста в точку — это документ, а не канвас */
+.preview-svg.plain{background:none}
+.preview-svg[hidden]{display:none}
+
+.preview-tabs{margin-left:auto;display:flex;gap:3px;background:var(--bg);border:1px solid var(--b1);border-radius:8px;padding:2px}
+.preview-tabs button{
+  padding:3px 12px;font-size:11.5px;font-weight:600;border:none;border-radius:6px;
+  background:transparent;color:var(--t2);cursor:pointer;font-family:'Geist',sans-serif;
+  transition:background .15s,color .15s;
+}
+.preview-tabs button:hover{color:var(--t1)}
+.preview-tabs button.on{background:var(--accent);color:#fff}
+
+/* заливки мокапа хаба — тянутся за темой страницы */
+.pv-page{fill:var(--surface)}
+.pv-card{fill:var(--s2)}
+.pv-tile{fill:var(--surface)}
+.pv-stroke{stroke:var(--b1);fill:none}
+.pv-h{fill:var(--t1)}
+.pv-line{fill:var(--t3)}
 
 /* FEATURES */
 .features-wrap{padding:80px 28px;max-width:1100px;margin:0 auto}
@@ -255,8 +275,12 @@ html,body{font-family:'Geist',system-ui,sans-serif;background:var(--bg);color:va
       <div class="preview-dot"></div>
       <div class="preview-dot"></div>
       <div class="preview-dot"></div>
+      <div class="preview-tabs" id="preview-tabs">
+        <button data-pv="charts" class="on">Charts</button>
+        <button data-pv="hubs">Hubs</button>
+      </div>
     </div>
-    <svg class="preview-svg" viewBox="0 0 800 460" preserveAspectRatio="xMidYMid meet">
+    <svg class="preview-svg" id="pv-charts" viewBox="0 0 800 460" preserveAspectRatio="xMidYMid meet">
       <defs>
         <linearGradient id="g1" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#3730a3"/><stop offset="100%" stop-color="#6366f1"/></linearGradient>
         <linearGradient id="g2" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#0d9488"/><stop offset="100%" stop-color="#14b8a6"/></linearGradient>
@@ -322,6 +346,87 @@ html,body{font-family:'Geist',system-ui,sans-serif;background:var(--bg);color:va
         <rect width="120" height="40" rx="9" fill="url(#g6)"/>
         <text x="12" y="17" font-family="Geist" font-size="11" font-weight="700" fill="white">Designer</text>
         <text x="12" y="30" font-family="Geist" font-size="9" fill="rgba(255,255,255,.7)">Команда</text>
+      </g>
+    </svg>
+
+    <!-- ── Мокап хаб-страницы ───────────────────────────────── -->
+    <svg class="preview-svg plain" id="pv-hubs" viewBox="0 0 800 460" preserveAspectRatio="xMidYMid meet" hidden>
+      <rect width="800" height="460" class="pv-page"/>
+
+      <!-- hero -->
+      <rect x="40" y="33" width="18" height="2.5" rx="1.25" fill="#0052CC"/>
+      <text x="64" y="38" font-family="Geist" font-size="9" font-weight="700" letter-spacing="1.4" fill="#0052CC">PAYMENT SUPPORT</text>
+      <text x="40" y="78" font-family="Geist" font-size="28" font-weight="700">
+        <tspan class="pv-h">Мастерская </tspan><tspan fill="#0052CC">Поддержка</tspan>
+      </text>
+      <rect x="40" y="92" width="300" height="6" rx="3" class="pv-line" opacity=".45"/>
+      <rect x="40" y="104" width="215" height="5" rx="2.5" class="pv-line" opacity=".28"/>
+      <rect x="40" y="124" width="720" height="1" class="pv-line" opacity=".25"/>
+
+      <!-- секция плиток -->
+      <rect x="40" y="146" width="3.5" height="14" rx="1.75" fill="#5B4670"/>
+      <text x="53" y="158" font-family="Geist" font-size="12" font-weight="700" class="pv-h">Материалы</text>
+      <rect x="40" y="170" width="720" height="100" rx="11" class="pv-card"/>
+      <rect x="40.5" y="170.5" width="719" height="99" rx="11" class="pv-stroke"/>
+
+      <g transform="translate(54, 184)">
+        <rect width="221" height="72" rx="8" class="pv-tile"/>
+        <rect x=".5" y=".5" width="220" height="71" rx="8" class="pv-stroke"/>
+        <rect x="14" y="15" width="14" height="14" rx="3" fill="#0052CC" opacity=".22"/>
+        <rect x="34" y="16" width="48" height="12" rx="3" fill="#0052CC"/>
+        <text x="39" y="25" font-family="Geist" font-size="7" font-weight="700" fill="#fff">СТАТЬЯ</text>
+        <rect x="14" y="42" width="140" height="6" rx="3" class="pv-line" opacity=".5"/>
+        <rect x="14" y="54" width="92" height="5" rx="2.5" class="pv-line" opacity=".28"/>
+      </g>
+      <g transform="translate(289, 184)">
+        <rect width="221" height="72" rx="8" class="pv-tile"/>
+        <rect x=".5" y=".5" width="220" height="71" rx="8" class="pv-stroke"/>
+        <rect x="14" y="15" width="14" height="14" rx="3" fill="#0052CC" opacity=".22"/>
+        <rect x="34" y="16" width="52" height="12" rx="3" fill="#00857A"/>
+        <text x="39" y="25" font-family="Geist" font-size="7" font-weight="700" fill="#fff">СПИСОК</text>
+        <rect x="14" y="42" width="118" height="6" rx="3" class="pv-line" opacity=".5"/>
+        <rect x="14" y="54" width="76" height="5" rx="2.5" class="pv-line" opacity=".28"/>
+      </g>
+      <g transform="translate(524, 184)">
+        <rect width="221" height="72" rx="8" class="pv-tile"/>
+        <rect x=".5" y=".5" width="220" height="71" rx="8" class="pv-stroke"/>
+        <rect x="14" y="15" width="14" height="14" rx="3" fill="#0052CC" opacity=".22"/>
+        <rect x="34" y="16" width="58" height="12" rx="3" fill="#047857"/>
+        <text x="39" y="25" font-family="Geist" font-size="7" font-weight="700" fill="#fff">ТАБЛИЦА</text>
+        <rect x="14" y="42" width="130" height="6" rx="3" class="pv-line" opacity=".5"/>
+        <rect x="14" y="54" width="84" height="5" rx="2.5" class="pv-line" opacity=".28"/>
+      </g>
+
+      <!-- секция контактов -->
+      <rect x="40" y="294" width="3.5" height="14" rx="1.75" fill="#3D5A73"/>
+      <text x="53" y="306" font-family="Geist" font-size="12" font-weight="700" class="pv-h">Контакты</text>
+      <rect x="40" y="318" width="720" height="104" rx="11" class="pv-card"/>
+      <rect x="40.5" y="318.5" width="719" height="103" rx="11" class="pv-stroke"/>
+      <rect x="56" y="334" width="86" height="7" rx="3.5" class="pv-line" opacity=".45"/>
+
+      <g transform="translate(56, 356)">
+        <circle cx="21" cy="21" r="21" class="pv-line" opacity=".18"/>
+        <circle cx="21" cy="16" r="6.5" class="pv-line" opacity=".45"/>
+        <path d="M8 38a13 13 0 0 1 26 0" class="pv-line" opacity=".45"/>
+        <rect x="52" y="8" width="80" height="6" rx="3" class="pv-line" opacity=".5"/>
+        <rect x="52" y="20" width="112" height="5" rx="2.5" class="pv-line" opacity=".26"/>
+        <rect x="52" y="31" width="62" height="5" rx="2.5" fill="#0052CC" opacity=".55"/>
+      </g>
+      <g transform="translate(296, 356)">
+        <circle cx="21" cy="21" r="21" class="pv-line" opacity=".18"/>
+        <circle cx="21" cy="16" r="6.5" class="pv-line" opacity=".45"/>
+        <path d="M8 38a13 13 0 0 1 26 0" class="pv-line" opacity=".45"/>
+        <rect x="52" y="8" width="94" height="6" rx="3" class="pv-line" opacity=".5"/>
+        <rect x="52" y="20" width="98" height="5" rx="2.5" class="pv-line" opacity=".26"/>
+        <rect x="52" y="31" width="62" height="5" rx="2.5" fill="#0052CC" opacity=".55"/>
+      </g>
+      <g transform="translate(536, 356)">
+        <circle cx="21" cy="21" r="21" class="pv-line" opacity=".18"/>
+        <circle cx="21" cy="16" r="6.5" class="pv-line" opacity=".45"/>
+        <path d="M8 38a13 13 0 0 1 26 0" class="pv-line" opacity=".45"/>
+        <rect x="52" y="8" width="72" height="6" rx="3" class="pv-line" opacity=".5"/>
+        <rect x="52" y="20" width="106" height="5" rx="2.5" class="pv-line" opacity=".26"/>
+        <rect x="52" y="31" width="62" height="5" rx="2.5" fill="#0052CC" opacity=".55"/>
       </g>
     </svg>
   </div>
@@ -490,6 +595,17 @@ function closeContactPopup(e){
   setTimeout(function(){ ov.style.display="none"; },180);
 }
 document.addEventListener("keydown",function(e){ if(e.key==="Escape") closeContactPopup(); });
+
+/* Превью в шапке: Charts / Hubs */
+document.getElementById("preview-tabs").addEventListener("click",function(e){
+  var b=e.target.closest("button");
+  if(!b) return;
+  var which=b.getAttribute("data-pv");
+  Array.prototype.forEach.call(this.children,function(c){ c.classList.toggle("on",c===b); });
+  /* у SVG нет IDL-свойства hidden — только атрибут */
+  document.getElementById("pv-charts").toggleAttribute("hidden", which!=="charts");
+  document.getElementById("pv-hubs").toggleAttribute("hidden", which!=="hubs");
+});
 </script>
 </body>
 </html>
