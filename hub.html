@@ -1223,7 +1223,7 @@ function newPerson(){
   return { id:uid('p'), name:'Имя Фамилия', role:'Должность', handle:'', photo:'' };
 }
 function newGroup(t){
-  return { id:uid('g'), title:t||'Supervisors', description:'Короткое описание роли группы.',
+  return { id:uid('g'), title:t||'Новая группа', description:'Короткое описание роли группы.',
            handleIcon:'reddy', people:[newPerson()] };
 }
 function newTilesSection(t){
@@ -1825,8 +1825,8 @@ function renderInspector(){
 
   if (r.kind === 'hero') {
     h += fLabel('Кикер', 'мелкая надпись сверху') + fText('kicker', o.kicker, 'Название раздела');
-    h += fLabel('Заголовок') + fText('titleMain', o.titleMain, 'Хаб раздела');
-    h += fLabel('Акцентная часть', 'синим') + fText('titleAccent', o.titleAccent, 'Поддержка');
+    h += fLabel('Заголовок') + fText('titleMain', o.titleMain, 'Название хаба');
+    h += fLabel('Акцентная часть', 'синим') + fText('titleAccent', o.titleAccent, 'акцент');
     h += '<div style="margin-top:6px">' + fChk('accentNewLine', o.accentNewLine, 'Акцент с новой строки') + '</div>';
     h += fLabel('Лид-текст') + fArea('lead', o.lead, 'Основная мысль раздела.');
     h += fLabel('Подстрочник', 'помельче') + fArea('sub', o.sub, 'Детали, охват, ограничения.');
@@ -1856,13 +1856,13 @@ function renderInspector(){
       h += '<button class="btn" data-add="tile" style="width:100%;justify-content:center;margin-top:14px">+ Плитка</button>';
     } else {
       h += '<button class="btn" data-add="group" style="width:100%;justify-content:center;margin-top:14px">+ Группа контактов</button>';
-      h += '<div class="hintbox">Каждая группа (Supervisors, Поддержка, QC, Telegram) — отдельная карточка со своим заголовком и описанием.</div>';
+      h += '<div class="hintbox">Каждая группа (руководители, специалисты, дежурные, Telegram) — отдельная карточка со своим заголовком и описанием.</div>';
     }
 
   } else if (r.kind === 'tile') {
     h += fLabel('Название') + fText('title', o.title, 'Название плитки');
-    h += fLabel('Подпись', 'расшифровка, необязательно') + fText('subtitle', o.subtitle, 'Египет');
-    h += fLabel('Ссылка') + fText('href', o.href, 'https://example.com/...');
+    h += fLabel('Подпись', 'расшифровка, необязательно') + fText('subtitle', o.subtitle, 'расшифровка');
+    h += fLabel('Ссылка') + fText('href', o.href, 'https://example.com/article');
     var badges = allBadges();
     h += fLabel('Тип контента') + fSel('badge', o.badge, Object.keys(badges).map(function(k){
       return [k, badges[k].label + (badges[k].std ? '' : ' ·')];
@@ -1879,7 +1879,7 @@ function renderInspector(){
     }
 
   } else if (r.kind === 'group') {
-    h += fLabel('Заголовок группы') + fText('title', o.title, 'Supervisors');
+    h += fLabel('Заголовок группы') + fText('title', o.title, 'Название группы');
     h += fLabel('Описание') + fArea('description', o.description, 'Короткое описание роли группы.');
     h += fLabel('Иконка перед ID') + fSel('handleIcon', o.handleIcon, Object.keys(HANDLE_ICONS).map(function(k){
       return [k, HANDLE_ICONS[k].label];
@@ -1887,9 +1887,9 @@ function renderInspector(){
     h += '<button class="btn" data-add="person" style="width:100%;justify-content:center;margin-top:14px">+ Контакт</button>';
 
   } else if (r.kind === 'person') {
-    h += fLabel('Имя') + fText('name', o.name, 'Сотрудник');
-    h += fLabel('Должность') + fText('role', o.role, 'Специалист поддержки (Служба Отдел)');
-    h += fLabel('ID / логин', 'с кнопкой копирования') + fText('handle', o.handle, '00000000000');
+    h += fLabel('Имя') + fText('name', o.name, 'Имя Фамилия');
+    h += fLabel('Должность') + fText('role', o.role, 'Специалист отдела');
+    h += fLabel('ID / логин', 'с кнопкой копирования') + fText('handle', o.handle, 'ivan_petrov');
     h += fLabel('Фото', 'URL, пусто — серая заглушка') + fText('photo', o.photo, 'https://...');
     h += '<div class="hintbox">Без фото рисуется нейтральная серая заглушка-силуэт — цветной кружок с инициалами дизайн-система запрещает.</div>';
   }
@@ -2884,7 +2884,7 @@ var HELP = [
     '<ul>' +
       '<li>В панели «Структура» выберите <b>Шапку</b> и впишите заголовок, кикер и лид-текст.</li>' +
       '<li>Добавьте секцию плиток и наполните её ссылками на статьи, таблицы и другие хабы.</li>' +
-      '<li>Добавьте секцию контактов — по группе на роль: Supervisors, Поддержка, QC.</li>' +
+      '<li>Добавьте секцию контактов — по отдельной группе на каждую роль.</li>' +
       '<li>Проверьте страницу в тёмной теме и на узком экране переключателями над превью.</li>' +
       '<li>Нажмите «Экспорт HTML» и вставьте результат в Confluence.</li>' +
     '</ul>' +
@@ -2906,7 +2906,7 @@ var HELP = [
 
   { id:'contacts', name:'Контакты', html:
     '<h4>Контакты</h4>' +
-    '<p>Секция контактов состоит из <b>групп</b>. Каждая группа — отдельная карточка со своим заголовком и коротким описанием роли: Supervisors, Поддержка, QC, Telegram. Не сваливайте всех в одну группу.</p>' +
+    '<p>Секция контактов состоит из <b>групп</b>. Каждая группа — отдельная карточка со своим заголовком и коротким описанием роли: руководители, специалисты, дежурные, Telegram. Не сваливайте всех в одну группу.</p>' +
     '<h5>Человек</h5>' +
     '<ul>' +
       '<li><b>Фото</b> — ссылка на изображение. Если фото нет, рисуется нейтральная серая заглушка-силуэт; цветной кружок с инициалами дизайн-система не разрешает.</li>' +
