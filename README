@@ -1,5 +1,4 @@
 Studio
-Copyright (C) 2026 Studio
 
 Два визуальных редактора для внутренней документации:
 
@@ -22,11 +21,14 @@ dashboard.html — общий список документов обоих ти�
 Пока миграция не применена, раздел «Хабы» в дашборде показывает об этом
 подсказку, остальное работает как раньше.
 
+Данные
+------
+Все примеры в репозитории вымышленные. Реальные схемы, хабы и контакты
+хранятся только в Supabase под RLS и в репозиторий не попадают.
+
 Лицензия
 --------
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as published
 by the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
-
-Contact: noreply@example.com
