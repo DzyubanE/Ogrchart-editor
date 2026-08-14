@@ -338,7 +338,7 @@ input[type=text]:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,1
 <body>
 <div class="app">
 <div class="hdr">
-  <div class="logo">Org<b>Chart</b></div>
+  <div class="logo">Studio <b>Charts</b></div>
   <div class="sep"></div>
   <input type="text" id="chart-title" value="Отдел · Org Chart" maxlength="60" style="width:auto">
   <div class="sep"></div>
@@ -951,22 +951,22 @@ function clearAll(s){if(!s&&!confirm('Очистить?'))return;document.queryS
 function loadExample(){
   clearAll(true);
   const ex=[
-    {role:'Руководитель службы',dept:'Отдел',sched:'5/2',color:'#5850c8',x:500,y:0,duties:['Стратегическое управление','Координация BT и API','Эскалация инцидентов'],emps:[{name:'Сотрудник',reddy:'@user',avatar:''}]},
-    {role:'Супервайзер',dept:'Направление А',sched:'5/2',color:'#7c3aed',x:250,y:160,duties:['Управление BT-командой','Мониторинг SLA'],emps:[{name:'Сотрудник',reddy:'@user',avatar:''}]},
-    {role:'Супервайзер',dept:'API',sched:'5/2',color:'#9333ea',x:760,y:160,duties:['Управление API-командой','Мониторинг SLA'],emps:[{name:'Сотрудник',reddy:'@user',avatar:''}]},
-    {role:'Тимлид поддержки',dept:'Служба Отдел',sched:'5/2',color:'#0f766e',x:80,y:320,duties:['Руководство Поддержка','Анализ ошибок'],emps:[{name:'Сотрудник',reddy:'@user',avatar:''}]},
-    {role:'Тимлид контроля',dept:'Служба Отдел',sched:'5/2',color:'#059669',x:850,y:320,duties:['Руководство QC','Стандарты качества'],emps:[{name:'Сотрудник',reddy:'@user',avatar:''}]},
-    {role:'Специалист поддержки',dept:'Senior · BT',sched:'5/2',color:'#1d4ed8',x:0,y:480,duties:['Сложные кейсы BT','Менторство'],emps:[{name:'Сотрудник',reddy:'@user',avatar:''}]},
-    {role:'Специалист поддержки',dept:'Senior · API',sched:'5/2',color:'#2563eb',x:420,y:480,duties:['Сложные кейсы API'],emps:[{name:'Сотрудник',reddy:'@user',avatar:''}]},
-    {role:'Специалист контроля',dept:'Senior · BT',sched:'5/2',color:'#0369a1',x:660,y:480,duties:['Контроль качества BT'],emps:[{name:'Сотрудник',reddy:'@user',avatar:''}]},
-    {role:'Специалист контроля',dept:'Senior · API',sched:'5/2',color:'#0284c7',x:900,y:480,duties:['Контроль качества API'],emps:[{name:'Сотрудник',reddy:'@user',avatar:''}]},
-    {role:'Специалист поддержки',dept:'Служба · BT · 2/2',sched:'2/2',color:'#3b82f6',x:0,y:640,duties:['Обработка тикетов BT'],emps:[{name:'Сотрудник',reddy:'@user',avatar:''},{name:'Сотрудник',reddy:'@user',avatar:''}]},
-    {role:'Специалист поддержки',dept:'Служба · 5/2',sched:'5/2',color:'#4338ca',x:210,y:640,duties:['Обработка тикетов BT и API'],emps:[{name:'Сотрудник',reddy:'@user',avatar:''},{name:'Сотрудник',reddy:'@user',avatar:''}]},
-    {role:'Специалист поддержки',dept:'Служба · API · 2/2',sched:'2/2',color:'#4f46e5',x:420,y:640,duties:['Обработка тикетов API'],emps:[{name:'Сотрудник',reddy:'@user',avatar:''},{name:'Сотрудник',reddy:'@user',avatar:''}]},
-    {role:'Специалист контроля',dept:'Служба · BT · 2/2',sched:'2/2',color:'#0891b2',x:660,y:640,duties:['Проверка BT-тикетов'],emps:[{name:'Сотрудник',reddy:'@user',avatar:''},{name:'Сотрудник',reddy:'@user',avatar:''}]},
-    {role:'Специалист контроля',dept:'Служба · API · 2/2',sched:'2/2',color:'#06b6d4',x:900,y:640,duties:['Проверка API-тикетов'],emps:[{name:'Сотрудник',reddy:'@user',avatar:''},{name:'Сотрудник',reddy:'@user',avatar:''}]},
-    {role:'Оператор',dept:'Отдел · BT',sched:'2/2',color:'#be185d',x:100,y:800,duties:['Первичная обработка BT'],emps:[]},
-    {role:'Оператор',dept:'Отдел · API',sched:'2/2',color:'#db2777',x:680,y:800,duties:['Первичная обработка API'],emps:[]},
+    {role:'Руководитель службы',dept:'Поддержка',sched:'5/2',color:'#5850c8',x:500,y:0,duties:['Стратегическое управление','Координация направлений','Эскалация инцидентов'],emps:[{name:'Иван Иванов',reddy:'@ivanov',avatar:''}]},
+    {role:'Супервайзер',dept:'Направление А',sched:'5/2',color:'#7c3aed',x:250,y:160,duties:['Управление направлением А','Мониторинг SLA'],emps:[{name:'Пётр Петров',reddy:'@petrov',avatar:''}]},
+    {role:'Супервайзер',dept:'Направление Б',sched:'5/2',color:'#9333ea',x:760,y:160,duties:['Управление направлением Б','Мониторинг SLA'],emps:[{name:'Анна Смирнова',reddy:'@smirnova',avatar:''}]},
+    {role:'Тимлид поддержки',dept:'Первая линия',sched:'5/2',color:'#0f766e',x:80,y:320,duties:['Руководство поддержкой','Анализ ошибок'],emps:[{name:'Мария Кузнецова',reddy:'@kuznetsova',avatar:''}]},
+    {role:'Тимлид контроля',dept:'Контроль качества',sched:'5/2',color:'#059669',x:850,y:320,duties:['Руководство контролем','Стандарты качества'],emps:[{name:'Сергей Попов',reddy:'@popov',avatar:''}]},
+    {role:'Специалист поддержки',dept:'Ведущий · А',sched:'5/2',color:'#1d4ed8',x:0,y:480,duties:['Сложные обращения А','Менторство'],emps:[{name:'Ольга Новикова',reddy:'@novikova',avatar:''}]},
+    {role:'Специалист поддержки',dept:'Ведущий · Б',sched:'5/2',color:'#2563eb',x:420,y:480,duties:['Сложные обращения Б'],emps:[{name:'Дмитрий Морозов',reddy:'@morozov',avatar:''}]},
+    {role:'Специалист контроля',dept:'Ведущий · А',sched:'5/2',color:'#0369a1',x:660,y:480,duties:['Контроль качества А'],emps:[{name:'Елена Волкова',reddy:'@volkova',avatar:''}]},
+    {role:'Специалист контроля',dept:'Ведущий · Б',sched:'5/2',color:'#0284c7',x:900,y:480,duties:['Контроль качества Б'],emps:[{name:'Алексей Соколов',reddy:'@sokolov',avatar:''}]},
+    {role:'Специалист поддержки',dept:'Смена · А · 2/2',sched:'2/2',color:'#3b82f6',x:0,y:640,duties:['Обработка обращений А'],emps:[{name:'Наталья Лебедева',reddy:'@lebedeva',avatar:''},{name:'Павел Козлов',reddy:'@kozlov',avatar:''}]},
+    {role:'Специалист поддержки',dept:'Смена · А и Б · 5/2',sched:'5/2',color:'#4338ca',x:210,y:640,duties:['Обработка обращений А и Б'],emps:[{name:'Ирина Егорова',reddy:'@egorova',avatar:''},{name:'Роман Никитин',reddy:'@nikitin',avatar:''}]},
+    {role:'Специалист поддержки',dept:'Смена · Б · 2/2',sched:'2/2',color:'#4f46e5',x:420,y:640,duties:['Обработка обращений Б'],emps:[{name:'Юлия Орлова',reddy:'@orlova',avatar:''},{name:'Артём Макаров',reddy:'@makarov',avatar:''}]},
+    {role:'Специалист контроля',dept:'Смена · А · 2/2',sched:'2/2',color:'#0891b2',x:660,y:640,duties:['Проверка обращений А'],emps:[{name:'Дарья Зайцева',reddy:'@zaytseva',avatar:''},{name:'Максим Белов',reddy:'@belov',avatar:''}]},
+    {role:'Специалист контроля',dept:'Смена · Б · 2/2',sched:'2/2',color:'#06b6d4',x:900,y:640,duties:['Проверка обращений Б'],emps:[{name:'Ксения Титова',reddy:'@titova',avatar:''},{name:'Никита Фомин',reddy:'@fomin',avatar:''}]},
+    {role:'Оператор',dept:'Первая линия · А',sched:'2/2',color:'#be185d',x:100,y:800,duties:['Первичная обработка А'],emps:[]},
+    {role:'Оператор',dept:'Первая линия · Б',sched:'2/2',color:'#db2777',x:680,y:800,duties:['Первичная обработка Б'],emps:[]},
   ];
   const ids=ex.map(d=>addNode(d));
   const c=(a,b)=>{if(ids[a]&&ids[b])conns.push({from:ids[a],to:ids[b],color:'#8b8b8b'});};
