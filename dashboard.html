@@ -7,7 +7,6 @@
 <title>Studio — мои документы</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNyIgZmlsbD0iIzM3MzBhMyIvPjxyZWN0IHg9IjEyIiB5PSI0IiB3aWR0aD0iOCIgaGVpZ2h0PSI2IiByeD0iMiIgZmlsbD0id2hpdGUiLz48cmVjdCB4PSI0IiB5PSIxNCIgd2lkdGg9IjgiIGhlaWdodD0iNiIgcng9IjIiIGZpbGw9IndoaXRlIiBvcGFjaXR5PSIwLjg1Ii8+PHJlY3QgeD0iMjAiIHk9IjE0IiB3aWR0aD0iOCIgaGVpZ2h0PSI2IiByeD0iMiIgZmlsbD0id2hpdGUiIG9wYWNpdHk9IjAuODUiLz48L3N2Zz4=">
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -32,9 +31,7 @@ a{text-decoration:none;color:inherit}
 .nav-logo-icon{width:28px;height:28px;border-radius:7px;background:var(--accent);display:flex;align-items:center;justify-content:center}
 .nav-logo-icon svg{width:14px;height:14px}
 .nav-right{margin-left:auto;display:flex;align-items:center;gap:8px}
-.user-chip{display:flex;align-items:center;gap:8px;padding:4px 10px 4px 4px;border-radius:20px;border:1px solid var(--b1);background:var(--s2);font-size:12.5px;color:var(--t2)}
-.user-av{width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:700;flex-shrink:0;overflow:hidden}
-.user-av img{width:100%;height:100%;object-fit:cover}
+.store-note{font-size:11.5px;color:var(--t3);padding:4px 10px;border:1px solid var(--b1);border-radius:20px;background:var(--s2);white-space:nowrap}
 
 .btn{display:inline-flex;align-items:center;gap:5px;padding:6px 13px;border-radius:8px;font-size:12.5px;font-weight:600;border:1px solid var(--b2);background:var(--surface);color:var(--t1);cursor:pointer;transition:background .12s;font-family:'Geist',sans-serif}
 .btn:hover{background:var(--s2)}
@@ -94,15 +91,6 @@ a{text-decoration:none;color:inherit}
 .empty-title{font-size:16px;font-weight:600;color:var(--t1)}
 .empty-sub{font-size:13px;color:var(--t3);max-width:280px;line-height:1.6}
 
-.auth-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);padding:20px}
-.auth-box{background:var(--surface);border:1px solid var(--b1);border-radius:20px;padding:40px;width:100%;max-width:380px;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,.08)}
-.auth-logo{width:52px;height:52px;border-radius:14px;background:var(--accent);display:flex;align-items:center;justify-content:center;margin:0 auto 20px}
-.auth-logo svg{width:26px;height:26px}
-.auth-title{font-size:20px;font-weight:700;letter-spacing:-.02em;margin-bottom:6px}
-.auth-sub{font-size:13px;color:var(--t3);margin-bottom:28px;line-height:1.5}
-.google-btn{width:100%;padding:11px;border-radius:10px;border:1px solid var(--b2);background:var(--surface);display:flex;align-items:center;justify-content:center;gap:10px;font-size:14px;font-weight:600;color:var(--t1);cursor:pointer;transition:background .12s,border-color .12s;font-family:'Geist',sans-serif;margin-bottom:10px}
-.google-btn:hover{background:var(--s2);border-color:var(--b2)}
-.google-btn svg{width:18px;height:18px;flex-shrink:0}
 
 .loading{display:flex;align-items:center;justify-content:center;min-height:60vh;color:var(--t3);font-size:13px;gap:8px}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -124,42 +112,17 @@ a{text-decoration:none;color:inherit}
 ::-webkit-scrollbar-thumb{background:var(--b2);border-radius:3px}
 @media(max-width:640px){
   .nav{padding:0 14px}
-  .user-chip span{display:none}
   .nav-logo{font-size:12.5px}
   .main{padding:20px 14px}
   .page-head{flex-direction:column;align-items:flex-start;gap:12px}
   .grid{grid-template-columns:1fr}
   .new-card{min-height:120px}
-  .auth-box{padding:28px 20px}
-}
+  }
 </style>
 </head>
 <body>
 
-<div id="auth-view" class="auth-screen" style="display:none">
-  <div class="auth-box">
-    <div class="auth-logo">
-      <svg viewBox="0 0 32 32" fill="none">
-        <rect x="10" y="3" width="12" height="9" rx="2.5" fill="white" opacity=".9"/>
-        <rect x="2" y="16" width="12" height="9" rx="2.5" fill="white" opacity=".8"/>
-        <rect x="18" y="16" width="12" height="9" rx="2.5" fill="white" opacity=".8"/>
-      </svg>
-    </div>
-    <div class="auth-title">Studio</div>
-    <div class="auth-sub">Схемы и хаб-страницы в одном месте. Войдите, чтобы начать.</div>
-    <button class="google-btn" onclick="signInGoogle()">
-      <svg viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-        <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
-        <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#34A853"/>
-        <path d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
-        <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
-      </svg>
-      Войти через Google
-    </button>
-  </div>
-</div>
-
-<div id="app-view" style="display:none">
+<div id="app-view">
   <nav class="nav">
     <div class="nav-logo">
       <div class="nav-logo-icon">
@@ -172,11 +135,15 @@ a{text-decoration:none;color:inherit}
       Studio
     </div>
     <div class="nav-right">
-      <div class="user-chip">
-        <div class="user-av" id="nav-av"></div>
-        <span id="nav-name"></span>
-      </div>
-      <button class="btn" onclick="signOut()">Выйти</button>
+      <span class="store-note" id="store-note" title="Данные не покидают этот браузер"></span>
+      <button class="btn" onclick="document.getElementById('file-in').click()" title="Открыть .json со схемой, хабом или резервной копией">
+        <svg viewBox="0 0 24 24"><path d="M3 15v4a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-4"/><path d="m7 8 5-5 5 5M12 3v12"/></svg>
+        Импорт
+      </button>
+      <button class="btn" onclick="exportAll()" title="Скачать все документы одним файлом">
+        <svg viewBox="0 0 24 24"><path d="M3 15v4a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-4"/><path d="m7 10 5 5 5-5M12 15V3"/></svg>
+        Резервная копия
+      </button>
     </div>
   </nav>
 
@@ -231,31 +198,53 @@ a{text-decoration:none;color:inherit}
   </div>
 </div>
 
+<input type="file" id="file-in" accept=".json,application/json" style="display:none">
 <div class="toast" id="toast"></div>
 
 <script>
-const SB_URL = 'https://ivctluihkskhtsuopzwz.supabase.co';
-const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2Y3RsdWloa3NraHRzdW9wend6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgyMzA1NDAsImV4cCI6MjA5MzgwNjU0MH0.geomdYuAul2xCv8gVNz4NLuWLbZfLyksXAiEE_iYVQY';
-const sb = window.supabase.createClient(SB_URL, SB_KEY);
+/* ═══ Локальное хранилище ══════════════════════════════════
+   Документы лежат в localStorage этого браузера: индекс
+   отдельно от тел, чтобы список открывался без разбора всего.
+   Наружу ничего не уходит — обмен и бэкапы идут файлами. */
+const LS_INDEX = 'studio:index';
+const LS_DOC = 'studio:doc:';
 
-/* Базовый адрес сайта считаем из текущей страницы, а не зашиваем.
-   Переименование репозитория меняет путь GitHub Pages — с этим
-   вычислением оно больше ничего не ломает. */
-const BASE = location.origin + location.pathname.replace(/[^/]*$/, '');
+function lsRead(key, fallback) {
+  try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
+  catch (e) { return fallback; }
+}
+function lsWrite(key, value) {
+  try { localStorage.setItem(key, JSON.stringify(value)); return true; }
+  catch (e) { return false; }
+}
+function docIndex() { const ix = lsRead(LS_INDEX, []); return Array.isArray(ix) ? ix : []; }
+function docBody(id) { return lsRead(LS_DOC + id, null); }
+function newId() { return 'd' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
 
-let currentUser = null;
+function putDoc(id, docKind, title, body) {
+  if (!lsWrite(LS_DOC + id, body)) {
+    toast('Не хватает места в браузере — выгрузите резервную копию и удалите лишнее');
+    return false;
+  }
+  const ix = docIndex(), now = Date.now();
+  const row = ix.filter(function (d) { return d.id === id; })[0];
+  if (row) { row.title = title; row.updated = now; }
+  else ix.unshift({ id: id, kind: docKind, title: title, created: now, updated: now });
+  return lsWrite(LS_INDEX, ix);
+}
+function dropDoc(id) {
+  try { localStorage.removeItem(LS_DOC + id); } catch (e) {}
+  lsWrite(LS_INDEX, docIndex().filter(function (d) { return d.id !== id; }));
+}
+
 let diagrams = [];
 let hubs = [];
-let hubsError = null;
 let kind = 'charts';
 let renameId = null;
-let renameKind = 'charts';
-
-const TABLE = {charts: 'diagrams', hubs: 'hubs'};
 
 function switchKind(k) {
   kind = k;
-  document.querySelectorAll('#seg-kind button').forEach(function(b) {
+  document.querySelectorAll('#seg-kind button').forEach(function (b) {
     b.classList.toggle('on', b.getAttribute('data-kind') === k);
   });
   const chart = k === 'charts';
@@ -273,79 +262,22 @@ function createCurrent() {
   if (kind === 'charts') createDiagram(); else createHub();
 }
 
-async function sbFetch(path, opts) {
-  opts = opts || {};
-  const sess = await sb.auth.getSession();
-  const token = sess.data.session ? sess.data.session.access_token : '';
-  const headers = Object.assign({
-    'apikey': SB_KEY,
-    'Content-Type': 'application/json'
-  }, token ? {'Authorization': 'Bearer ' + token} : {}, opts.headers || {});
-  const r = await fetch(SB_URL + path, Object.assign({}, opts, {headers}));
-  if (!r.ok) {
-    let e = {};
-    try { e = await r.json(); } catch(_) {}
-    throw new Error(e.message || r.statusText);
-  }
-  if (r.status === 204) return null;
-  return r.json();
-}
-
-async function signInGoogle() {
-  const res = await sb.auth.signInWithOAuth({
-    provider: 'google',
-    options: { redirectTo: BASE + 'dashboard.html' }
+function loadAll() {
+  const ix = docIndex().slice().sort(function (a, b) { return b.updated - a.updated; });
+  diagrams = []; hubs = [];
+  ix.forEach(function (row) {
+    const body = docBody(row.id);
+    if (!body) return;                       /* тело потерялось — строку не показываем */
+    if (row.kind === 'hub') {
+      hubs.push({ id: row.id, title: row.title, updated_at: row.updated, doc: body });
+    } else {
+      diagrams.push({ id: row.id, title: row.title, updated_at: row.updated,
+                      nodes: body.nodes || {}, conns: body.conns || [] });
+    }
   });
-  if (res.error) toast('Ошибка входа: ' + res.error.message);
-}
-
-async function signOut() {
-  await sb.auth.signOut();
-  currentUser = null;
-  showAuth();
-}
-
-function showAuth() {
-  document.getElementById('auth-view').style.display = 'flex';
-  document.getElementById('app-view').style.display = 'none';
-}
-
-function showApp(user) {
-  currentUser = user;
-  document.getElementById('auth-view').style.display = 'none';
-  document.getElementById('app-view').style.display = 'block';
-  const av = document.getElementById('nav-av');
-  const meta = user.user_metadata || {};
-  if (meta.avatar_url) {
-    av.innerHTML = '<img src="' + meta.avatar_url + '">';
-  } else {
-    av.textContent = (user.email || '?')[0].toUpperCase();
-  }
-  document.getElementById('nav-name').textContent = meta.full_name || user.email;
-  loadAll();
-}
-
-async function loadAll() {
-  try {
-    const data = await sbFetch('/rest/v1/diagrams?select=id,title,nodes,conns,updated_at,created_at&order=updated_at.desc');
-    diagrams = data || [];
-  } catch (e) {
-    toast('Ошибка загрузки схем: ' + e.message);
-  }
-
-  /* Хабы — отдельная таблица. Пока миграция не применена, раздел
-     показывает подсказку вместо пустого экрана. */
-  try {
-    const data = await sbFetch('/rest/v1/hubs?select=id,title,doc,updated_at,created_at&order=updated_at.desc');
-    hubs = data || [];
-    hubsError = null;
-  } catch (e) {
-    hubs = [];
-    hubsError = /404|not exist|schema cache/i.test(e.message)
-      ? 'Таблица hubs ещё не создана. Примените supabase/hubs.sql в Supabase → SQL Editor.'
-      : e.message;
-  }
-
+  document.getElementById('cnt-charts').textContent = diagrams.length || '';
+  document.getElementById('cnt-hubs').textContent = hubs.length || '';
+  showStoreNote();
   try {
     const saved = localStorage.getItem('studio:kind');
     if (saved === 'hubs' || saved === 'charts') kind = saved;
@@ -353,10 +285,25 @@ async function loadAll() {
   switchKind(kind);
 }
 
+/* Сколько места занято — чтобы переполнение не стало сюрпризом. */
+function showStoreNote() {
+  let bytes = 0;
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.indexOf('studio:') === 0) bytes += (localStorage.getItem(k) || '').length;
+    }
+  } catch (e) { return; }
+  const el = document.getElementById('store-note');
+  if (el) el.textContent = 'В браузере · ' + (bytes > 1048576
+    ? (bytes / 1048576).toFixed(1) + ' МБ' : Math.max(1, Math.round(bytes / 1024)) + ' КБ');
+}
+
 function render() {
   if (kind === 'hubs') renderHubs(); else renderDiagrams();
 }
 
+const ACT_EXPORT = '<div class="card-act-btn" data-act="export" title="Выгрузить в файл"><svg viewBox="0 0 13 13"><path d="M2 9v2h9V9M6.5 1.5v6M4 5.5l2.5 2.5L9 5.5"/></svg></div>';
 const ACT_RENAME = '<div class="card-act-btn" data-act="rename" title="Переименовать"><svg viewBox="0 0 13 13"><path d="M2 10l1.5-1.5 5-5L10 5l-5 5L3.5 11.5 2 10z"/></svg></div>';
 const ACT_DELETE = '<div class="card-act-btn del" data-act="delete" title="Удалить"><svg viewBox="0 0 13 13"><path d="M2 3.5h9M5 3.5V2h3v1.5M4 3.5l.6 7.5h3.8l.6-7.5"/></svg></div>';
 
@@ -392,8 +339,7 @@ function renderDiagrams() {
     card.innerHTML =
       '<div class="card-preview">' + buildPreview(nodesArr, d.conns || []) + '</div>' +
       '<div class="card-actions">' +
-        '<div class="card-act-btn" data-act="share" title="Поделиться"><svg viewBox="0 0 13 13"><circle cx="10.5" cy="2.5" r="1.8"/><circle cx="2.5" cy="6.5" r="1.8"/><circle cx="10.5" cy="10.5" r="1.8"/><line x1="4.2" y1="7.4" x2="8.8" y2="9.6"/><line x1="8.8" y1="3.4" x2="4.2" y2="5.6"/></svg></div>' +
-        ACT_RENAME + ACT_DELETE +
+        ACT_EXPORT + ACT_RENAME + ACT_DELETE +
       '</div>' +
       '<div class="card-body">' +
         '<div class="card-title">' + esc(d.title) + '</div>' +
@@ -404,7 +350,7 @@ function renderDiagrams() {
       if (act) {
         e.stopPropagation();
         const t = act.getAttribute('data-act');
-        if (t === 'share') shareDialog(d.id);
+        if (t === 'export') exportOne(d.id);
         if (t === 'rename') startRename('charts', d.id, d.title);
         if (t === 'delete') removeDoc('charts', d.id);
         return;
@@ -419,15 +365,6 @@ function renderHubs() {
   const grid = document.getElementById('grid');
   const empty = document.getElementById('empty');
   document.getElementById('loading').style.display = 'none';
-
-  if (hubsError) {
-    grid.style.display = 'none';
-    empty.style.display = 'flex';
-    document.getElementById('page-sub').textContent = 'Раздел недоступен';
-    document.getElementById('empty-title').textContent = 'Хабы ещё не подключены';
-    document.getElementById('empty-sub').textContent = hubsError;
-    return;
-  }
 
   document.getElementById('page-sub').textContent =
     hubs.length + ' ' + plural(hubs.length, 'хаб','хаба','хабов');
@@ -451,7 +388,7 @@ function renderHubs() {
     secs.forEach(function(s) { tiles += (s.tiles || []).length; });
     card.innerHTML =
       '<div class="card-preview">' + hubPreview(secs) + '</div>' +
-      '<div class="card-actions">' + ACT_RENAME + ACT_DELETE + '</div>' +
+      '<div class="card-actions">' + ACT_EXPORT + ACT_RENAME + ACT_DELETE + '</div>' +
       '<div class="card-body">' +
         '<div class="card-title">' + esc(h.title) + '</div>' +
         '<div class="card-meta">' + secs.length + ' ' + plural(secs.length, 'секция','секции','секций') +
@@ -463,6 +400,7 @@ function renderHubs() {
       if (act) {
         e.stopPropagation();
         const t = act.getAttribute('data-act');
+        if (t === 'export') exportOne(h.id);
         if (t === 'rename') startRename('hubs', h.id, h.title);
         if (t === 'delete') removeDoc('hubs', h.id);
         return;
@@ -549,47 +487,19 @@ function plural(n, a, b, c) {
   return c;
 }
 
-async function createDiagram() {
-  try {
-    const data = await sbFetch('/rest/v1/diagrams', {
-      method: 'POST',
-      headers: {'Prefer': 'return=representation'},
-      body: JSON.stringify({
-        user_id: currentUser.id,
-        title: 'Без названия',
-        nodes: {},
-        conns: []
-      })
-    });
-    const id = (data && data[0] && data[0].id) || (data && data.id);
-    if (id) window.location.href = 'editor.html?id=' + id;
-    else toast('Не удалось создать схему');
-  } catch (e) {
-    toast('Ошибка: ' + e.message);
-  }
+function createDiagram() {
+  const id = newId();
+  if (!putDoc(id, 'chart', 'Без названия', {nodes: {}, conns: []})) return;
+  window.location.href = 'editor.html?id=' + id;
 }
 
-async function createHub() {
-  try {
-    const data = await sbFetch('/rest/v1/hubs', {
-      method: 'POST',
-      headers: {'Prefer': 'return=representation'},
-      body: JSON.stringify({
-        user_id: currentUser.id,
-        title: 'Новый хаб',
-        doc: {}
-      })
-    });
-    const id = (data && data[0] && data[0].id) || (data && data.id);
-    if (id) window.location.href = 'hub.html?id=' + id;
-    else toast('Не удалось создать хаб');
-  } catch (e) {
-    toast('Ошибка: ' + e.message);
-  }
+function createHub() {
+  const id = newId();
+  if (!putDoc(id, 'hub', 'Новый хаб', {})) return;
+  window.location.href = 'hub.html?id=' + id;
 }
 
 function startRename(k, id, title) {
-  renameKind = k;
   renameId = id;
   document.getElementById('rename-input').value = title;
   document.getElementById('rename-modal').classList.add('open');
@@ -599,57 +509,111 @@ function closeRename() {
   document.getElementById('rename-modal').classList.remove('open');
   renameId = null;
 }
-async function confirmRename() {
+function confirmRename() {
   const title = document.getElementById('rename-input').value.trim();
   if (!title || !renameId) return;
-  try {
-    await sbFetch('/rest/v1/' + TABLE[renameKind] + '?id=eq.' + renameId, {
-      method: 'PATCH',
-      body: JSON.stringify({title: title})
-    });
-    const list = renameKind === 'hubs' ? hubs : diagrams;
-    const d = list.find(function(x){ return x.id === renameId; });
-    if (d) d.title = title;
-    render();
-    closeRename();
-    toast('Переименовано');
-  } catch (e) {
-    toast('Ошибка: ' + e.message);
-  }
+  const row = docIndex().filter(function(d){ return d.id === renameId; })[0];
+  const body = docBody(renameId);
+  if (row && body) putDoc(renameId, row.kind, title, body);
+  closeRename();
+  loadAll();
+  toast('Переименовано');
 }
 
-async function removeDoc(k, id) {
+function removeDoc(k, id) {
   const isHub = k === 'hubs';
-  if (!confirm(isHub ? 'Удалить хаб? Это нельзя отменить.' : 'Удалить схему? Это нельзя отменить.')) return;
-  try {
-    await sbFetch('/rest/v1/' + TABLE[k] + '?id=eq.' + id, {method: 'DELETE'});
-    if (isHub) hubs = hubs.filter(function(d){ return d.id !== id; });
-    else diagrams = diagrams.filter(function(d){ return d.id !== id; });
-    render();
-    toast(isHub ? 'Хаб удалён' : 'Схема удалена');
-  } catch (e) {
-    toast('Ошибка: ' + e.message);
-  }
+  if (!confirm(isHub
+    ? 'Удалить хаб? Он есть только в этом браузере — восстановить можно будет лишь из файла.'
+    : 'Удалить схему? Она есть только в этом браузере — восстановить можно будет лишь из файла.')) return;
+  dropDoc(id);
+  loadAll();
+  toast(isHub ? 'Хаб удалён' : 'Схема удалена');
 }
 
-async function shareDialog(id) {
-  try {
-    let shares = await sbFetch('/rest/v1/shares?diagram_id=eq.' + id + '&select=token');
-    if (!shares || !shares.length) {
-      shares = await sbFetch('/rest/v1/shares', {
-        method: 'POST',
-        headers: {'Prefer': 'return=representation'},
-        body: JSON.stringify({diagram_id: id})
-      });
-    }
-    const token = shares[0] && shares[0].token;
-    if (!token) return;
-    const url = BASE + 'view.html?t=' + token;
-    try { await navigator.clipboard.writeText(url); } catch(_) {}
-    toast('Ссылка скопирована: ' + url);
-  } catch (e) {
-    toast('Ошибка: ' + e.message);
-  }
+/* ═══ Файлы ══════════════════════════════════════════════ */
+
+function slug(str) {
+  const map = {а:'a',б:'b',в:'v',г:'g',д:'d',е:'e',ё:'e',ж:'zh',з:'z',и:'i',й:'y',к:'k',л:'l',м:'m',
+    н:'n',о:'o',п:'p',р:'r',с:'s',т:'t',у:'u',ф:'f',х:'h',ц:'c',ч:'ch',ш:'sh',щ:'sch',ъ:'',
+    ы:'y',ь:'',э:'e',ю:'yu',я:'ya'};
+  const out = String(str || '').toLowerCase().split('').map(function(c){
+    return map[c] !== undefined ? map[c] : c;
+  }).join('').replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+  return out || 'studio';
+}
+
+function download(name, text) {
+  const blob = new Blob([text], {type: 'application/json;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+}
+
+/* Один документ — им удобно обмениваться. */
+function exportOne(id) {
+  const row = docIndex().filter(function(d){ return d.id === id; })[0];
+  const body = docBody(id);
+  if (!row || !body) { toast('Документ не найден'); return; }
+  download(slug(row.title) + '.json', JSON.stringify(
+    {studio: 1, kind: row.kind, id: row.id, title: row.title, updated: row.updated, doc: body}, null, 2));
+  toast('Файл сохранён');
+}
+
+/* Все документы разом — это и есть резервная копия. */
+function exportAll() {
+  const docs = docIndex().map(function(row) {
+    const body = docBody(row.id);
+    return body ? {kind: row.kind, id: row.id, title: row.title, updated: row.updated, doc: body} : null;
+  }).filter(Boolean);
+  if (!docs.length) { toast('Пока нечего сохранять'); return; }
+  const stamp = new Date().toISOString().slice(0, 10);
+  download('studio-backup-' + stamp + '.json', JSON.stringify({studio: 1, docs: docs}, null, 2));
+  toast('Сохранено документов: ' + docs.length);
+}
+
+/* Принимает и одиночный документ, и полную резервную копию. */
+function importFile(file) {
+  const rd = new FileReader();
+  rd.onload = function() {
+    let data;
+    try { data = JSON.parse(rd.result); }
+    catch (e) { toast('Файл не читается как JSON'); return; }
+    const items = data && Array.isArray(data.docs) ? data.docs
+                : (data && data.doc ? [data] : null);
+    if (!items) { toast('Это не файл Studio'); return; }
+
+    /* Тот же документ обновляем, только если файл новее — тогда
+       повторный импорт одной и той же копии ничего не портит
+       и не плодит дубликаты. */
+    const known = {};
+    docIndex().forEach(function(d){ known[d.id] = d; });
+    let added = 0, updated = 0, skipped = 0;
+
+    items.forEach(function(it) {
+      if (!it || !it.doc) return;
+      const k = it.kind === 'hub' ? 'hub' : 'chart';
+      const title = it.title || 'Без названия';
+      const prev = it.id ? known[it.id] : null;
+
+      if (!prev) {
+        const id = it.id || newId();
+        if (putDoc(id, k, title, it.doc)) { known[id] = {id: id, updated: it.updated || Date.now()}; added++; }
+        return;
+      }
+      if (!(it.updated && it.updated > prev.updated)) { skipped++; return; }
+      if (putDoc(it.id, k, title, it.doc)) { prev.updated = it.updated; updated++; }
+    });
+
+    loadAll();
+    const parts = [];
+    if (added) parts.push('добавлено ' + added);
+    if (updated) parts.push('обновлено ' + updated);
+    if (skipped) parts.push('без изменений ' + skipped);
+    toast(parts.length ? parts.join(', ') : 'Ничего не изменилось');
+  };
+  rd.readAsText(file);
 }
 
 let toastT;
@@ -669,17 +633,13 @@ document.getElementById('rename-input').addEventListener('keydown', function(e) 
   if (e.key === 'Escape') closeRename();
 });
 
-(async function() {
-  try {
-    const sess = await sb.auth.getSession();
-    if (!sess.data.session) { showAuth(); return; }
-    const u = await sb.auth.getUser();
-    if (!u.data.user) { showAuth(); return; }
-    showApp(u.data.user);
-  } catch (e) {
-    showAuth();
-  }
-})();
+document.getElementById('file-in').addEventListener('change', function(e) {
+  const f = e.target.files[0];
+  if (f) importFile(f);
+  e.target.value = '';
+});
+
+loadAll();
 </script>
 </body>
 </html>

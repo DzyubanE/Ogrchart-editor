@@ -7,7 +7,6 @@
 <title>Studio · Charts</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNyIgZmlsbD0iIzM3MzBhMyIvPgogIDxyZWN0IHg9IjEyIiB5PSI0IiB3aWR0aD0iOCIgaGVpZ2h0PSI2IiByeD0iMiIgZmlsbD0id2hpdGUiLz4KICA8cmVjdCB4PSI0IiB5PSIxNCIgd2lkdGg9IjgiIGhlaWdodD0iNiIgcng9IjIiIGZpbGw9IndoaXRlIiBvcGFjaXR5PSIwLjg1Ii8+CiAgPHJlY3QgeD0iMjAiIHk9IjE0IiB3aWR0aD0iOCIgaGVpZ2h0PSI2IiByeD0iMiIgZmlsbD0id2hpdGUiIG9wYWNpdHk9IjAuODUiLz4KICA8cmVjdCB4PSI0IiB5PSIyMyIgd2lkdGg9IjUiIGhlaWdodD0iNSIgcng9IjEuNSIgZmlsbD0id2hpdGUiIG9wYWNpdHk9IjAuNTUiLz4KICA8cmVjdCB4PSIxMy41IiB5PSIyMyIgd2lkdGg9IjUiIGhlaWdodD0iNSIgcng9IjEuNSIgZmlsbD0id2hpdGUiIG9wYWNpdHk9IjAuNTUiLz4KICA8cmVjdCB4PSIyMyIgeT0iMjMiIHdpZHRoPSI1IiBoZWlnaHQ9IjUiIHJ4PSIxLjUiIGZpbGw9IndoaXRlIiBvcGFjaXR5PSIwLjU1Ii8+CiAgPGxpbmUgeDE9IjE2IiB5MT0iMTAiIHgyPSI4IiB5Mj0iMTQiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMSIgb3BhY2l0eT0iMC42Ii8+CiAgPGxpbmUgeDE9IjE2IiB5MT0iMTAiIHgyPSIyNCIgeTI9IjE0IiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjEiIG9wYWNpdHk9IjAuNiIvPgogIDxsaW5lIHgxPSI4IiB5MT0iMjAiIHgyPSI2LjUiIHkyPSIyMyIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIxIiBvcGFjaXR5PSIwLjUiLz4KICA8bGluZSB4MT0iOCIgeTE9IjIwIiB4Mj0iMTYiIHkyPSIyMyIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIxIiBvcGFjaXR5PSIwLjUiLz4KICA8bGluZSB4MT0iMjQiIHkxPSIyMCIgeDI9IjE2IiB5Mj0iMjMiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMSIgb3BhY2l0eT0iMC41Ii8+CiAgPGxpbmUgeDE9IjI0IiB5MT0iMjAiIHgyPSIyNS41IiB5Mj0iMjMiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMSIgb3BhY2l0eT0iMC41Ii8+Cjwvc3ZnPg==">
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -353,7 +352,7 @@ input[type=text]:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,1
     <button class="btn" onclick="loadExample()">Пример</button>
     <button class="btn" onclick="clearAll()">Очистить</button>
     <span id="save-status" style="font-size:11.5px;color:var(--t3);white-space:nowrap;margin-right:4px"></span>
-    <button class="btn" id="share-btn" onclick="shareCurrentDiagram()" style="display:none"><svg viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="10.5" cy="2.5" r="1.5"/><circle cx="2.5" cy="6.5" r="1.5"/><circle cx="10.5" cy="10.5" r="1.5"/><line x1="4" y1="7.3" x2="9" y2="9.7"/><line x1="9" y1="3.3" x2="4" y2="5.7"/></svg>Поделиться</button>
+    <button class="btn" id="share-btn" onclick="exportDiagramFile()" style="display:none"><svg viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="10.5" cy="2.5" r="1.5"/><circle cx="2.5" cy="6.5" r="1.5"/><circle cx="10.5" cy="10.5" r="1.5"/><line x1="4" y1="7.3" x2="9" y2="9.7"/><line x1="9" y1="3.3" x2="4" y2="5.7"/></svg>Выгрузить файл</button>
     <button class="btn" id="dash-btn" onclick="window.location.href='dashboard.html'" style="display:none"><svg viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="1" y="1" width="4" height="4" rx=".8"/><rect x="8" y="1" width="4" height="4" rx=".8"/><rect x="1" y="8" width="4" height="4" rx=".8"/><rect x="8" y="8" width="4" height="4" rx=".8"/></svg>Мои схемы</button>
     <button class="btn primary" onclick="openExport()"><svg viewBox="0 0 13 13"><path d="M2 9.5v2h9v-2M6.5 1v7.5M4 6l2.5 3L9 6"/></svg>Экспорт</button>
   </div>
@@ -1354,94 +1353,75 @@ function toast(m){const el=document.getElementById('toast');el.textContent=m;el.
 // initial snapshot
 snapshot(); updateUndoUI();
 
-// ═══════════════════════════ SUPABASE ════════════════════
-const SB_URL = 'https://ivctluihkskhtsuopzwz.supabase.co';
-const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2Y3RsdWloa3NraHRzdW9wend6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgyMzA1NDAsImV4cCI6MjA5MzgwNjU0MH0.geomdYuAul2xCv8gVNz4NLuWLbZfLyksXAiEE_iYVQY';
-const sb = window.supabase ? window.supabase.createClient(SB_URL, SB_KEY) : null;
-
-/* Базовый адрес сайта считаем из текущей страницы, а не зашиваем —
-   переименование репозитория меняет путь GitHub Pages. */
-const BASE = location.origin + location.pathname.replace(/[^/]*$/, '');
+// ═══════════════════════════ ХРАНИЛИЩЕ ═══════════════════
+/* Схема живёт в localStorage этого браузера. Наружу ничего не
+   уходит; обмен и резервные копии — файлами через дашборд. */
+const LS_INDEX = 'studio:index';
+const LS_DOC = 'studio:doc:';
 const DIAGRAM_ID = new URLSearchParams(window.location.search).get('id');
 let saveTimer = null;
 
-async function sbFetch(path, opts) {
-  opts = opts || {};
-  const sess = await sb.auth.getSession();
-  const token = sess.data.session ? sess.data.session.access_token : '';
-  const headers = Object.assign({
-    'apikey': SB_KEY,
-    'Content-Type': 'application/json'
-  }, token ? {'Authorization': 'Bearer ' + token} : {}, opts.headers || {});
-  const r = await fetch(SB_URL + path, Object.assign({}, opts, {headers: headers}));
-  if (!r.ok) {
-    let e = {};
-    try { e = await r.json(); } catch(_) {}
-    throw new Error(e.message || r.statusText);
-  }
-  if (r.status === 204) return null;
-  return r.json();
+function lsRead(key, fallback) {
+  try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
+  catch (e) { return fallback; }
 }
+function lsWrite(key, value) {
+  try { localStorage.setItem(key, JSON.stringify(value)); return true; }
+  catch (e) { return false; }
+}
+function docIndex() { const ix = lsRead(LS_INDEX, []); return Array.isArray(ix) ? ix : []; }
 
-async function loadDiagram() {
+function loadDiagram() {
   if (!DIAGRAM_ID) return;
-  try {
-    const data = await sbFetch('/rest/v1/diagrams?id=eq.' + DIAGRAM_ID + '&select=title,nodes,conns');
-    if (!data || !data.length) {
-      toast('Схема не найдена');
-      return;
-    }
-    const d = data[0];
-    document.getElementById('chart-title').value = d.title || 'Без названия';
-    document.querySelectorAll('.onode').forEach(function(n){ n.remove(); });
-    nodes = {};
-    conns = d.conns || [];
-    nc = 0;
-    Object.values(d.nodes || {}).forEach(function(nd) {
-      const match = (nd.id || '').match(/^n(\d+)/);
-      const nnum = match ? parseInt(match[1]) : 0;
-      if (nnum > nc) nc = nnum;
-      nodes[nd.id] = nd;
-      renderNode(nd.id);
-    });
-    clearMulti();
-    deselect();
-    drawLines();
-    setTimeout(fitView, 80);
-    updateSaveStatus('saved');
-    // Reset history so loaded state is the baseline (can't undo past it)
-    history = [JSON.stringify({ nodes, conns })];
-    histIdx = 0;
-    updateUndoUI();
-  } catch (e) {
-    toast('Ошибка загрузки: ' + e.message);
-  }
+  const body = lsRead(LS_DOC + DIAGRAM_ID, null);
+  const row = docIndex().filter(function(d){ return d.id === DIAGRAM_ID; })[0];
+  if (!body || !row) { toast('Схема не найдена в этом браузере'); return; }
+
+  document.getElementById('chart-title').value = row.title || 'Без названия';
+  document.querySelectorAll('.onode').forEach(function(n){ n.remove(); });
+  nodes = {};
+  conns = body.conns || [];
+  nc = 0;
+  Object.values(body.nodes || {}).forEach(function(nd) {
+    const match = (nd.id || '').match(/^n(\d+)/);
+    const nnum = match ? parseInt(match[1]) : 0;
+    if (nnum > nc) nc = nnum;
+    nodes[nd.id] = nd;
+    renderNode(nd.id);
+  });
+  clearMulti();
+  deselect();
+  drawLines();
+  setTimeout(fitView, 80);
+  updateSaveStatus('saved');
+  history = [JSON.stringify({ nodes, conns })];
+  histIdx = 0;
+  updateUndoUI();
 }
 
 function scheduleSave() {
   if (!DIAGRAM_ID) return;
   updateSaveStatus('unsaved');
   clearTimeout(saveTimer);
-  saveTimer = setTimeout(saveDiagram, 1800);
+  saveTimer = setTimeout(saveDiagram, 900);
 }
 
-async function saveDiagram() {
+function saveDiagram() {
   if (!DIAGRAM_ID) return;
+  clearTimeout(saveTimer);
   updateSaveStatus('saving');
-  try {
-    await sbFetch('/rest/v1/diagrams?id=eq.' + DIAGRAM_ID, {
-      method: 'PATCH',
-      body: JSON.stringify({
-        title: document.getElementById('chart-title').value || 'Без названия',
-        nodes: nodes,
-        conns: conns
-      })
-    });
-    updateSaveStatus('saved');
-  } catch (e) {
+  const title = document.getElementById('chart-title').value || 'Без названия';
+  if (!lsWrite(LS_DOC + DIAGRAM_ID, {nodes: nodes, conns: conns})) {
     updateSaveStatus('error');
-    toast('Ошибка сохранения: ' + e.message);
+    toast('Не хватает места в браузере — выгрузите резервную копию и удалите лишнее');
+    return;
   }
+  const ix = docIndex(), now = Date.now();
+  const row = ix.filter(function(d){ return d.id === DIAGRAM_ID; })[0];
+  if (row) { row.title = title; row.updated = now; }
+  else ix.unshift({id: DIAGRAM_ID, kind: 'chart', title: title, created: now, updated: now});
+  lsWrite(LS_INDEX, ix);
+  updateSaveStatus('saved');
 }
 
 function updateSaveStatus(status) {
@@ -1453,41 +1433,34 @@ function updateSaveStatus(status) {
   else if (status === 'error') { el.textContent = 'Ошибка'; el.style.color = '#dc2626'; }
 }
 
-async function shareCurrentDiagram() {
-  if (!DIAGRAM_ID) { toast('Сначала сохраните схему'); return; }
-  try {
-    let shares = await sbFetch('/rest/v1/shares?diagram_id=eq.' + DIAGRAM_ID + '&select=token');
-    if (!shares || !shares.length) {
-      shares = await sbFetch('/rest/v1/shares', {
-        method: 'POST',
-        headers: {'Prefer': 'return=representation'},
-        body: JSON.stringify({diagram_id: DIAGRAM_ID})
-      });
-    }
-    const token = shares[0] && shares[0].token;
-    if (!token) return;
-    const url = BASE + 'view.html?t=' + token;
-    try { await navigator.clipboard.writeText(url); } catch(_) {}
-    toast('Ссылка скопирована!');
-  } catch (e) {
-    toast('Ошибка: ' + e.message);
-  }
+/* Вместо публичной ссылки — файл: его можно переслать, а получатель
+   откроет схему у себя через «Импорт» на дашборде. */
+function exportDiagramFile() {
+  if (!DIAGRAM_ID) { toast('Схема ещё не создана'); return; }
+  saveDiagram();
+  const title = document.getElementById('chart-title').value || 'Без названия';
+  const payload = {studio: 1, kind: 'chart', id: DIAGRAM_ID, title: title,
+                   updated: Date.now(), doc: {nodes: nodes, conns: conns}};
+  const map = {а:'a',б:'b',в:'v',г:'g',д:'d',е:'e',ё:'e',ж:'zh',з:'z',и:'i',й:'y',к:'k',л:'l',м:'m',
+    н:'n',о:'o',п:'p',р:'r',с:'s',т:'t',у:'u',ф:'f',х:'h',ц:'c',ч:'ch',ш:'sh',щ:'sch',ъ:'',
+    ы:'y',ь:'',э:'e',ю:'yu',я:'ya'};
+  const name = (String(title).toLowerCase().split('').map(function(c){
+    return map[c] !== undefined ? map[c] : c; }).join('')
+    .replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'') || 'chart') + '.json';
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+  toast('Файл сохранён — им можно поделиться');
 }
 
-// Boot Supabase
-(async function() {
-  if (!sb) return;
-  const sess = await sb.auth.getSession();
-  if (!sess.data.session) {
-    window.location.href = 'dashboard.html';
-    return;
-  }
-  // Show cloud-mode UI
+(function() {
   document.getElementById('share-btn').style.display = 'inline-flex';
   document.getElementById('dash-btn').style.display = 'inline-flex';
-
   if (DIAGRAM_ID) {
-    await loadDiagram();
+    loadDiagram();
     document.getElementById('chart-title').addEventListener('input', scheduleSave);
   } else {
     window.location.href = 'dashboard.html';
@@ -1531,9 +1504,9 @@ snapshot = function() { _origSnapshot(); if(!_undoRedoing && DIAGRAM_ID) schedul
 <!-- Dropdown menu -->
 <div class="mob-menu-ov" id="mob-menu-ov" onclick="closeMobMenu()"></div>
 <div class="mob-menu" id="mob-menu" style="display:none">
-  <div class="mob-menu-item" onclick="shareCurrentDiagram();closeMobMenu()">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.4 13.4l7.2 4.2M15.6 6.4L8.4 10.6"/></svg>
-    Поделиться
+  <div class="mob-menu-item" onclick="exportDiagramFile();closeMobMenu()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 15v4a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-4"/><path d="m7 10 5 5 5-5M12 15V3"/></svg>
+    Выгрузить файл
   </div>
   <div class="mob-menu-sep"></div>
   <div class="mob-menu-item" onclick="openImport();closeMobMenu()">

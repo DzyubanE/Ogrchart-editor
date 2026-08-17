@@ -8,7 +8,6 @@
 <meta name="description" content="Визуальный конструктор хаб-страниц: секции, плитки, контакты. Экспорт в готовый HTML по дизайн-системе.">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNyIgZmlsbD0iIzM3MzBhMyIvPjxyZWN0IHg9IjUiIHk9IjYiIHdpZHRoPSIyMiIgaGVpZ2h0PSI1IiByeD0iMiIgZmlsbD0id2hpdGUiLz48cmVjdCB4PSI1IiB5PSIxNCIgd2lkdGg9IjEwIiBoZWlnaHQ9IjEyIiByeD0iMiIgZmlsbD0id2hpdGUiIG9wYWNpdHk9IjAuODUiLz48cmVjdCB4PSIxNyIgeT0iMTQiIHdpZHRoPSIxMCIgaGVpZ2h0PSIxMiIgcng9IjIiIGZpbGw9IndoaXRlIiBvcGFjaXR5PSIwLjg1Ii8+PC9zdmc+">
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -354,30 +353,6 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;c
   </div>
 </div>
 
-<!-- ══ AUTH ═════════════════════════════════════════ -->
-<div class="auth-screen" id="auth-view">
-  <div class="auth-box">
-    <div class="auth-logo">
-      <svg viewBox="0 0 32 32" fill="none">
-        <rect x="5" y="6" width="22" height="5" rx="2" fill="white"/>
-        <rect x="5" y="14" width="10" height="12" rx="2" fill="white" opacity=".85"/>
-        <rect x="17" y="14" width="10" height="12" rx="2" fill="white" opacity=".85"/>
-      </svg>
-    </div>
-    <div class="auth-title">Studio · Hubs</div>
-    <div class="auth-sub">Конструктор хаб-страниц. Войдите, чтобы хабы сохранялись в облако рядом с вашими схемами.</div>
-    <button class="google-btn" id="btn-signin">
-      <svg viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-        <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
-        <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#34A853"/>
-        <path d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
-        <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
-      </svg>
-      Войти через Google
-    </button>
-  </div>
-</div>
-
 <!-- ══ MODALS ═══════════════════════════════════════ -->
 <div class="ov" id="ov-import">
   <div class="modal" style="max-width:760px">
@@ -424,6 +399,11 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;c
     <div class="modal-hd">
       <h3 id="code-title">HTML страницы</h3>
       <p id="code-sub">Скопируйте и вставьте в Confluence-элемент или сохраните как .html</p>
+    </div>
+    <div class="tabs" id="code-fmt">
+      <button data-fmt="html" class="on">HTML</button>
+      <button data-fmt="json">JSON</button>
+      <button data-fmt="md">Markdown</button>
     </div>
     <div class="modal-bd"><textarea id="code-out" readonly spellcheck="false"></textarea></div>
     <div class="modal-ft">
@@ -1978,39 +1958,25 @@ insp.addEventListener('click', function(e){
 
 
 /* ═══════════════════════════════════════════════════
-   10. ХРАНИЛИЩЕ (Supabase, как у схем)
+   10. ХРАНИЛИЩЕ (localStorage, как у схем)
+   Хаб живёт в этом браузере. Наружу ничего не уходит;
+   обмен и резервные копии — файлами.
    ═══════════════════════════════════════════════════ */
 
-var SB_URL = 'https://ivctluihkskhtsuopzwz.supabase.co';
-var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2Y3RsdWloa3NraHRzdW9wend6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgyMzA1NDAsImV4cCI6MjA5MzgwNjU0MH0.geomdYuAul2xCv8gVNz4NLuWLbZfLyksXAiEE_iYVQY';
-/* Если CDN supabase-js не доехал, конструктор остаётся рабочим
-   черновиком: превью и экспорт не зависят от облака. */
-var sb = window.supabase ? window.supabase.createClient(SB_URL, SB_KEY) : null;
-
+var LS_INDEX = 'studio:index';
+var LS_DOC = 'studio:doc:';
 var HUB_ID = new URLSearchParams(location.search).get('id');
-var currentUser = null;
 var saveTimer = 0;
 
-async function sbFetch(path, opts){
-  opts = opts || {};
-  var sess = await sb.auth.getSession();
-  var token = sess.data.session ? sess.data.session.access_token : '';
-  var headers = Object.assign({ apikey: SB_KEY, 'Content-Type': 'application/json' },
-    token ? { Authorization: 'Bearer ' + token } : {}, opts.headers || {});
-  var r = await fetch(SB_URL + path, Object.assign({}, opts, { headers: headers }));
-  if (!r.ok) {
-    var e = {};
-    try { e = await r.json(); } catch (_) {}
-    var msg = e.message || r.statusText;
-    /* Таблицы ещё нет — подсказываем, что делать, вместо «404». */
-    if (r.status === 404 || /relation .*hubs.* does not exist/i.test(msg)) {
-      msg = 'таблица hubs не создана. Примените supabase/hubs.sql в Supabase → SQL Editor';
-    }
-    throw new Error(msg);
-  }
-  if (r.status === 204) return null;
-  return r.json();
+function lsRead(key, fallback){
+  try { var v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
+  catch (e) { return fallback; }
 }
+function lsWrite(key, value){
+  try { localStorage.setItem(key, JSON.stringify(value)); return true; }
+  catch (e) { return false; }
+}
+function docIndex(){ var ix = lsRead(LS_INDEX, []); return Array.isArray(ix) ? ix : []; }
 
 function setStatus(s){
   var el = $('save-status');
@@ -2022,61 +1988,42 @@ function setStatus(s){
 }
 
 function scheduleSave(){
-  if (!sb || !HUB_ID) return;
+  if (!HUB_ID) return;
   dirty = true;
   setStatus('unsaved');
   clearTimeout(saveTimer);
-  saveTimer = setTimeout(saveHub, 1800);
+  saveTimer = setTimeout(saveHub, 900);
 }
 
-async function saveHub(){
-  if (!sb || !HUB_ID) return;
+function saveHub(){
+  if (!HUB_ID) return;
   clearTimeout(saveTimer);
   setStatus('saving');
-  try {
-    await sbFetch('/rest/v1/hubs?id=eq.' + HUB_ID, {
-      method: 'PATCH',
-      body: JSON.stringify({ title: model.docTitle || 'Без названия', doc: model })
-    });
-    dirty = false;
-    setStatus('saved');
-  } catch (e) {
+  if (!lsWrite(LS_DOC + HUB_ID, model)) {
     setStatus('error');
-    toast('Ошибка сохранения: ' + e.message);
+    toast('Не хватает места в браузере — выгрузите резервную копию и удалите лишнее');
+    return;
   }
+  var ix = docIndex(), now = Date.now();
+  var row = ix.filter(function(d){ return d.id === HUB_ID; })[0];
+  var title = model.docTitle || 'Без названия';
+  if (row) { row.title = title; row.updated = now; }
+  else ix.unshift({ id:HUB_ID, kind:'hub', title:title, created:now, updated:now });
+  lsWrite(LS_INDEX, ix);
+  dirty = false;
+  setStatus('saved');
 }
 
-async function loadHub(){
-  if (!HUB_ID) {
-    /* Без ?id создаём новый хаб и переходим на его адрес. */
-    try {
-      var made = await sbFetch('/rest/v1/hubs', {
-        method: 'POST',
-        headers: { Prefer: 'return=representation' },
-        body: JSON.stringify({ user_id: currentUser.id, title: 'Новый хаб', doc: starterModel() })
-      });
-      var id = (made && made[0] && made[0].id) || (made && made.id);
-      if (id) { location.replace('hub.html?id=' + id); return false; }
-      toast('Не удалось создать хаб');
-    } catch (e) {
-      toast('Ошибка: ' + e.message);
-    }
-    return false;
-  }
-
-  try {
-    var data = await sbFetch('/rest/v1/hubs?id=eq.' + HUB_ID + '&select=title,doc');
-    if (!data || !data.length) { toast('Хаб не найден'); return false; }
-    var d = data[0];
-    var m = d.doc && d.doc.hero ? d.doc : starterModel();
-    m.docTitle = d.title || m.docTitle;
-    adopt(m);
-    setStatus('saved');
-    return true;
-  } catch (e) {
-    toast('Ошибка загрузки: ' + e.message);
-    return false;
-  }
+function loadHub(){
+  if (!HUB_ID) { location.replace('dashboard.html'); return false; }
+  var body = lsRead(LS_DOC + HUB_ID, null);
+  var row = docIndex().filter(function(d){ return d.id === HUB_ID; })[0];
+  if (!row) { toast('Хаб не найден в этом браузере'); return false; }
+  var m = (body && body.hero) ? body : starterModel();
+  m.docTitle = row.title || m.docTitle;
+  adopt(m);
+  setStatus('saved');
+  return true;
 }
 
 /** Делает переданную модель текущей и перерисовывает всё. */
@@ -2144,9 +2091,78 @@ function download(name, text, mime){
   setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
 }
 
+var codeFmt = 'html';
+
+var FMT = {
+  html: { title:'HTML страницы', sub:'Готовая страница по дизайн-системе. Вставьте в Confluence или сохраните файлом.',
+          ext:'.html', mime:'text/html;charset=utf-8' },
+  json: { title:'JSON хаба',     sub:'Полная копия документа. Этим файлом обмениваются и восстанавливают хаб после очистки браузера.',
+          ext:'.json', mime:'application/json;charset=utf-8' },
+  md:   { title:'Markdown',      sub:'Текстовая выжимка для вики и обсуждений. Обратно не импортируется — для этого есть JSON.',
+          ext:'.md',   mime:'text/markdown;charset=utf-8' }
+};
+
+function codeText(){
+  if (codeFmt === 'json') return JSON.stringify(
+    { studio:1, kind:'hub', id:HUB_ID, title:model.docTitle, updated:Date.now(), doc:model }, null, 2);
+  if (codeFmt === 'md') return buildMarkdown(model);
+  return buildHub(model, { editing:false, theme:null });
+}
+
 function showCode(){
-  $('code-out').value = buildHub(model, { editing:false, theme:null });
+  var f = FMT[codeFmt];
+  $('code-title').textContent = f.title;
+  $('code-sub').textContent = f.sub;
+  $('code-out').value = codeText();
   openOv('ov-code');
+}
+
+$('code-fmt').addEventListener('click', function(e){
+  var b = e.target.closest('button');
+  if (!b) return;
+  codeFmt = b.dataset.fmt;
+  [].forEach.call(this.children, function(c){ c.classList.toggle('on', c === b); });
+  showCode();
+});
+
+/** Текстовая выжимка: структура хаба списками, без вёрстки. */
+function buildMarkdown(m){
+  var badges = allBadges();
+  var out = [];
+  var hero = m.hero || {};
+  if (hero.kicker) out.push('_' + hero.kicker + '_', '');
+  out.push('# ' + [hero.titleMain, hero.titleAccent].filter(Boolean).join(' '), '');
+  if (hero.lead) out.push(hero.lead, '');
+  if (hero.sub) out.push(hero.sub, '');
+  (hero.stats || []).forEach(function(st){
+    if (st.num || st.label) out.push('- **' + st.num + '** — ' + st.label);
+  });
+  if ((hero.stats || []).length) out.push('');
+
+  (m.sections || []).forEach(function(sec){
+    out.push('## ' + (sec.title || ''), '');
+    if (sec.type === 'tiles') {
+      (sec.tiles || []).forEach(function(t){
+        var b = badges[t.badge] || badges.article;
+        var name = t.href ? '[' + t.title + '](' + t.href + ')' : t.title;
+        var tail = [b ? b.label : null, t.subtitle || null, t.href ? null : 'в работе']
+                     .filter(Boolean).join(' · ');
+        out.push('- ' + name + (tail ? ' — ' + tail : ''));
+      });
+    } else {
+      (sec.groups || []).forEach(function(g){
+        out.push('### ' + (g.title || ''), '');
+        if (g.description) out.push(g.description, '');
+        (g.people || []).forEach(function(p){
+          out.push('- ' + [p.name, p.role, p.handle ? '`' + p.handle + '`' : null]
+                            .filter(Boolean).join(' — '));
+        });
+        out.push('');
+      });
+    }
+    out.push('');
+  });
+  return out.join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n';
 }
 
 
@@ -2439,7 +2455,8 @@ $('code-copy').addEventListener('click', function(){
 });
 
 $('code-dl').addEventListener('click', function(){
-  download(slug(model.docTitle) + '.html', $('code-out').value, 'text/html;charset=utf-8');
+  var f = FMT[codeFmt];
+  download(slug(model.docTitle) + f.ext, $('code-out').value, f.mime);
 });
 
 
@@ -2680,7 +2697,6 @@ $('btn-import').addEventListener('click', function(){
   setTimeout(function(){ $('import-in').focus(); }, 60);
 });
 $('import-go').addEventListener('click', runImport);
-$('btn-signin').addEventListener('click', signInGoogle);
 
 $('add-tiles').addEventListener('click', function(){
   var s = newTilesSection();
@@ -2760,7 +2776,7 @@ var TOUR = [
 
   { hole:'#save-status', place:'bottom',
     title:'Сохранение',
-    text:'Правки уходят в облако сами, через пару секунд после того, как вы перестали печатать. Здесь видно текущий статус. Хаб лежит в общем списке документов рядом со схемами.' },
+    text:'Правки сохраняются сами, через пару секунд после того, как вы перестали печатать — <b>в этом браузере</b>. Здесь видно статус. Чтобы хаб пережил очистку кеша или уехал коллеге, выгрузите его в файл через «Экспорт → JSON».' },
 
   { hole:'#btn-help', place:'bottom',
     title:'Инструкция всегда под рукой',
@@ -2940,12 +2956,15 @@ var HELP = [
     '<h5>Цвета не теряются</h5>' +
     '<p>CSS-классы для цветов генерируются из тех цветов, что реально встречаются на странице. Это закрывает старую проблему дизайн-системы, когда забытый класс делал элемент невидимым.</p>' },
 
-  { id:'theme', name:'Тема и сохранение', html:
-    '<h4>Тема, ширина, сохранение</h4>' +
+  { id:'theme', name:'Тема, сохранение, файлы', html:
+    '<h4>Тема, сохранение, файлы</h4>' +
     '<h5>Проверка вида</h5>' +
     '<p>Переключатели над превью показывают страницу в <b>светлой и тёмной</b> теме и на ширине планшета и телефона. На готовой странице тема определяется автоматически — по теме Confluence у читателя.</p>' +
     '<h5>Сохранение</h5>' +
-    '<p>Правки уходят в облако сами, примерно через две секунды после последнего изменения; статус виден в шапке. <code>Ctrl+S</code> сохраняет немедленно. Хабы лежат в общем списке документов рядом со схемами.</p>' },
+    '<p>Правки сохраняются сами, примерно через секунду после последнего изменения; статус виден в шапке. <code>Ctrl+S</code> сохраняет немедленно. Хранилище — <b>localStorage этого браузера</b>: ничего никуда не отправляется, но и не синхронизируется между устройствами.</p>' +
+    '<h5>Файлы</h5>' +
+    '<p>«Экспорт» отдаёт три формата: <b>HTML</b> — готовая страница, <b>JSON</b> — полная копия хаба для обмена и восстановления, <b>Markdown</b> — текстовая выжимка для вики. Обратно принимается JSON (через «Импорт» на дашборде) и HTML (кнопкой «Импорт HTML» здесь).</p>' +
+    '<div class="note"><p>Очистка данных браузера стирает хабы безвозвратно. Держите свежую резервную копию — кнопка «Резервная копия» на дашборде выгружает все документы одним файлом.</p></div>' },
 
   { id:'keys', name:'Горячие клавиши', html:
     '<h4>Горячие клавиши</h4>' +
@@ -2981,24 +3000,10 @@ $('help-tour').addEventListener('click', startTour);
 
 
 /* ═══════════════════════════════════════════════════
-   13. АВТОРИЗАЦИЯ И СТАРТ
+   13. СТАРТ
    ═══════════════════════════════════════════════════ */
 
-async function signInGoogle(){
-  if (!sb) { toast('Не загрузился supabase-js — обновите страницу'); return; }
-  var res = await sb.auth.signInWithOAuth({
-    provider: 'google',
-    options: { redirectTo: location.href }
-  });
-  if (res.error) toast('Ошибка входа: ' + res.error.message);
-}
-
-function showAuth(){
-  $('auth-view').classList.add('on');
-  setStatus('');
-}
-
-(async function init(){
+(function init(){
   normalize(model);
   $('doc-title').value = model.docTitle;
   snapshot(true);
@@ -3007,25 +3012,7 @@ function showAuth(){
   renderInspector();
   refreshPreview();
 
-  if (!sb) {
-    setStatus('');
-    $('save-status').textContent = 'Облако недоступно';
-    toast('Не загрузился supabase-js — правки не сохраняются, но экспорт работает');
-    return;
-  }
-
-  try {
-    var sess = await sb.auth.getSession();
-    if (!sess.data.session) { showAuth(); return; }
-    var u = await sb.auth.getUser();
-    if (!u.data.user) { showAuth(); return; }
-    currentUser = u.data.user;
-  } catch (e) {
-    showAuth();
-    return;
-  }
-
-  if (await loadHub()) maybeStartTour();
+  if (loadHub()) maybeStartTour();
 })();
 
 })();
