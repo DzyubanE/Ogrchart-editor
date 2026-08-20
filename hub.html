@@ -113,6 +113,15 @@ input::placeholder,textarea::placeholder{color:var(--t3)}
 select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M3 4.5 6 7.5 9 4.5' fill='none' stroke='%23999' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;background-size:12px;padding-right:26px}
 .chk{display:flex;align-items:center;gap:8px;padding:7px 9px;background:var(--s2);border:1px solid var(--b1);border-radius:8px;cursor:pointer;font-size:12.5px;font-weight:500}
 .chk input{width:15px;height:15px;accent-color:var(--accent);cursor:pointer;flex-shrink:0}
+.img-field{display:flex;align-items:center;gap:6px;border-radius:9px}
+.img-field.drop-on{outline:2px dashed var(--accent);outline-offset:3px}
+.img-field input[type=text]{flex:1;min-width:0}
+.img-field .btn{flex-shrink:0;padding:6px 9px}
+.img-thumb{width:32px;height:32px;border-radius:7px;flex-shrink:0;border:1px solid var(--b1);background:var(--s2) center/cover no-repeat;display:flex;align-items:center;justify-content:center;color:var(--t3);font-size:13px}
+.img-chip{flex:1;min-width:0;font-size:11.5px;font-weight:600;color:var(--t2);background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:7px 9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.range-row{display:flex;align-items:center;gap:9px}
+.range-row input[type=range]{flex:1;min-width:0;accent-color:var(--accent);cursor:pointer}
+.range-val{font-size:11.5px;font-weight:600;color:var(--t2);min-width:52px;text-align:right;font-family:'Geist Mono',ui-monospace,monospace}
 .swatches{display:flex;flex-wrap:wrap;gap:5px}
 .sw{width:24px;height:24px;border-radius:7px;cursor:pointer;border:2px solid transparent;transition:transform .1s;flex-shrink:0;padding:0}
 .sw:hover{transform:scale(1.13)}
@@ -559,14 +568,14 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;c
     .hero-stat-label { font-family: 'Manrope', sans-serif; font-size: 12px; font-weight: 500; color: #8492AA; letter-spacing: .3px; text-transform: uppercase; }
     .hero-meta-sep { width: 1px; height: 30px; background: #DFE1E6; flex-shrink: 0; }
     .hero-img-wrap { width: 100%; display: flex; align-items: center; justify-content: flex-start; }
-    .hero-img { width: 100%; max-width: 680px; height: auto; display: block; }
+    .hero-img { width: 100%; max-width: var(--hero-img-max, 680px); height: auto; display: block; }
     @media (max-width: 900px) {
       .hero { grid-template-columns: 1fr; text-align: center; }
       .hero-content { align-items: center; }
       .hero-kicker, .hero-meta { justify-content: center; }
       .hero-body-text { max-width: none; }
       .hero-img-wrap { justify-content: center; }
-      .hero-img { max-width: 238px; }
+      .hero-img { max-width: min(var(--hero-img-max, 680px), 238px); }
     }
     .hero-divider { height: 1px; background: #E3E6EC; }
 
@@ -1147,6 +1156,10 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;c
 
     var st = document.createElement('style');
     st.textContent =
+      '.__hb-imgfail{display:flex;align-items:center;justify-content:center;text-align:center;' +
+      'border:1px dashed rgba(120,140,170,.65);border-radius:8px;color:#8492AA;' +
+      "font-family:'Manrope',sans-serif;font-size:11px;line-height:1.4;padding:10px;box-sizing:border-box;min-height:56px}" +
+      '.__hb-imgfail.__hb-round{border-radius:50%;font-size:0;min-height:0;padding:0}' +
       '[data-eid]{cursor:pointer;outline-offset:2px}' +
       '[data-eid]:hover{outline:2px dashed rgba(59,130,246,.75)}' +
       '[data-eid].__hb-sel{outline:2px solid #3b82f6}' +
@@ -1186,6 +1199,28 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;c
       if (d.t === 'sel') mark(d.id);
       if (d.t === 'scroll') window.scrollTo(0, d.y || 0);
     });
+
+    /* Внутренний портал не отдаёт картинку на чужой домен — браузер не
+       шлёт туда сессионную куку. Показываем понятную заглушку того же
+       размера, чтобы вёрстка не разъезжала и было ясно: это не поломка. */
+    document.addEventListener('error', function(e){
+      var el = e.target;
+      if (!el || el.tagName !== 'IMG' || el.dataset.hbFailed) return;
+      if (el.closest('.contact-photo')) return;      /* там своя заглушка */
+      el.dataset.hbFailed = '1';
+
+      var box = document.createElement('div');
+      box.className = '__hb-imgfail';
+      var round = !!el.closest('.tile-icon');
+      if (round) box.classList.add('__hb-round');
+      var cs = window.getComputedStyle(el);
+      box.style.width = round ? '100%' : (cs.maxWidth !== 'none' ? cs.maxWidth : '100%');
+      box.style.height = round ? '100%' : '';
+      if (!round) box.style.aspectRatio = '16 / 9';
+      box.textContent = round ? '' : 'Картинка не видна в конструкторе — на опубликованной странице загрузится';
+      box.title = 'Внутренний портал не отдаёт картинку на другой домен. В Confluence она отобразится.';
+      if (el.parentNode) el.parentNode.replaceChild(box, el);
+    }, true);
 
     parent.postMessage({ src:'hb', t:'ready' }, '*');
   })();
@@ -1333,6 +1368,73 @@ function normHex(v){
     s = '#' + s[1] + s[1] + s[2] + s[2] + s[3] + s[3];
   }
   return /^#[0-9a-fA-F]{6}$/.test(s) ? s.toUpperCase() : null;
+}
+
+/* ═══ Локальные картинки ════════════════════════════════
+   Браузер не даёт загрузить file:// со страницы другого
+   происхождения — ни в превью, ни в готовой странице. Поэтому
+   выбранный файл ужимаем и вшиваем в документ как data-URI:
+   тогда он работает и в конструкторе, и в выгруженном HTML,
+   не завися ни от какого хоста. */
+
+function humanSize(v){
+  var bytes = Math.round(String(v || '').length * 0.75);
+  return bytes > 1048576 ? (bytes / 1048576).toFixed(1) + ' МБ'
+       : Math.max(1, Math.round(bytes / 1024)) + ' КБ';
+}
+
+/** Ужимает картинку до maxSide по длинной стороне. */
+function shrinkImage(file, maxSide, cb){
+  if (!/^image\//.test(file.type)) { cb(null, 'это не изображение'); return; }
+
+  var fr = new FileReader();
+  fr.onerror = function(){ cb(null, 'файл не читается'); };
+  fr.onload = function(){
+    /* SVG не растрируем — он и так лёгкий и масштабируется */
+    if (file.type === 'image/svg+xml') { cb(fr.result); return; }
+
+    var img = new Image();
+    img.onerror = function(){ cb(null, 'формат не поддерживается браузером'); };
+    img.onload = function(){
+      var w = img.naturalWidth, h = img.naturalHeight;
+      if (!w || !h) { cb(null, 'пустое изображение'); return; }
+      var k = Math.min(1, maxSide / Math.max(w, h));
+      var cv = document.createElement('canvas');
+      cv.width = Math.max(1, Math.round(w * k));
+      cv.height = Math.max(1, Math.round(h * k));
+      var ctx = cv.getContext('2d');
+      ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(img, 0, 0, cv.width, cv.height);
+
+      var out;
+      if (file.type === 'image/jpeg') {
+        out = cv.toDataURL('image/jpeg', 0.82);
+      } else {
+        /* прозрачность важна для лого и аватарок: webp, иначе png */
+        out = cv.toDataURL('image/webp', 0.85);
+        if (out.indexOf('data:image/webp') !== 0) out = cv.toDataURL('image/png');
+      }
+      /* если сжатие внезапно раздуло файл — берём исходник */
+      cb(out.length < fr.result.length ? out : fr.result);
+    };
+    img.src = fr.result;
+  };
+  fr.readAsDataURL(file);
+}
+
+function pickImage(maxSide, cb){
+  var inp = document.createElement('input');
+  inp.type = 'file';
+  inp.accept = 'image/*';
+  inp.addEventListener('change', function(){
+    var f = inp.files && inp.files[0];
+    if (!f) return;
+    shrinkImage(f, maxSide, function(data, err){
+      if (!data) { toast('Не вышло: ' + err); return; }
+      cb(data, humanSize(data));
+    });
+  });
+  inp.click();
 }
 
 /** Достаёт пути из вставленного <svg> или из голого значения d. */
@@ -1631,7 +1733,9 @@ function heroHtml(m, editing){
   h += '      </div>\n';
   if (hasImg) {
     h += '      <div class="hero-img-wrap">\n';
-    h += '        <img class="hero-img" decoding="async" src="' + att(hero.image) + '" alt="' + att(hero.titleMain) + '">\n';
+    var iw = Number(hero.imageSize) || 0;
+    var istyle = iw ? ' style="--hero-img-max:' + iw + 'px"' : '';
+    h += '        <img class="hero-img" decoding="async"' + istyle + ' src="' + att(hero.image) + '" alt="' + att(hero.titleMain) + '">\n';
     h += '      </div>\n';
   }
   h += '    </div>\n';
@@ -1973,7 +2077,7 @@ function reid(o){
    ═══════════════════════════════════════════════════ */
 
 function fText(k, v, ph){
-  return '<input type="text" data-k="' + k + '" value="' + att(v) + '" placeholder="' + att(ph || '') + '">';
+  return '<input type="text" data-k="' + k + '" value="' + att(v) + '" placeholder="' + att(ph || '') + '" title="Можно вставить картинку из буфера: Ctrl+V">';
 }
 function fArea(k, v, ph){
   return '<textarea data-k="' + k + '" placeholder="' + att(ph || '') + '">' + esc(v) + '</textarea>';
@@ -1989,6 +2093,35 @@ function fChk(k, v, label){
 function fLabel(t, note){
   return '<div class="fl">' + esc(t) + (note ? ' <span class="note">' + esc(note) + '</span>' : '') + '</div>';
 }
+/** Поле картинки: миниатюра, ссылка или вшитый файл, кнопка выбора. */
+function fImage(k, v, ph, maxSide){
+  v = v || '';
+  var embedded = v.indexOf('data:') === 0;
+  var h = '<div class="img-field" data-img-field="' + att(k) + '" data-img-max="' + (maxSide || 800) + '">';
+  h += '<span class="img-thumb" data-thumb="' + att(k) + '">' + (v ? '' : '—') + '</span>';
+  if (embedded) {
+    h += '<span class="img-chip" title="Файл вшит в документ">Файл в документе · ' + humanSize(v) + '</span>';
+  } else {
+    h += '<input type="text" data-k="' + att(k) + '" value="' + att(v) + '" placeholder="' + att(ph || '') + '" title="Можно вставить картинку из буфера: Ctrl+V">';
+  }
+  h += '<button class="btn" data-img-pick="' + att(k) + '" data-img-max="' + (maxSide || 800) + '" title="Выбрать файл на компьютере">Файл</button>';
+  if (v) h += '<button class="mini del" data-img-clear="' + att(k) + '" title="Убрать">' + SVG_DEL + '</button>';
+  h += '</div>';
+  return h;
+}
+
+/** Миниатюры проставляем после отрисовки: data-URI слишком длинный
+    для атрибута, из-за него разметка инспектора раздувается. */
+function paintThumbs(){
+  var r = sel();
+  if (!r) return;
+  insp.querySelectorAll('[data-thumb]').forEach(function(el){
+    var v = r.obj[el.dataset.thumb];
+    el.style.backgroundImage = v ? 'url("' + String(v).replace(/"/g, '%22') + '")' : '';
+    el.textContent = v ? '' : '—';
+  });
+}
+
 function fAccents(cur){
   var list = allAccents();
   if (cur && list.indexOf(cur) < 0) list = list.concat([cur]);
@@ -2030,8 +2163,16 @@ function renderInspector(){
     h += '<div style="margin-top:6px">' + fChk('accentNewLine', o.accentNewLine, 'Акцент с новой строки') + '</div>';
     h += fLabel('Лид-текст') + fArea('lead', o.lead, 'Основная мысль раздела.');
     h += fLabel('Подстрочник', 'помельче') + fArea('sub', o.sub, 'Детали, охват, ограничения.');
-    h += fLabel('Картинка справа', 'URL, необязательно') + fText('image', o.image, 'https://...');
-    h += fLabel('Лого в заголовке', 'URL, необязательно') + fText('logo', o.logo, 'https://...');
+    h += fLabel('Картинка справа', 'ссылка или файл') + fImage('image', o.image, 'https://...', 1200);
+    if (o.image) {
+      h += fLabel('Ширина картинки') +
+        '<div class="range-row">' +
+        '<input type="range" min="160" max="900" step="10" data-range="imageSize" value="' +
+          att(o.imageSize || 680) + '">' +
+        '<span class="range-val" id="hero-img-w">' + esc(o.imageSize || 680) + ' px</span>' +
+        '</div>';
+    }
+    h += fLabel('Лого в заголовке', 'ссылка или файл') + fImage('logo', o.logo, 'https://...', 240);
 
     h += fLabel('Счётчики');
     (o.stats || []).forEach(function(st, i){
@@ -2095,7 +2236,7 @@ function renderInspector(){
     var cbb = cb[o.kind] || cb.chat;
     h += '<span class="badge-prev" style="background:' + cbb.color + '">' + esc(cbb.label) + '</span>';
     h += '<button class="btn" data-open-lib="chats" style="width:100%;justify-content:center;margin-top:8px">Свои бейджи чатов</button>';
-    h += fLabel('Аватар чата', 'URL, пусто — серая заглушка') + fText('icon', o.icon, 'https://...');
+    h += fLabel('Аватар чата', 'ссылка или файл') + fImage('icon', o.icon, 'https://...', 240);
     h += fLabel('Текст без ссылки', 'показывается по клику') +
          fText('note', o.note, 'Чат доступен для ограниченного круга сотрудников');
     if (!o.url) {
@@ -2114,11 +2255,12 @@ function renderInspector(){
     h += fLabel('Имя') + fText('name', o.name, 'Имя Фамилия');
     h += fLabel('Должность') + fText('role', o.role, 'Специалист отдела');
     h += fLabel('ID / логин', 'с кнопкой копирования') + fText('handle', o.handle, 'ivan_petrov');
-    h += fLabel('Фото', 'URL, пусто — серая заглушка') + fText('photo', o.photo, 'https://...');
+    h += fLabel('Фото', 'ссылка или файл') + fImage('photo', o.photo, 'https://...', 240);
     h += '<div class="hintbox">Без фото рисуется нейтральная серая заглушка-силуэт — цветной кружок с инициалами дизайн-система запрещает.</div>';
   }
 
   box.innerHTML = h;
+  paintThumbs();
 }
 
 /* ── Правки полей ─────────────────────────────────── */
@@ -2150,7 +2292,93 @@ insp.addEventListener('change', function(e){
   commit(true);
 });
 
+/* Картинку можно вставить из буфера или перетащить на поле —
+   для внутренних порталов это быстрее, чем сохранять файл. */
+function embedInto(field, file){
+  var r = sel();
+  if (!r || !field) return;
+  var key = field.dataset.imgField;
+  shrinkImage(file, +field.dataset.imgMax || 800, function(data, err){
+    if (!data) { toast('Не вышло: ' + err); return; }
+    r.obj[key] = data;
+    commit(true);
+    toast('Картинка вшита в документ · ' + humanSize(data));
+  });
+}
+
+function fileFromClipboard(dt){
+  if (!dt) return null;
+  if (dt.files && dt.files.length && /^image\//.test(dt.files[0].type)) return dt.files[0];
+  var items = dt.items || [];
+  for (var i = 0; i < items.length; i++) {
+    if (items[i].kind === 'file' && /^image\//.test(items[i].type)) return items[i].getAsFile();
+  }
+  return null;
+}
+
+insp.addEventListener('paste', function(e){
+  var field = e.target.closest('[data-img-field]');
+  if (!field) return;
+  var f = fileFromClipboard(e.clipboardData);
+  if (!f) return;                       /* обычный текст — пусть вставляется как есть */
+  e.preventDefault();
+  embedInto(field, f);
+});
+
+insp.addEventListener('dragover', function(e){
+  var field = e.target.closest('[data-img-field]');
+  if (!field) return;
+  e.preventDefault();
+  field.classList.add('drop-on');
+});
+insp.addEventListener('dragleave', function(e){
+  var field = e.target.closest('[data-img-field]');
+  if (field && !field.contains(e.relatedTarget)) field.classList.remove('drop-on');
+});
+insp.addEventListener('drop', function(e){
+  var field = e.target.closest('[data-img-field]');
+  if (!field) return;
+  e.preventDefault();
+  field.classList.remove('drop-on');
+  var f = fileFromClipboard(e.dataTransfer);
+  if (f) embedInto(field, f);
+});
+
+/* ползунок ведём отдельно: превью обновляем на лету,
+   а инспектор не перерисовываем, чтобы не терять захват мыши */
+insp.addEventListener('input', function(e){
+  var t = e.target;
+  if (!t.dataset.range) return;
+  var r = sel();
+  if (!r) return;
+  r.obj[t.dataset.range] = +t.value;
+  var out = $('hero-img-w');
+  if (out) out.textContent = t.value + ' px';
+  commit(false);
+});
+
 insp.addEventListener('click', function(e){
+  var pick = e.target.closest('[data-img-pick]');
+  if (pick) {
+    var rp = sel();
+    if (!rp) return;
+    var key = pick.dataset.imgPick;
+    pickImage(+pick.dataset.imgMax || 800, function(data, size){
+      rp.obj[key] = data;
+      commit(true);
+      toast('Картинка вшита в документ · ' + size);
+    });
+    return;
+  }
+  var clr = e.target.closest('[data-img-clear]');
+  if (clr) {
+    var rc = sel();
+    if (!rc) return;
+    rc.obj[clr.dataset.imgClear] = '';
+    commit(true);
+    return;
+  }
+
   var openLib = e.target.closest('[data-open-lib]');
   if (openLib) {
     libTab = openLib.dataset.openLib;
@@ -2620,7 +2848,11 @@ function parseHubHtml(html){
     hero.titleMain = clone.textContent.replace(/\s+/g, ' ').trim();
   }
   var img = doc.querySelector('.hero-img');
-  if (img) hero.image = img.getAttribute('src') || '';
+  if (img) {
+    hero.image = img.getAttribute('src') || '';
+    var mw = (img.getAttribute('style') || '').match(/--hero-img-max:\s*(\d+)px/);
+    if (mw) hero.imageSize = +mw[1];
+  }
   doc.querySelectorAll('.hero-stat').forEach(function(st){
     hero.stats.push({
       num: txt(st.querySelector('.hero-stat-num')),
@@ -3308,10 +3540,26 @@ var HELP = [
     '<p>Секция контактов состоит из <b>групп</b>. Каждая группа — отдельная карточка со своим заголовком и коротким описанием роли: руководители, специалисты, дежурные, Telegram. Не сваливайте всех в одну группу.</p>' +
     '<h5>Человек</h5>' +
     '<ul>' +
-      '<li><b>Фото</b> — ссылка на изображение. Если фото нет, рисуется нейтральная серая заглушка-силуэт; цветной кружок с инициалами дизайн-система не разрешает.</li>' +
+      '<li><b>Фото</b> — ссылка или файл с компьютера. Если фото нет, рисуется нейтральная серая заглушка-силуэт; цветной кружок с инициалами дизайн-система не разрешает.</li>' +
       '<li><b>ID / логин</b> — рядом появляется кнопка копирования в один клик.</li>' +
       '<li><b>Иконка перед ID</b> задаётся на уровне группы: Reddy, Telegram, нейтральная или без иконки.</li>' +
     '</ul>' },
+
+  { id:'images', name:'Картинки', html:
+    '<h4>Картинки</h4>' +
+    '<p>В любое поле с картинкой — шапка, лого, фото контакта, аватар чата — можно вставить <b>ссылку</b>, выбрать <b>файл</b> с компьютера или <b>вставить из буфера</b> (Ctrl+V), а также перетащить файл прямо на поле.</p>' +
+    '<h5>Почему ссылка на внутренний портал не видна в конструкторе</h5>' +
+    '<p>Ссылка вида <code>https://doc.office.lan/download/attachments/…</code> открывается у вас в отдельной вкладке, но в конструкторе остаётся пустой. Дело не в ссылке: конструктор живёт на другом домене, и браузер <b>намеренно не прикладывает</b> вашу сессионную куку Confluence к картинкам, запрошенным с чужого сайта. Портал отвечает «не авторизован», и картинка не грузится. Отключить это нельзя — так работает защита от подделки запросов.</p>' +
+    '<div class="note"><p>На <b>опубликованной</b> странице та же ссылка работает: страница лежит внутри Confluence, запрос идёт к своему же домену, кука прикладывается. Так что пустая картинка в превью не означает, что она будет пустой у читателей.</p></div>' +
+    '<h5>Что с этим делать</h5>' +
+    '<ul>' +
+      '<li><b>Оставить ссылку.</b> Подходит для тяжёлых иллюстраций: документ остаётся лёгким, а в превью вместо картинки будет подпись-заглушка нужного размера, чтобы вёрстка не «прыгала».</li>' +
+      '<li><b>Вшить картинку.</b> Кнопка «Файл», Ctrl+V из буфера или перетаскивание. Картинка ужимается и кладётся прямо в документ: видна в превью, в выгруженном HTML и у коллеги, которому вы отправите файл хаба. Прозрачность сохраняется, SVG не растрируется.</li>' +
+    '</ul>' +
+    '<p>Удобный приём: откройте картинку из Confluence в соседней вкладке, скопируйте её (правая кнопка → «Копировать изображение») и вставьте в поле через Ctrl+V.</p>' +
+    '<div class="note"><p>Вшитые картинки увеличивают документ, а браузер хранит все хабы примерно в 5 МБ. Размер вшитого файла подписан рядом с полем, занятое место — в шапке дашборда.</p></div>' +
+    '<h5>Размер картинки в шапке</h5>' +
+    '<p>Под полем появляется ползунок ширины — от 160 до 900 px. На узких экранах картинка всё равно ужимается, чтобы не выдавливать заголовок.</p>' },
 
   { id:'library', name:'Библиотека', html:
     '<h4>Библиотека хаба</h4>' +
