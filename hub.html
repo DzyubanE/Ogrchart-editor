@@ -623,6 +623,7 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;c
       --hub-text:      #172B4D;
       --hub-muted:     #5E6C84;
       --hub-accent:    #0052CC;
+      --hub-soft:      #8492AA;
       --hub-shadow-hv: 0 6px 18px rgba(13,27,72,.10);
     }
     body[data-theme="dark"] {
@@ -631,12 +632,14 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;c
       --hub-text:      #b6c2cf;
       --hub-muted:     #9fadbc;
       --hub-accent:    #579DFF;
+      --hub-soft:      #738496;
       --hub-shadow-hv: 0 8px 22px rgba(0,0,0,.55);
     }
 
     .mt-auto { margin-top: auto; }
 
     .chat-tile {
+      position: relative;
       display: flex; flex-direction: column; gap: 10px;
       padding: 16px;
       background: var(--hub-tile);
@@ -691,27 +694,34 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;c
     .tile-cta svg { transition: transform 200ms cubic-bezier(.4,0,.2,1); }
     .chat-tile:hover .tile-cta svg { transform: translateX(3px); }
 
-    /* Уведомление у плитки без ссылки. Цвета инвертированы
-       относительно поверхности, поэтому читается в обеих темах. */
-    .hub-notice {
-      position: fixed; left: 50%; bottom: 24px; z-index: 999;
-      transform: translateX(-50%) translateY(10px);
-      max-width: min(420px, calc(100vw - 32px));
-      padding: 11px 18px;
-      background: var(--hub-text); color: var(--hub-tile);
-      border-radius: 10px;
-      font-family: 'Manrope', sans-serif; font-size: 13px; font-weight: 600; line-height: 1.45;
-      text-align: center;
-      box-shadow: 0 8px 28px rgba(0,0,0,.24);
-      opacity: 0; pointer-events: none;
-      transition: opacity 200ms cubic-bezier(.4,0,.2,1), transform 200ms cubic-bezier(.4,0,.2,1);
+    /* Подсказка у плитки без ссылки. Появляется в самой плитке, а не
+       внизу страницы: ответ должен быть там, куда человек смотрел.
+       Оформлена как карточка — те же граница, фон и тень. */
+    .chat-note {
+      position: absolute; left: 10px; right: 10px; bottom: 10px; z-index: 2;
+      display: flex; align-items: flex-start; gap: 8px;
+      padding: 10px 12px;
+      background: var(--hub-tile);
+      border: 1px solid var(--hub-line);
+      border-radius: 8px;
+      box-shadow: var(--hub-shadow-hv);
+      font-family: 'Manrope', sans-serif;
+      font-size: 12px; font-weight: 500; line-height: 1.45; color: var(--hub-text);
+      text-align: left;
+      opacity: 0; transform: translateY(4px); pointer-events: none;
+      transition: opacity 180ms cubic-bezier(.4,0,.2,1), transform 180ms cubic-bezier(.4,0,.2,1);
     }
-    .hub-notice.on { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .chat-note.on { opacity: 1; transform: translateY(0); }
+    /* Пока подсказка открыта, приглушаем то, что под ней: иначе
+       её верхний край режет строку описания пополам. */
+    .chat-tile .tile-desc, .chat-tile .tile-cta { transition: opacity 180ms cubic-bezier(.4,0,.2,1); }
+    .chat-tile.note-on .tile-desc, .chat-tile.note-on .tile-cta { opacity: .25; }
+    .chat-note svg { width: 14px; height: 14px; flex-shrink: 0; color: var(--hub-soft); margin-top: 1px; }
 
     @media (prefers-reduced-motion: reduce) {
       .chat-tile, .chat-tile:hover, .tile-cta svg { transition: none; transform: none; }
-      .hub-notice { transition: opacity 200ms linear; }
-      .hub-notice, .hub-notice.on { transform: translateX(-50%); }
+      .chat-note, .chat-tile .tile-desc, .chat-tile .tile-cta { transition: opacity 180ms linear; }
+      .chat-note, .chat-note.on { transform: none; }
     }
 </script>
 
@@ -1111,24 +1121,52 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;c
       }
     }
 
-    /* Всплывающая подсказка для плиток без ссылки. Один элемент на
-       страницу, создаётся при первом показе. */
-    let noticeEl = null, noticeTimer = 0;
-    function showNotice(text){
-      if (!noticeEl) {
-        noticeEl = document.createElement('div');
-        noticeEl.className = 'hub-notice';
-        noticeEl.setAttribute('role', 'status');
-        document.body.appendChild(noticeEl);
+    /* Подсказка для плитки без ссылки. Показываем внутри самой плитки —
+       внизу страницы её легко не заметить. Одна открыта за раз. */
+    const LOCK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">' +
+      '<rect x="4" y="10.5" width="16" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg>';
+    let openNote = null, noteTimer = 0;
+
+    function hideNote(){
+      if (openNote) {
+        openNote.classList.remove('on');
+        if (openNote.parentNode) openNote.parentNode.classList.remove('note-on');
       }
-      noticeEl.textContent = text;
-      /* перезапуск анимации, если жмут по плиткам подряд */
-      noticeEl.classList.remove('on');
-      void noticeEl.offsetWidth;
-      noticeEl.classList.add('on');
-      clearTimeout(noticeTimer);
-      noticeTimer = setTimeout(function(){ noticeEl.classList.remove('on'); }, 3000);
+      openNote = null;
+      clearTimeout(noteTimer);
     }
+
+    function showNote(tile, text){
+      let el = tile.querySelector('.chat-note');
+      if (!el) {
+        el = document.createElement('div');
+        el.className = 'chat-note';
+        el.setAttribute('role', 'status');
+        el.innerHTML = LOCK + '<span></span>';
+        tile.appendChild(el);
+      }
+      el.lastChild.textContent = text;
+      if (openNote && openNote !== el) {
+        openNote.classList.remove('on');
+        if (openNote.parentNode) openNote.parentNode.classList.remove('note-on');
+      }
+      clearTimeout(noteTimer);
+      /* перезапуск анимации, если жмут по одной плитке подряд */
+      el.classList.remove('on');
+      void el.offsetWidth;
+      el.classList.add('on');
+      tile.classList.add('note-on');
+      openNote = el;
+      noteTimer = setTimeout(hideNote, 3600);
+    }
+
+    /* Клик мимо и Escape закрывают подсказку сразу */
+    document.addEventListener('click', function(e){
+      if (openNote && !e.target.closest('.chat-tile')) hideNote();
+    });
+    document.addEventListener('keydown', function(e){
+      if (e.key === 'Escape') hideNote();
+    });
 
     /* Плитка чата — это div с data-url, а не ссылка: открываем сами
        и обязательно из верхнего окна, иначе Confluence блокирует вкладку.
@@ -1138,7 +1176,7 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;c
       const note = tile.getAttribute('data-note') || '';
       function activate(){
         if (url) openTopNewTab(url);
-        else if (note) showNotice(note);
+        else if (note) showNote(tile, note);
       }
       tile.addEventListener('click', activate);
       tile.addEventListener('keydown', function(ev){
