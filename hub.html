@@ -119,6 +119,11 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;c
 .img-field .btn{flex-shrink:0;padding:6px 9px}
 .img-thumb{width:32px;height:32px;border-radius:7px;flex-shrink:0;border:1px solid var(--b1);background:var(--s2) center/cover no-repeat;display:flex;align-items:center;justify-content:center;color:var(--t3);font-size:13px}
 .img-chip{flex:1;min-width:0;font-size:11.5px;font-weight:600;color:var(--t2);background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:7px 9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.seg-field{display:flex;border:1px solid var(--b2);border-radius:8px;overflow:hidden}
+.seg-field button{flex:1;padding:6px 4px;font-size:11.5px;font-weight:600;background:var(--surface);color:var(--t2);border:none;cursor:pointer;font-family:'Geist',sans-serif;transition:background .12s,color .12s;min-width:0}
+.seg-field button+button{border-left:1px solid var(--b2)}
+.seg-field button.on{background:var(--accent);color:#fff}
+.seg-field button:hover:not(.on){background:var(--s2)}
 .range-row{display:flex;align-items:center;gap:9px}
 .range-row input[type=range]{flex:1;min-width:0;accent-color:var(--accent);cursor:pointer}
 .range-val{font-size:11.5px;font-weight:600;color:var(--t2);min-width:52px;text-align:right;font-family:'Geist Mono',ui-monospace,monospace}
@@ -567,14 +572,22 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;c
     .hero-stat-num { font-family: 'Manrope', sans-serif; font-size: 24px; font-weight: 800; letter-spacing: -.5px; color: #172B4D; line-height: 1; }
     .hero-stat-label { font-family: 'Manrope', sans-serif; font-size: 12px; font-weight: 500; color: #8492AA; letter-spacing: .3px; text-transform: uppercase; }
     .hero-meta-sep { width: 1px; height: 30px; background: #DFE1E6; flex-shrink: 0; }
-    .hero-img-wrap { width: 100%; display: flex; align-items: center; justify-content: flex-start; }
+    /* Счётчики стоят над разделительной полосой, а не внутри шапки:
+       так они не зависят от длины лид-текста и не съезжают. */
+    .hero-stats-row { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; margin-bottom: 12px; }
+    .hero-img-wrap { width: 100%; display: flex; align-items: center; justify-content: var(--hero-img-align, flex-start); }
+    /* Картинка слева: меняем и порядок, и размеры колонок — иначе
+       широкая картинка упёрлась бы в потолок текстовой колонки. */
+    .hero.img-left { grid-template-columns: 1fr minmax(0, 620px); }
+    .hero.img-left .hero-img-wrap { order: -1; }
     .hero-img { width: 100%; max-width: var(--hero-img-max, 680px); height: auto; display: block; }
     @media (max-width: 900px) {
       .hero { grid-template-columns: 1fr; text-align: center; }
       .hero-content { align-items: center; }
-      .hero-kicker, .hero-meta { justify-content: center; }
+      .hero-kicker, .hero-meta, .hero-stats-row { justify-content: center; }
       .hero-body-text { max-width: none; }
       .hero-img-wrap { justify-content: center; }
+      .hero.img-left { grid-template-columns: 1fr; }
       .hero-img { max-width: min(var(--hero-img-max, 680px), 238px); }
     }
     .hero-divider { height: 1px; background: #E3E6EC; }
@@ -1693,6 +1706,19 @@ function sectionHtml(s, editing){
   return h;
 }
 
+/** Счётчики шапки — отдельным рядом, прямо над разделительной полосой. */
+function heroStatsHtml(m){
+  var stats = ((m.hero && m.hero.stats) || []).filter(function(s){ return s.num || s.label; });
+  if (!stats.length) return '';
+  var h = '     <div class="hero-stats-row">\n';
+  stats.forEach(function(s, i){
+    if (i) h += '       <div class="hero-meta-sep"></div>\n';
+    h += '       <div class="hero-stat"><span class="hero-stat-num">' + esc(s.num) +
+         '</span><span class="hero-stat-label">' + esc(s.label) + '</span></div>\n';
+  });
+  return h + '     </div>\n';
+}
+
 function heroHtml(m, editing){
   var hero = m.hero;
   var eid = editing ? ' data-eid="hero"' : '';
@@ -1708,7 +1734,8 @@ function heroHtml(m, editing){
   }
 
   h += '   <header class="w-full px-6 pb-4"' + eid + '>\n';
-  h += '    <div class="w-full hero' + (hasImg ? '' : ' no-img') + '">\n';
+  var side = (hasImg && hero.imageSide === 'left') ? ' img-left' : '';
+  h += '    <div class="w-full hero' + (hasImg ? side : ' no-img') + '">\n';
   h += '      <div class="hero-content">\n';
   if (hero.kicker) {
     h += '        <div class="hero-kicker">' + esc(hero.kicker) + '</div>\n';
@@ -1720,19 +1747,11 @@ function heroHtml(m, editing){
     if (hero.sub)  h += '          <p class="hero-sub">' + esc(hero.sub) + '</p>\n';
     h += '        </div>\n';
   }
-  var stats = (hero.stats || []).filter(function(s){ return s.num || s.label; });
-  if (stats.length) {
-    h += '        <div class="hero-meta">\n';
-    stats.forEach(function(s, i){
-      if (i) h += '          <div class="hero-meta-sep"></div>\n';
-      h += '          <div class="hero-stat"><span class="hero-stat-num">' + esc(s.num) +
-           '</span><span class="hero-stat-label">' + esc(s.label) + '</span></div>\n';
-    });
-    h += '        </div>\n';
-  }
   h += '      </div>\n';
   if (hasImg) {
-    h += '      <div class="hero-img-wrap">\n';
+    var alignMap = { start:'flex-start', center:'center', end:'flex-end' };
+    var al = alignMap[hero.imageAlign] || 'flex-start';
+    h += '      <div class="hero-img-wrap" style="--hero-img-align:' + al + '">\n';
     var iw = Number(hero.imageSize) || 0;
     var istyle = iw ? ' style="--hero-img-max:' + iw + 'px"' : '';
     h += '        <img class="hero-img" decoding="async"' + istyle + ' src="' + att(hero.image) + '" alt="' + att(hero.titleMain) + '">\n';
@@ -1807,6 +1826,7 @@ function buildHub(m, opts){
   h += '  <div id="app-root" class="w-full h-full overflow-auto bg-white">\n\n';
   h += heroHtml(m, editing) + '\n';
   h += '   <div class="w-full px-6 my-4">\n';
+  h += heroStatsHtml(m);
   h += '     <div class="w-full hero-divider"></div>\n';
   h += '   </div>\n\n';
   h += '   <main class="w-full pb-8">\n';
@@ -2122,6 +2142,14 @@ function paintThumbs(){
   });
 }
 
+/** Сегментированный переключатель: короткий выбор из 2–3 вариантов. */
+function fSeg(k, cur, opts){
+  return '<div class="seg-field">' + opts.map(function(o){
+    return '<button data-seg="' + att(k) + '" data-seg-val="' + att(o[0]) + '"' +
+      (String(cur) === String(o[0]) ? ' class="on"' : '') + '>' + esc(o[1]) + '</button>';
+  }).join('') + '</div>';
+}
+
 function fAccents(cur){
   var list = allAccents();
   if (cur && list.indexOf(cur) < 0) list = list.concat([cur]);
@@ -2165,6 +2193,10 @@ function renderInspector(){
     h += fLabel('Подстрочник', 'помельче') + fArea('sub', o.sub, 'Детали, охват, ограничения.');
     h += fLabel('Картинка справа', 'ссылка или файл') + fImage('image', o.image, 'https://...', 1200);
     if (o.image) {
+      h += fLabel('Сторона') + fSeg('imageSide', o.imageSide || 'right',
+        [['left','Слева'], ['right','Справа']]);
+      h += fLabel('Сдвиг') + fSeg('imageAlign', o.imageAlign || 'start',
+        [['start','Влево'], ['center','По центру'], ['end','Вправо']]);
       h += fLabel('Ширина картинки') +
         '<div class="range-row">' +
         '<input type="range" min="160" max="900" step="10" data-range="imageSize" value="' +
@@ -2358,6 +2390,15 @@ insp.addEventListener('input', function(e){
 });
 
 insp.addEventListener('click', function(e){
+  var seg = e.target.closest('[data-seg]');
+  if (seg) {
+    var rs = sel();
+    if (!rs) return;
+    rs.obj[seg.dataset.seg] = seg.dataset.segVal;
+    commit(true);
+    return;
+  }
+
   var pick = e.target.closest('[data-img-pick]');
   if (pick) {
     var rp = sel();
@@ -2852,6 +2893,11 @@ function parseHubHtml(html){
     hero.image = img.getAttribute('src') || '';
     var mw = (img.getAttribute('style') || '').match(/--hero-img-max:\s*(\d+)px/);
     if (mw) hero.imageSize = +mw[1];
+    var wrapEl = img.closest('.hero-img-wrap');
+    var ma = wrapEl && (wrapEl.getAttribute('style') || '').match(/--hero-img-align:\s*([a-z-]+)/);
+    if (ma) hero.imageAlign = ma[1] === 'center' ? 'center' : (ma[1] === 'flex-end' ? 'end' : 'start');
+    var heroEl = img.closest('.hero');
+    if (heroEl && /\bimg-left\b/.test(heroEl.className)) hero.imageSide = 'left';
   }
   doc.querySelectorAll('.hero-stat').forEach(function(st){
     hero.stats.push({
@@ -3558,8 +3604,10 @@ var HELP = [
     '</ul>' +
     '<p>Удобный приём: откройте картинку из Confluence в соседней вкладке, скопируйте её (правая кнопка → «Копировать изображение») и вставьте в поле через Ctrl+V.</p>' +
     '<div class="note"><p>Вшитые картинки увеличивают документ, а браузер хранит все хабы примерно в 5 МБ. Размер вшитого файла подписан рядом с полем, занятое место — в шапке дашборда.</p></div>' +
-    '<h5>Размер картинки в шапке</h5>' +
-    '<p>Под полем появляется ползунок ширины — от 160 до 900 px. На узких экранах картинка всё равно ужимается, чтобы не выдавливать заголовок.</p>' },
+    '<h5>Картинка в шапке</h5>' +
+    '<p>Когда картинка задана, под полем появляются три настройки: <b>сторона</b> — слева или справа от текста; <b>сдвиг</b> — прижать к тексту, поставить по центру своей половины или отодвинуть к краю; <b>ширина</b> — от 160 до 900 px. На узких экранах шапка всё равно складывается в одну колонку, а картинка ужимается, чтобы не выдавливать заголовок.</p>' +
+    '<h5>Счётчики</h5>' +
+    '<p>Счётчики шапки стоят отдельным рядом прямо над разделительной полосой. Так они не зависят от длины лид-текста и не съезжают при правках.</p>' },
 
   { id:'library', name:'Библиотека', html:
     '<h4>Библиотека хаба</h4>' +
