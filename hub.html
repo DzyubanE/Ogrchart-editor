@@ -669,8 +669,27 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;c
     .tile-cta svg { transition: transform 200ms cubic-bezier(.4,0,.2,1); }
     .chat-tile:hover .tile-cta svg { transform: translateX(3px); }
 
+    /* Уведомление у плитки без ссылки. Цвета инвертированы
+       относительно поверхности, поэтому читается в обеих темах. */
+    .hub-notice {
+      position: fixed; left: 50%; bottom: 24px; z-index: 999;
+      transform: translateX(-50%) translateY(10px);
+      max-width: min(420px, calc(100vw - 32px));
+      padding: 11px 18px;
+      background: var(--hub-text); color: var(--hub-tile);
+      border-radius: 10px;
+      font-family: 'Manrope', sans-serif; font-size: 13px; font-weight: 600; line-height: 1.45;
+      text-align: center;
+      box-shadow: 0 8px 28px rgba(0,0,0,.24);
+      opacity: 0; pointer-events: none;
+      transition: opacity 200ms cubic-bezier(.4,0,.2,1), transform 200ms cubic-bezier(.4,0,.2,1);
+    }
+    .hub-notice.on { opacity: 1; transform: translateX(-50%) translateY(0); }
+
     @media (prefers-reduced-motion: reduce) {
       .chat-tile, .chat-tile:hover, .tile-cta svg { transition: none; transform: none; }
+      .hub-notice { transition: opacity 200ms linear; }
+      .hub-notice, .hub-notice.on { transform: translateX(-50%); }
     }
 </script>
 
@@ -1070,14 +1089,38 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;c
       }
     }
 
+    /* Всплывающая подсказка для плиток без ссылки. Один элемент на
+       страницу, создаётся при первом показе. */
+    let noticeEl = null, noticeTimer = 0;
+    function showNotice(text){
+      if (!noticeEl) {
+        noticeEl = document.createElement('div');
+        noticeEl.className = 'hub-notice';
+        noticeEl.setAttribute('role', 'status');
+        document.body.appendChild(noticeEl);
+      }
+      noticeEl.textContent = text;
+      /* перезапуск анимации, если жмут по плиткам подряд */
+      noticeEl.classList.remove('on');
+      void noticeEl.offsetWidth;
+      noticeEl.classList.add('on');
+      clearTimeout(noticeTimer);
+      noticeTimer = setTimeout(function(){ noticeEl.classList.remove('on'); }, 3000);
+    }
+
     /* Плитка чата — это div с data-url, а не ссылка: открываем сами
-       и обязательно из верхнего окна, иначе Confluence блокирует вкладку. */
+       и обязательно из верхнего окна, иначе Confluence блокирует вкладку.
+       Ссылки нет — объясняем почему, а не молчим. */
     Array.prototype.forEach.call(document.querySelectorAll('.chat-tile'), function(tile){
-      const url = tile.getAttribute('data-url');
-      if (!url) return;
-      tile.addEventListener('click', function(){ openTopNewTab(url); });
+      const url = (tile.getAttribute('data-url') || '').trim();
+      const note = tile.getAttribute('data-note') || '';
+      function activate(){
+        if (url) openTopNewTab(url);
+        else if (note) showNotice(note);
+      }
+      tile.addEventListener('click', activate);
       tile.addEventListener('keydown', function(ev){
-        if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); openTopNewTab(url); }
+        if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); activate(); }
       });
     });
 
@@ -1330,7 +1373,8 @@ function newGroup(t){
 }
 function newChat(n){
   return { id:uid('c'), name:n||'Новый чат', desc:'Коротко: о чём этот чат и кому он нужен.',
-           url:'', kind:'chat', icon:'' };
+           url:'', kind:'chat', icon:'',
+           note:'Чат доступен для ограниченного круга сотрудников' };
 }
 function newChatsSection(){
   return { id:uid('s'), type:'chats', title:'Чаты направления',
@@ -1450,7 +1494,9 @@ function chatTileHtml(c, editing){
   var b = allChatBadges()[c.kind] || allChatBadges().chat;
   var h = '';
   h += '        <div class="chat-tile" tabindex="0" role="link" data-type="' + att(c.kind || 'chat') + '"\n';
-  h += '             data-url="' + att(c.url) + '"' + eid + '>\n';
+  h += '             data-url="' + att(c.url) + '"';
+  if (!c.url && c.note) h += ' data-note="' + att(c.note) + '"';
+  h += eid + '>\n';
   h += '          <div class="flex items-center gap-3">\n';
   h += '            <span class="tile-icon">\n';
   if (c.icon) {
@@ -2050,8 +2096,10 @@ function renderInspector(){
     h += '<span class="badge-prev" style="background:' + cbb.color + '">' + esc(cbb.label) + '</span>';
     h += '<button class="btn" data-open-lib="chats" style="width:100%;justify-content:center;margin-top:8px">Свои бейджи чатов</button>';
     h += fLabel('Аватар чата', 'URL, пусто — серая заглушка') + fText('icon', o.icon, 'https://...');
+    h += fLabel('Текст без ссылки', 'показывается по клику') +
+         fText('note', o.note, 'Чат доступен для ограниченного круга сотрудников');
     if (!o.url) {
-      h += '<div class="hintbox">Без ссылки плитка отрисуется, но никуда не поведёт. Вставьте приглашение в чат.</div>';
+      h += '<div class="hintbox">Ссылка пуста — по клику на «Перейти» покажется это уведомление. Пустой текст оставит плитку молчаливой.</div>';
     }
 
   } else if (r.kind === 'group') {
@@ -2257,7 +2305,10 @@ function normalize(m){
       s.tiles.forEach(function(t){ if (!t.id) t.id = uid('t'); });
     } else if (s.type === 'chats') {
       s.chats = s.chats || [];
-      s.chats.forEach(function(c){ if (!c.id) c.id = uid('c'); });
+      s.chats.forEach(function(c){
+        if (!c.id) c.id = uid('c');
+        if (c.note === undefined) c.note = 'Чат доступен для ограниченного круга сотрудников';
+      });
     } else {
       s.type = 'contacts';
       s.groups = s.groups || [];
@@ -2349,7 +2400,8 @@ function buildMarkdown(m){
       (sec.chats || []).forEach(function(c){
         var b = cb[c.kind] || cb.chat;
         var nm = c.url ? '[' + c.name + '](' + c.url + ')' : c.name;
-        out.push('- ' + nm + (b ? ' — ' + b.label : ''));
+        var tail = [b ? b.label : null, c.url ? null : (c.note || 'без ссылки')].filter(Boolean).join(' · ');
+        out.push('- ' + nm + (tail ? ' — ' + tail : ''));
         if (c.desc) out.push('  ' + c.desc);
       });
     } else if (sec.type === 'tiles') {
@@ -2599,6 +2651,7 @@ function parseHubHtml(html){
           name: txt(ct.querySelector('.tile-name')),
           desc: txt(ct.querySelector('.tile-desc')),
           url: (ct.getAttribute('data-url') || '').trim(),
+          note: ct.getAttribute('data-note') || 'Чат доступен для ограниченного круга сотрудников',
           kind: chatKindFor(ct, badge, out.lib, seen),
           icon: (img && img.getAttribute('src')) || ''
         });
@@ -3243,6 +3296,7 @@ var HELP = [
     '<p>Отдельный тип секции для рабочих чатов и каналов. Плитка здесь крупнее обычной: круглый аватар чата, бейдж площадки, описание и ссылка «Перейти» внизу карточки.</p>' +
     '<ul>' +
       '<li><b>Ссылка-приглашение</b> — плитка открывается в новой вкладке из верхнего окна, иначе Confluence блокирует всплывающее окно. Клавиатурой тоже работает: Enter или пробел.</li>' +
+      '<li><b>Текст без ссылки</b> — если приглашения нет, по клику всплывает уведомление: например, что чат закрытый. Так плитка не выглядит сломанной.</li>' +
       '<li><b>Тип</b> — бейдж площадки. Встроены «Чат» и «Канал»; свои добавляются в библиотеке, вкладка «Бейджи чатов».</li>' +
       '<li><b>Аватар</b> — ссылка на картинку, обрезается по кругу. Без неё рисуется нейтральная заглушка.</li>' +
       '<li><b>Ширина плиток</b> — по умолчанию 320px: у чатов описание длиннее, чем у обычных плиток.</li>' +
