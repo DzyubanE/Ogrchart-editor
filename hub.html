@@ -837,7 +837,26 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;c
       box-shadow: none;
     }
     .kb-shell.open .kb-panel-head { border-top: 1px solid var(--hub-line); }
-    .kb-panel-head { flex-shrink: 0; padding: 11px 14px; border-bottom: 1px solid var(--hub-line); background: var(--hub-card); }
+    .kb-panel-head { flex-shrink: 0; display: flex; align-items: flex-start; gap: 10px; padding: 9px 10px 9px 14px; border-bottom: 1px solid var(--hub-line); background: var(--hub-card); }
+    .kb-panel-head .kb-chips { flex: 1; min-width: 0; padding: 2px 0; }
+    /* Разделов нет — значит, и полосе фильтров неоткуда взяться:
+       остаётся только значок обновления в углу панели. */
+    .kb-panel-head.bare { padding: 6px 8px 0; border-bottom: 0; background: transparent; }
+
+    /* Пересборка индекса: новые ссылки подхватываются сами, но кнопка
+       нужна, когда страницу правили только что и ждать нечего. */
+    .kb-refresh {
+      flex-shrink: 0; width: 26px; height: 26px; border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--hub-soft); background: transparent;
+      transition: color 200ms cubic-bezier(.4,0,.2,1), background-color 200ms cubic-bezier(.4,0,.2,1);
+    }
+    .kb-refresh svg { width: 14px; height: 14px; }
+    .kb-refresh:hover { color: var(--hub-accent); background: var(--hub-accent-soft); }
+    .kb-refresh.busy { color: var(--hub-accent); pointer-events: none; }
+    .kb-refresh.busy svg { animation: kbspin 900ms linear infinite; }
+    @keyframes kbspin { to { transform: rotate(360deg); } }
+    @media (prefers-reduced-motion: reduce) { .kb-refresh.busy svg { animation: none; } }
     .kb-panel-body { overflow-y: auto; overscroll-behavior: contain; padding: 0 14px 14px; }
     .kb-panel-body::-webkit-scrollbar { width: 10px; }
     .kb-panel-body::-webkit-scrollbar-thumb { background: var(--hub-line); border-radius: 8px; border: 3px solid transparent; background-clip: content-box; }
@@ -2227,7 +2246,7 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;c
     var q = function(cls){ return root.querySelector('.' + cls); };
     var elShell = q('kb-shell'), elInput = q('kb-input'), elClear = q('kb-clear');
     var elPanel = q('kb-panel'), elPanelBody = q('kb-panel-body');
-    var elChips = q('kb-chips'), elHead = q('kb-panel-head');
+    var elChips = q('kb-chips'), elHead = q('kb-panel-head'), elRefresh = q('kb-refresh');
     var elProgress = q('kb-progress'), elProgressBar = q('kb-progress-bar');
     var elNote = q('kb-note'), elNoteText = q('kb-note-text');
     var elFix = q('kb-fix'), elResults = q('kb-results');
@@ -2265,7 +2284,8 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;c
       });
       /* Один раздел фильтровать не из чего: кнопка, которая ничего не
          меняет, — тот самый лишний элемент вокруг строки. */
-      if (live.length < 2) { elChips.innerHTML = ''; elHead.style.display = 'none'; return; }
+      if (live.length < 2) { elChips.innerHTML = ''; elHead.classList.add('bare'); return; }
+      elHead.classList.remove('bare');
       CFG.groups.forEach(function(g){
         var n = PAGES.filter(function(p){ return inGroup(p, g.id); }).length;
         if (!n) return;
@@ -2278,7 +2298,6 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;c
       });
       if (any) html += '<button type="button" class="kb-chip kb-reset" data-group="__reset">Сбросить</button>';
       elChips.innerHTML = html;
-      elHead.style.display = '';
     }
 
     /* ── Сборка индекса ── */
@@ -2298,13 +2317,25 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;c
       return out;
     }
 
-    function loadCache(){
+    /* Состав индекса одним ключом. По одному лишь числу ссылок кэш
+       переживал и замену ссылки, и переименование раздела: страница
+       осталась бы со старой выдачей до конца срока хранения.
+       Синонимы сюда не входят — они применяются при каждой сборке
+       индекса из кэша, перекачивать ради них страницы незачем. */
+    function cacheSig(targets){
+      return JSON.stringify([
+        targets.map(function(t){ return t.url + '|' + t.groups.join(','); }),
+        CFG.base || '', CFG.useStorage ? 1 : 0, CFG.followIframes ? 1 : 0
+      ]);
+    }
+
+    function loadCache(sig){
       var raw = store.get(CACHE_KEY);
       if (!raw) return null;
       try {
         var data = JSON.parse(raw);
         if ((Date.now() - data.ts) / 36e5 > CFG.cacheHours) return null;
-        if (data.count !== allTargets().length) return null;
+        if (data.sig !== sig) return null;
         return data;
       } catch(e){ return null; }
     }
@@ -2313,6 +2344,7 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;c
        ни счётчика пропусков, ни списка адресов — состав закрытых
        разделов не должен читаться со стороны. */
     function ready(){
+      elRefresh.classList.remove('busy');
       elNote.classList.remove('on');
       renderChips();
       render();
@@ -2321,6 +2353,7 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;c
     /* Показать ошибку вместо бесконечных скелетонов */
     function fatal(){
       elProgress.classList.remove('on');
+      elRefresh.classList.remove('busy');
       elNote.classList.add('on');
       elNoteText.textContent = 'Поиск сейчас недоступен — не удалось прочитать страницы. Обновите страницу через пару минут.';
       elResults.innerHTML = '';
@@ -2337,7 +2370,8 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;c
         return;
       }
 
-      var cached = force ? null : loadCache();
+      var sig = cacheSig(targets);
+      var cached = force ? null : loadCache(sig);
       if (cached) {
         try {
           PAGES = cached.pages;
@@ -2352,6 +2386,8 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;c
 
       elResults.innerHTML = '<div class="kb-skeleton"></div><div class="kb-skeleton"></div><div class="kb-skeleton"></div>';
       elProgress.classList.add('on');
+      elRefresh.classList.add('busy');
+      elProgressBar.style.width = '0%';
       sync();
 
       var done = 0, ok = [], queue = targets.slice();
@@ -2376,7 +2412,7 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;c
         setTimeout(function(){
           try { IX = makeIndex(PAGES, CFG.synonyms); }
           catch(err){ fatal(); return; }
-          try { store.set(CACHE_KEY, JSON.stringify({ ts:Date.now(), count:targets.length, pages:ok })); } catch(e){}
+          try { store.set(CACHE_KEY, JSON.stringify({ ts:Date.now(), sig:sig, pages:ok })); } catch(e){}
           ready();
         }, 0);
       }).catch(fatal);
@@ -2537,6 +2573,8 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;c
     }
 
     /* ── Панель ── */
+    elHead.classList.add('bare');
+
     var maxH = Number(CFG.panelHeight) || 460;
     elPanel.style.maxHeight = maxH + 'px';
     elPanelBody.style.maxHeight = Math.max(120, maxH - 76) + 'px';
@@ -2602,6 +2640,15 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;c
       elInput.focus();
     });
 
+    /* Панель закрывается по клику мимо строки — кнопке нужно успеть
+       отработать раньше, поэтому гасим событие на подходе. */
+    elRefresh.addEventListener('mousedown', function(e){ e.stopPropagation(); });
+    elRefresh.addEventListener('click', function(){
+      activeGroups = {};
+      store.set(CACHE_KEY, '');
+      build(true);
+    });
+
     root.addEventListener('keydown', function(e){
       if (e.key === 'Escape') {
         if (elInput.value) { elInput.value = ''; exactMode = false; render(); elInput.focus(); }
@@ -2635,7 +2682,7 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;c
       elPanel.classList.add('on');
       elShell.classList.add('open');
       elChips.innerHTML = chips;
-      elHead.style.display = chips ? '' : 'none';
+      elHead.classList.toggle('bare', !chips);
       elNote.classList.add('on');
       elNoteText.textContent = 'Превью: так модуль выглядит на странице. Индекс собирается только на опубликованной странице — конструктор живёт на другом домене, и Confluence не отдаёт ему страницы.';
       elResults.innerHTML = '<div class="kb-empty"><h3>Здесь будет выдача</h3><p>' +
@@ -3178,7 +3225,10 @@ function searchHtml(s, editing){
   h += '         <button class="kb-clear" type="button" title="Очистить"><span>Очистить</span> <span class="kb-kbd">Esc</span></button>\n';
   h += '        </div>\n';
   h += '        <div class="kb-panel">\n';
-  h += '         <div class="kb-panel-head"><div class="kb-chips"></div></div>\n';
+  h += '         <div class="kb-panel-head">\n';
+  h += '          <div class="kb-chips"></div>\n';
+  h += '          <button class="kb-refresh" type="button" title="Пересобрать индекс" aria-label="Пересобрать индекс"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-2.6-6.4"></path><path d="M21 3v6h-6"></path></svg></button>\n';
+  h += '         </div>\n';
   h += '         <div class="kb-progress"><span class="kb-progress-bar"></span></div>\n';
   h += '         <div class="kb-panel-body">\n';
   h += '          <div class="kb-note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 8h.01M11 12h1v4h1"></path></svg><span class="kb-note-text"></span></div>\n';
@@ -5097,7 +5147,8 @@ function renderSearchEditor(){
       '<ul>' +
         '<li><b>Сбор.</b> По каждой ссылке из разделов запрашивается текст страницы через <code>/rest/api/content</code> — от имени читателя, с его правами. Страницы, к которым доступа нет, молча не попадают в индекс: состав закрытых разделов не должен читаться со стороны.</li>' +
         '<li><b>Индекс.</b> Текст разбирается на слова, у каждого берётся основа: «лимиты», «лимитов» и «лимитам» сводятся к «лимит». Отдельно запоминаются заголовок страницы и её подзаголовки.</li>' +
-        '<li><b>Кэш.</b> Готовый индекс лежит в браузере читателя заданное число часов, поэтому второе открытие страницы мгновенное. Дальше он собирается заново сам — срок задаётся на вкладке «Настройки».</li>' +
+        '<li><b>Кэш.</b> Готовый индекс лежит в браузере читателя заданное число часов, поэтому второе открытие страницы мгновенное. Срок задаётся на вкладке «Настройки».</li>' +
+        '<li><b>Пересборка.</b> Кэш привязан к составу модуля: добавили, убрали или заменили ссылку, переименовали раздел — старый индекс отбрасывается и страницы читаются заново, не дожидаясь конца срока. Значок <b>↻</b> справа в панели пересобирает индекс вручную: он нужен, когда изменилась сама страница Confluence, а не список ссылок.</li>' +
       '</ul>' +
 
       '<h5>Что понимает запрос</h5>' +
@@ -5594,6 +5645,8 @@ var HELP = [
     '<h5>Что понимает запрос</h5>' +
     '<p>Словоформы («лимитов» находит «лимиты»), не ту раскладку («kbvbns»), транслит («limity»), опечатки и начало слова. Если запрос пришлось поправить, поиск пишет об этом над выдачей и даёт вернуться к точному режиму.</p>' +
     '<div class="note"><p>Индекс собирается в браузере читателя и его правами: страницы, к которым у человека нет доступа, просто не попадают в выдачу. Ничего никуда не отправляется, сервер не нужен.</p></div>' +
+    '<h5>Обновление индекса</h5>' +
+    '<p>Собранный индекс лежит в браузере читателя несколько часов. Правку списка ссылок он переживает не дольше одного открытия: кэш привязан к составу модуля, поэтому новая ссылка индексируется сразу, а не через сутки. Если же поменялась сама страница в Confluence, а список ссылок прежний, — значок <b>↻</b> справа в панели пересобирает индекс на месте.</p>' +
     '<h5>Почему поиск не работает в конструкторе</h5>' +
     '<p>Превью живёт на другом домене, и Confluence не отдаёт ему страницы — по той же причине, по которой в конструкторе не видны картинки с внутреннего портала. В превью виден только внешний вид модуля и список разделов; индекс собирается на опубликованной странице.</p>' +
     '<p>Полная инструкция по устройству поисковика — на вкладке <b>«Как это работает»</b> в самом редакторе.</p>' },
