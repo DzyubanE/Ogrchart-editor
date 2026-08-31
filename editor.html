@@ -88,6 +88,9 @@ input[type=text]:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,1
 .av-btn{width:28px;height:28px;border-radius:50%;border:1.5px dashed var(--b2);background:var(--s2);cursor:pointer;flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--t3);transition:border-color .15s}
 .av-btn:hover{border-color:var(--accent)}
 .av-btn img{width:100%;height:100%;object-fit:cover}
+.av-row{display:flex;align-items:center;gap:4px;margin:-2px 0 6px 32px}
+.av-row input[type=text]{flex:1;min-width:0;font-size:11.5px;padding:5px 8px}
+.av-chip{flex:1;min-width:0;font-size:11px;color:var(--t2);background:var(--s2);border:1px solid var(--b1);border-radius:7px;padding:5px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .xb{width:24px;height:24px;border-radius:6px;border:1px solid rgba(220,38,38,.2);background:rgba(220,38,38,.05);color:#dc2626;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px;transition:background .12s}
 .xb:hover{background:rgba(220,38,38,.12)}
 .conn-chip{display:flex;align-items:center;gap:6px;padding:5px 8px;background:var(--s2);border:1px solid var(--b1);border-radius:8px;font-size:11.5px;color:var(--t2);margin-bottom:4px}
@@ -425,7 +428,7 @@ input[type=text]:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,1
         <div id="av-url-wrap" style="display:none">
           <div style="font-size:11.5px;color:var(--t2);margin-bottom:6px">URL папки с аватарками в репозитории:</div>
           <input type="text" id="av-base-url" value="https://raw.githubusercontent.com/username/repo/main/avatars" placeholder="https://raw.githubusercontent.com/user/repo/main/avatars" oninput="updateExpCode()" style="margin-bottom:6px">
-          <div style="font-size:11px;color:var(--t3);line-height:1.5">Файлы называются <code style="background:var(--b1);padding:1px 4px;border-radius:4px">emp_имя.jpg</code> — загрузите их в указанную папку.</div>
+          <div style="font-size:11px;color:var(--t3);line-height:1.5">Файлы называются <code style="background:var(--b1);padding:1px 4px;border-radius:4px">emp_имя.jpg</code> — загрузите их в указанную папку. Аватарки, заданные ссылкой, остаются на своём хосте.</div>
           <div id="av-file-list" style="margin-top:8px"></div>
         </div>
       </div>
@@ -895,7 +898,17 @@ function renderSidebar(id) {
   const cBtns=COLORS.map(c=>`<div class="cp ${c===d.color?'sel':''}" style="background:${c}" title="${c}" onclick="setColor('${id}','${c}')"></div>`).join('');
   const lcBtns=LINE_COLORS.map(c=>`<div class="cp ${c===connLineColor?'sel':''}" style="background:${c}" title="${c}" onclick="setLC('${c}')"></div>`).join('');
   const dRows=d.duties.map((t,i)=>`<div style="display:flex;gap:4px;margin-bottom:4px"><input type="text" value="${esc(t)}" placeholder="Обязанность" oninput="setDuty('${id}',${i},this.value)"><div class="xb" onclick="remDuty('${id}',${i})">×</div></div>`).join('');
-  const eRows=(d.emps||[]).map((e,i)=>`<div class="emp-item"><div class="av-btn" onclick="pickAv('${id}',${i})">${e.avatar?`<img src="${e.avatar}">`:'📷'}</div><input type="text" value="${esc(e.name||'')}" placeholder="Имя" oninput="setEN('${id}',${i},this.value)"><input type="text" value="${esc(e.reddy||'')}" style="width:76px" placeholder="ID Reddy" oninput="setER('${id}',${i},this.value)"><div class="xb" onclick="remEmp('${id}',${i})">×</div></div>`).join('');
+  /* Аватар — ссылкой или файлом. Вшитый файл показываем плашкой с
+     размером: длинный data-URI в поле ввода не прочитать и не поправить. */
+  const eRows=(d.emps||[]).map((e,i)=>{
+    const av=e.avatar||'';
+    const embedded=av.indexOf('data:')===0;
+    const avField=embedded
+      ? `<span class="av-chip" title="Картинка вшита в схему">Файл в схеме · ${humanSize(av)}</span>`
+      : `<input type="text" value="${esc(av)}" placeholder="ссылка на аватар" oninput="setEA('${id}',${i},this.value)">`;
+    return `<div class="emp-item"><div class="av-btn" id="av-${id}-${i}" onclick="pickAv('${id}',${i})" title="Выбрать файл на компьютере">${av?`<img src="${esc(av)}">`:'📷'}</div><input type="text" value="${esc(e.name||'')}" placeholder="Имя" oninput="setEN('${id}',${i},this.value)"><input type="text" value="${esc(e.reddy||'')}" style="width:76px" placeholder="ID Reddy" oninput="setER('${id}',${i},this.value)"><div class="xb" onclick="remEmp('${id}',${i})">×</div></div>`
+      + `<div class="av-row">${avField}<button class="btn" style="padding:4px 8px;font-size:11px" onclick="pickAv('${id}',${i})">Файл</button>${av?`<div class="xb" onclick="clearAv('${id}',${i})" title="Убрать аватар">×</div>`:''}</div>`;
+  }).join('');
   const cConns=conns.map((c,i)=>{if(c.from!==id&&c.to!==id)return'';const out=c.from===id;const other=nodes[out?c.to:c.from];return`<div class="conn-chip"><span class="lbl">${out?'→':'←'} ${esc(other?.role||'')}</span><div class="xb" style="font-size:13px" onclick="removeConn(${i})">×</div></div>`;}).join('');
   const isGroup = d.kind === 'group';
   /* У группы своя половина полей: описание вместо обязанностей,
@@ -947,6 +960,23 @@ function addEmp(id){if(nodes[id].emps===null)nodes[id].emps=[];nodes[id].emps.pu
 function remEmp(id,i){nodes[id].emps.splice(i,1);renderNode(id);renderSidebar(id);}
 function setEN(id,i,v){if(nodes[id]?.emps[i])nodes[id].emps[i].name=v;renderNode(id);}
 function setER(id,i,v){if(nodes[id]?.emps[i])nodes[id].emps[i].reddy=v;}
+/** Аватар ссылкой: картинка остаётся на своём хосте, файл не растёт. */
+function setEA(id,i,v){
+  if(!nodes[id]?.emps[i])return;
+  const url=v.trim();
+  nodes[id].emps[i].avatar=url;
+  /* Сайдбар не перерисовываем — иначе поле теряет фокус на каждом
+     символе; кружок-превью обновляем на месте. */
+  const btn=document.getElementById('av-'+id+'-'+i);
+  if(btn) btn.innerHTML=url?'<img src="'+esc(url)+'">':'📷';
+  renderNode(id);
+}
+function clearAv(id,i){if(!nodes[id]?.emps[i])return;nodes[id].emps[i].avatar='';renderNode(id);renderSidebar(id);snapshot();}
+/** Размер вшитой картинки: data-URI это base64, ~3/4 от длины строки. */
+function humanSize(v){
+  const bytes=Math.round(String(v||'').length*0.75);
+  return bytes>1048576?(bytes/1048576).toFixed(1)+' МБ':Math.max(1,Math.round(bytes/1024))+' КБ';
+}
 function pickAv(id,i){
   const inp=document.createElement('input');inp.type='file';inp.accept='image/*';
   inp.onchange=()=>{
@@ -964,7 +994,7 @@ function pickAv(id,i){
         ctx.drawImage(img,sx,sy,s,s,0,0,SIZE,SIZE);
         const dataUrl=c.toDataURL('image/jpeg',0.75);
         nodes[id].emps[i].avatar=dataUrl;
-        renderNode(id);renderSidebar(id);
+        renderNode(id);renderSidebar(id);snapshot();
       };
       img.src=ev.target.result;
     };
@@ -1099,7 +1129,7 @@ function renderAvFileList(){
   const empsWithAv=[];
   Object.values(nodes).forEach(n=>{
     (n.emps||[]).forEach(e=>{
-      if(e.avatar&&e.name) empsWithAv.push({name:e.name,filename:avFilename(e.name)});
+      if(e.name&&String(e.avatar||'').indexOf('data:')===0) empsWithAv.push({name:e.name,filename:avFilename(e.name)});
     });
   });
   const el=document.getElementById('av-file-list');
@@ -1140,7 +1170,9 @@ function buildExport(avatarMode){
     ...n,
     emps: n.emps===null ? null : (n.emps||[]).map(e=>({
       ...e,
-      avatar: avMode==='url'&&e.avatar&&e.name
+      /* В режиме ссылок выкладываем в репозиторий только вшитые
+         картинки: аватар, уже заданный ссылкой, оставляем как есть. */
+      avatar: avMode==='url'&&e.name&&String(e.avatar||'').indexOf('data:')===0
         ? baseUrl+'/'+avFilename(e.name)
         : (e.avatar||'')
     }))
