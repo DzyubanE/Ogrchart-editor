@@ -184,6 +184,13 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;c
 .lib-row .sw-lg{width:28px;height:28px;border-radius:8px;flex-shrink:0;border:1px solid var(--b2)}
 .lib-row .ic-lg{width:30px;height:30px;border-radius:8px;border:1px solid var(--b1);background:var(--s2);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--t1)}
 .lib-row .ic-lg svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+/* Иконка-стопка картинок: в списках конструктора её тоже надо видеть */
+.tile-icons{display:flex;align-items:center;flex-shrink:0}
+.tile-icons>*+*{margin-left:-6px}
+.tile-ico{width:16px;height:16px;flex-shrink:0;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 1.5px var(--s2)}
+.tile-ico img{width:100%;height:100%;object-fit:cover;display:block}
+.tile-ico-more{background:#8492AA;color:#fff;font-size:8px;font-weight:700;line-height:1}
+.badge-prev .tile-icons{margin-right:2px}
 .lib-row input[type=text]{flex:1;min-width:0}
 .lib-row .mono{font-family:'Geist Mono',ui-monospace,monospace;font-size:11.5px}
 .lib-add{border:1px dashed var(--b2);border-radius:10px;padding:11px;margin-top:10px}
@@ -749,6 +756,26 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;c
     }
     .tile-icon-img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block; }
 
+    /* ── Картинки вместо контурной иконки ────────────────
+       Флаги стран, аватарки, логотипы. Плитка кладёт их
+       стопкой внахлёст, последним кружком идёт счётчик «+N».
+       Своё имя классов, а не utility-набор: так стопка
+       переживает импорт и не зависит от порядка классов. */
+    .tile-icons { display: flex; align-items: center; flex-shrink: 0; }
+    .tile-icons > * + * { margin-left: -8px; }
+    .tile-ico {
+      width: 20px; height: 20px; flex-shrink: 0;
+      border-radius: 50%; overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 0 2px #FFFFFF;
+    }
+    .tile-ico img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .tile-ico-more {
+      background: #8492AA; color: #FFFFFF !important;
+      font-size: 9px; font-weight: 700; line-height: 1;
+    }
+    body[data-theme="dark"] .tile-ico { box-shadow: 0 0 0 2px #22272b; }
+
     .tile-name {
       font-family: 'Unbounded', sans-serif;
       font-size: 15px; font-weight: 600; line-height: 1.3; color: var(--hub-text);
@@ -1163,8 +1190,10 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;c
         tile.style.color = darkTextColor;
 
         tile.querySelectorAll("span").forEach((span) => {
-          /* текст внутри бейджа всегда белый — его не перекрашиваем */
-          if (!span.closest(".tile-badge")) span.style.color = darkTextColor;
+          /* текст внутри бейджа и счётчика «+N» всегда белый */
+          if (!span.closest(".tile-badge") && !span.classList.contains("tile-ico-more")) {
+            span.style.color = darkTextColor;
+          }
         });
 
         if (!tile.dataset.darkHoverBound) {
@@ -2989,7 +3018,9 @@ function allIcons(){
   ICON_KEYS.forEach(function(k){ out[k] = { name:k, paths:splitPaths(ICONS[k]), std:true }; });
   var li = lib().icons;
   Object.keys(li).forEach(function(k){
-    out[k] = { name: li[k].name || k, paths: li[k].paths || [], std:false };
+    out[k] = { name: li[k].name || k, paths: li[k].paths || [],
+               shapes: li[k].shapes || null, imgs: li[k].imgs || null,
+               more: li[k].more || '', viewBox: li[k].viewBox || '', std:false };
   });
   return out;
 }
@@ -3102,20 +3133,26 @@ function pickImage(maxSide, cb){
 }
 
 /** Достаёт пути из вставленного <svg> или из голого значения d. */
+/* Возвращает готовую запись библиотеки: {paths} для набора d и
+   {shapes, viewBox} для svg с кругами, линиями и прочей геометрией. */
 function parseIconInput(text){
   var s = String(text || '').trim();
   if (!s) return null;
   if (s.indexOf('<') >= 0) {
     var doc = new DOMParser().parseFromString(
-      s.indexOf('<svg') >= 0 ? s : '<svg>' + s + '</svg>', 'image/svg+xml');
-    var ds = [];
-    doc.querySelectorAll('path').forEach(function(p){
-      var d = p.getAttribute('d');
-      if (d) ds.push(d.trim());
-    });
-    return ds.length ? ds : null;
+      s.indexOf('<svg') >= 0 ? s : '<svg viewBox="0 0 24 24">' + s + '</svg>', 'image/svg+xml');
+    var root = doc.documentElement;
+    var shapes = svgShapes(root);
+    if (!shapes.length) return null;
+    var vb = (root.getAttribute('viewBox') || '').trim();
+    var ent = { shapes: shapes };
+    if (shapes.every(function(sh){ return sh.tag === 'path'; })) {
+      ent.paths = shapes.map(function(sh){ return sh.attrs.d; });
+    }
+    if (vb && vb !== '0 0 24 24') ent.viewBox = vb;
+    return ent;
   }
-  return [s];
+  return { paths: [s], shapes: [{ tag:'path', attrs:{ d:s } }] };
 }
 
 
@@ -3239,13 +3276,57 @@ function colorRules(hex){
   return '.bg-' + e + '{background-color:' + hex + '}.text-' + e + '{color:' + hex + '}';
 }
 
+/* Иконка может быть трёх видов:
+   paths  — набор d, встроенные иконки дизайн-системы;
+   shapes — произвольные фигуры (circle, rect, line…), так импорт
+            переносит чужие svg целиком, а не одни только path;
+   imgs   — стопка картинок (флаги, аватарки, логотипы).
+   Отсюда и общее имя markup вместо svg. */
+var SHAPE_TAGS = ['path','circle','ellipse','rect','line','polyline','polygon'];
+var SHAPE_ATTRS = ['d','cx','cy','r','rx','ry','x','y','width','height',
+                   'x1','y1','x2','y2','points','transform','fill','fill-rule',
+                   'clip-rule','opacity','stroke-width','stroke-linecap','stroke-linejoin'];
+
+function shapeSvgBody(shapes, sw){
+  return shapes.map(function(sh){
+    if (SHAPE_TAGS.indexOf(sh.tag) < 0) return '';
+    var a = sh.attrs || {};
+    var out = '<' + sh.tag;
+    if (!a['stroke-width']) out += ' stroke-width="' + sw + '"';
+    if (sh.tag === 'path' && !a['stroke-linecap']) out += ' stroke-linecap="round" stroke-linejoin="round"';
+    SHAPE_ATTRS.forEach(function(k){
+      if (a[k] != null && a[k] !== '') out += ' ' + k + '="' + att(a[k]) + '"';
+    });
+    return out + '/>';
+  }).join('');
+}
+
+/** Размер кружка стопки берём из utility-класса, как у обычной иконки. */
+function iconImgsHtml(ic, cls){
+  var m = String(cls || '').match(/\bw-(\d+)\b/);
+  var px = m ? Math.round(Number(m[1]) * 4) : 20;
+  var st = px === 20 ? '' : ' style="width:' + px + 'px;height:' + px + 'px"';
+  var h = '<span class="tile-icons">';
+  (ic.imgs || []).forEach(function(src){
+    h += '<span class="tile-ico"' + st + '><img src="' + att(src) + '" alt="" loading="lazy" decoding="async"></span>';
+  });
+  if (ic.more) {
+    h += '<span class="tile-ico tile-ico-more"' + st + '>' + esc(ic.more) + '</span>';
+  }
+  return h + '</span>';
+}
+
 function iconSvg(key, cls, sw){
   var reg = allIcons();
   var ic = reg[key] || reg.doc;
-  var body = (ic.paths || []).map(function(p){
-    return '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="' + sw + '" d="' + att(p) + '"/>';
-  }).join('');
-  return '<svg class="' + cls + '" fill="none" stroke="currentColor" viewBox="0 0 24 24">' + body + '</svg>';
+  if (ic.imgs && ic.imgs.length) return iconImgsHtml(ic, cls);
+  var body = (ic.shapes && ic.shapes.length)
+    ? shapeSvgBody(ic.shapes, sw)
+    : (ic.paths || []).map(function(p){
+        return '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="' + sw + '" d="' + att(p) + '"/>';
+      }).join('');
+  return '<svg class="' + cls + '" fill="none" stroke="currentColor" viewBox="' +
+    att(ic.viewBox || '0 0 24 24') + '">' + body + '</svg>';
 }
 
 /* Бейдж «В работе» — статичное состояние любой плитки без ссылки */
@@ -4511,31 +4592,104 @@ function hexIn(cls){
   return m ? m[1].toUpperCase() : null;
 }
 
+/** Фигуры svg — не только path: чужие иконки бывают на кругах и линиях. */
+function svgShapes(svgEl){
+  var out = [];
+  svgEl.querySelectorAll(SHAPE_TAGS.join(',')).forEach(function(el){
+    var tag = el.tagName.toLowerCase();
+    if (SHAPE_TAGS.indexOf(tag) < 0) return;
+    var attrs = {};
+    SHAPE_ATTRS.forEach(function(k){
+      var v = el.getAttribute(k);
+      if (v != null && String(v).trim() !== '') attrs[k] = String(v).trim();
+    });
+    if (tag === 'path' && !attrs.d) return;
+    out.push({ tag: tag, attrs: attrs });
+  });
+  return out;
+}
+
+function shapeSig(shapes, viewBox){
+  return (viewBox || '') + '::' + (shapes || []).map(function(sh){
+    return sh.tag + ':' + SHAPE_ATTRS.map(function(k){
+      var v = (sh.attrs || {})[k];
+      return v == null ? '' : k + '=' + v;
+    }).join(',');
+  }).join('|');
+}
+
 /** Ищет иконку среди известных; незнакомую кладёт в библиотеку. */
 function iconKeyFor(svgEl, target, seen){
   if (!svgEl) return 'doc';
-  var ds = [];
-  svgEl.querySelectorAll('path').forEach(function(p){
-    var d = p.getAttribute('d');
-    if (d) ds.push(d.trim());
-  });
-  if (!ds.length) return 'doc';
-  var sig = ds.join('|');
+  var shapes = svgShapes(svgEl);
+  if (!shapes.length) return 'doc';
 
-  var std = {};
-  ICON_KEYS.forEach(function(k){ std[splitPaths(ICONS[k]).join('|')] = k; });
-  if (std[sig]) return std[sig];
+  var vb = (svgEl.getAttribute('viewBox') || '').trim();
+  var onlyPaths = shapes.every(function(sh){ return sh.tag === 'path'; });
+  var ds = shapes.map(function(sh){ return sh.attrs.d; });
 
+  /* Стандартную иконку узнаём по набору d — так же, как её рисуем. */
+  if (onlyPaths && (!vb || vb === '0 0 24 24')) {
+    var std = {};
+    ICON_KEYS.forEach(function(k){ std[splitPaths(ICONS[k]).join('|')] = k; });
+    if (std[ds.join('|')]) return std[ds.join('|')];
+  }
+
+  var sig = shapeSig(shapes, vb === '0 0 24 24' ? '' : vb);
   var known = target.icons;
   var hit = Object.keys(known).filter(function(k){
-    return (known[k].paths || []).join('|') === sig;
+    var e = known[k];
+    if (e.imgs) return false;
+    if (e.shapes) return shapeSig(e.shapes, e.viewBox || '') === sig;
+    return onlyPaths && (e.paths || []).join('|') === ds.join('|');
   })[0];
   if (hit) return hit;
 
   seen.n = (seen.n || 0) + 1;
   var key = 'ic' + seen.n;
-  known[key] = { name: 'Иконка ' + seen.n, paths: ds };
+  var ent = { name: 'Иконка ' + seen.n, shapes: shapes };
+  if (onlyPaths) ent.paths = ds;               /* совместимость со старой моделью */
+  if (vb && vb !== '0 0 24 24') ent.viewBox = vb;
+  known[key] = ent;
   return key;
+}
+
+/** Стопка картинок вместо иконки: флаги стран, аватарки, логотипы. */
+function imgIconKey(tl, target, seen){
+  var imgs = [];
+  tl.querySelectorAll('img').forEach(function(im){
+    if (imgs.length >= 8) return;
+    if (im.closest('.tile-badge')) return;
+    var src = (im.getAttribute('src') || '').trim();
+    if (src) imgs.push(src);
+  });
+  if (!imgs.length) return 'doc';
+
+  /* Последний кружок стопки — счётчик «+N», текста плитки в нём нет. */
+  var more = '';
+  tl.querySelectorAll('span').forEach(function(sp){
+    if (more || sp.closest('.tile-badge') || sp.querySelector('*')) return;
+    var t = sp.textContent.trim();
+    if (/^\+\s*\d+$/.test(t)) more = t.replace(/\s+/g, '');
+  });
+
+  var sig = imgs.join('|') + '::' + more;
+  var known = target.icons;
+  var hit = Object.keys(known).filter(function(k){
+    return known[k].imgs && (known[k].imgs.join('|') + '::' + (known[k].more || '')) === sig;
+  })[0];
+  if (hit) return hit;
+
+  seen.n = (seen.n || 0) + 1;
+  var key = 'ic' + seen.n;
+  known[key] = { name: 'Картинки ' + seen.n, imgs: imgs, more: more };
+  return key;
+}
+
+/** Иконка плитки целиком: контурный svg либо стопка картинок. */
+function tileIconKey(tl, target, seen){
+  var svg = tileIcon(tl);
+  return svg ? iconKeyFor(svg, target, seen) : imgIconKey(tl, target, seen);
 }
 
 /** Первый svg плитки, не считая тот, что внутри бейджа. */
@@ -4552,11 +4706,21 @@ function tileTexts(tl){
   var t = tl.querySelector('.tile-title');
   var sub = tl.querySelector('.tile-subtitle');
   if (t) return { title: txt(t), subtitle: txt(sub) };
+  if (sub) {
+    /* Подпись размечена, а названия нет: берём соседний текст сверху. */
+    var head = sub.parentElement && sub.parentElement.firstElementChild;
+    if (head && head !== sub) return { title: txt(head), subtitle: txt(sub) };
+  }
 
   var spans = [];
   tl.querySelectorAll('span').forEach(function(s){
     if (s.closest('.tile-badge')) return;
     if (s.querySelector('span')) return;      /* только листовые */
+    /* Кружки стопки картинок — это иконка, а не текст плитки:
+       счётчик «+3» не должен становиться её названием. */
+    if (s.querySelector('img, svg')) return;
+    if (s.closest('.tile-icons') || s.closest('[class*="-space-x-"]')) return;
+    if (/rounded-full/.test(s.className || '')) return;
     if (!s.textContent.trim()) return;
     spans.push(s);
   });
@@ -4607,7 +4771,20 @@ function badgeKeyFor(tl, target, seen){
   var std = Object.keys(BADGES).filter(function(k){
     return BADGES[k].label.toLowerCase() === label.toLowerCase();
   })[0];
-  if (std) return std;
+  if (std) {
+    /* Подпись совпала со стандартным бейджем, а иконка в разметке своя —
+       оставляем ключ дизайн-системы, но переопределяем его в библиотеке
+       документа: страница после импорта должна выглядеть как исходная. */
+    var sIcon = iconKeyFor(b.querySelector('svg'), target, seen);
+    if (sIcon !== BADGES[std].icon && !target.badges[std]) {
+      target.badges[std] = {
+        label: BADGES[std].label,
+        color: color || BADGES[std].color,
+        icon: sIcon
+      };
+    }
+    return std;
+  }
 
   var own = Object.keys(target.badges).filter(function(k){
     return String(target.badges[k].label).toLowerCase() === label.toLowerCase();
@@ -4684,7 +4861,15 @@ function parseHubHtml(html){
     var clone = h1.cloneNode(true);
     var em = clone.querySelector('em');
     hero.titleAccent = em ? em.textContent.trim() : '';
-    hero.accentNewLine = !!clone.querySelector('br');
+    /* Перенос считаем только перед акцентом: в чужих заголовках <br>
+       стоит и просто внутри строки. Остальные меняем на пробел, иначе
+       слова слипнутся: «пространство<br>команды» → «пространствокоманды». */
+    var prev = em && em.previousSibling;
+    while (prev && prev.nodeType === 3 && !prev.textContent.trim()) prev = prev.previousSibling;
+    hero.accentNewLine = !!(prev && prev.nodeName === 'BR');
+    clone.querySelectorAll('br').forEach(function(br){
+      br.parentNode.replaceChild(clone.ownerDocument.createTextNode(' '), br);
+    });
     var lg = clone.querySelector('.hero-logo');
     if (lg) hero.logo = lg.getAttribute('src') || '';
     if (em) em.remove();
@@ -4797,7 +4982,7 @@ function parseHubHtml(html){
           subtitle: texts.subtitle,
           href: (tl.getAttribute('data-href') || tl.getAttribute('href') || '').trim(),
           badge: badgeKeyFor(tl, out.lib, seen),
-          icon: iconKeyFor(tileIcon(tl), out.lib, seen),
+          icon: tileIconKey(tl, out.lib, seen),
           preview: (tl.getAttribute('data-preview') || '').trim(),
           status: txt(tl.querySelector('.tile-status'))
         });
@@ -4824,14 +5009,20 @@ function parseHubHtml(html){
         description: txt(art.querySelector('.contact-description')),
         handleIcon: hi, people: []
       };
-      art.querySelectorAll('.contact-photo').forEach(function(ph){
-        var row = ph.parentElement;
+      /* Идём от имени, а не от фото: в хабах постарше кружок с фото
+         размечен одними utility-классами, класса .contact-photo нет. */
+      art.querySelectorAll('.contact-name').forEach(function(nameEl){
+        var row = nameEl.closest('div.flex.items-center') || nameEl.parentElement.parentElement;
+        if (!row) return;
+        var ph = row.querySelector('.contact-photo');
+        var box = ph || row.querySelector('[class*="w-16"]');
+        var im = box && box.querySelector('img');
         g.people.push({
           id: uid('p'),
-          name: txt(row.querySelector('.contact-name')),
+          name: txt(nameEl),
           role: txt(row.querySelector('.contact-role')),
           handle: txt(row.querySelector('.contact-handle')),
-          photo: (ph.getAttribute('data-photo') || (ph.querySelector('img') && ph.querySelector('img').getAttribute('src')) || '').trim()
+          photo: ((ph && ph.getAttribute('data-photo')) || (im && im.getAttribute('src')) || '').trim()
         });
       });
       groups.push(g);
@@ -4979,7 +5170,7 @@ function renderLib(){
   }
 
   if (libTab === 'icons') {
-    h += '<div class="lib-empty">Вставьте <code>&lt;svg&gt;</code> целиком или только значение <code>d</code>. Иконка должна быть контурной (stroke), viewBox 0 0 24 24 — так тёмная тема сможет её перекрасить.</div>';
+    h += '<div class="lib-empty">Вставьте <code>&lt;svg&gt;</code> целиком или только значение <code>d</code>: круги, линии и прочие фигуры сохранятся. Иконка должна быть контурной (stroke), viewBox 0 0 24 24 — так тёмная тема сможет её перекрасить. Стопки картинок (флаги, аватарки) попадают сюда при импорте чужой страницы.</div>';
     var ik = Object.keys(l.icons);
     h += ik.length ? '' : '<div class="lib-empty">Своих иконок пока нет.</div>';
     ik.forEach(function(k){
@@ -5118,9 +5309,10 @@ $('lib-body').addEventListener('click', function(e){
     l.chatBadges['c' + uid('')] = { label: clabel, color: ccolor };
   }
   else if (kind === 'icon') {
-    var paths = parseIconInput($('ni-src').value);
-    if (!paths) { toast('Не нашёл ни одного path'); return; }
-    l.icons['i' + uid('')] = { name: $('ni-name').value.trim() || 'Своя иконка', paths: paths };
+    var ent = parseIconInput($('ni-src').value);
+    if (!ent) { toast('Не нашёл ни одной фигуры'); return; }
+    ent.name = $('ni-name').value.trim() || 'Своя иконка';
+    l.icons['i' + uid('')] = ent;
   }
 
   commit(true);
