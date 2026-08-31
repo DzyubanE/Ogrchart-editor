@@ -34,14 +34,20 @@ html,body{height:100%;font-family:'Geist',system-ui,sans-serif;background:var(--
 .onode{position:absolute;width:200px;border-radius:14px;background:var(--bg);border:1.5px solid var(--b1);box-shadow:var(--sh);cursor:pointer;overflow:hidden;transition:transform .18s cubic-bezier(.34,1.4,.64,1),box-shadow .18s,border-color .18s}
 .onode:hover{transform:translateY(-2px);box-shadow:0 4px 20px rgba(0,0,0,.12)}
 .onode.active{border-color:#3b82f6 !important;box-shadow:0 4px 20px rgba(0,0,0,.12),0 0 0 3px rgba(59,130,246,.15) !important}
+.onode.onode-static{cursor:default}
+.onode.onode-static:hover{transform:none;box-shadow:var(--sh)}
+.onode.onode-group{border-radius:18px;min-width:140px}
 .on-head{padding:11px 12px 11px;display:flex;align-items:center;gap:8px}
+.onode-group .on-head{padding:14px 14px 13px}
 .on-texts{flex:1;min-width:0}
-.on-role{font-size:12.5px;font-weight:700;color:#fff;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.on-dept{font-size:10.5px;color:rgba(255,255,255,.7);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.on-role{font-size:12.5px;font-weight:700;color:#fff;line-height:1.3;overflow-wrap:break-word}
+.onode-group .on-role{font-size:13.5px;white-space:nowrap}
+.on-dept{font-size:10.5px;color:rgba(255,255,255,.7);margin-top:2px;overflow-wrap:break-word}
+.onode-group .on-arr{border-radius:8px}
 .on-arr{width:20px;height:20px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .25s,background .15s}
 .on-arr svg{width:8px;height:8px;stroke:#fff;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .onode.active .on-arr{transform:rotate(90deg);background:rgba(255,255,255,.35)}
-.dp{position:fixed;z-index:200;width:308px;background:var(--bg);border:1px solid var(--b2);border-radius:18px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.14);pointer-events:none;opacity:0;transform:scale(.96) translateX(-6px);transition:opacity .2s,transform .22s cubic-bezier(.34,1.2,.64,1)}
+.dp{position:fixed;z-index:200;width:308px;max-width:calc(100vw - 40px);display:flex;flex-direction:column;background:var(--bg);border:1px solid var(--b2);border-radius:18px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.14);pointer-events:none;opacity:0;transform:scale(.96) translateX(-6px);transition:opacity .2s,transform .22s cubic-bezier(.34,1.2,.64,1)}
 .dp.open{opacity:1;transform:scale(1) translateX(0);pointer-events:auto}
 .dp-bar{height:4px}
 .dp-head{padding:15px 16px 11px;position:relative}
@@ -51,7 +57,7 @@ html,body{height:100%;font-family:'Geist',system-ui,sans-serif;background:var(--
 .dp-dept{font-size:11.5px;color:var(--t2);margin-top:3px}
 .dp-sched{display:inline-flex;align-items:center;gap:5px;margin-top:8px;padding:3px 10px;border-radius:20px;background:var(--bg2);border:1px solid var(--b1);font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--t3)}
 .dp-sd{width:5px;height:5px;border-radius:50%;flex-shrink:0;display:inline-block}
-.dp-body{padding:2px 16px 18px}
+.dp-body{padding:2px 16px 18px;flex:1;min-height:0;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--b2) transparent}
 .dp-slb{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--t3);margin:13px 0 7px}
 .dp-duty{display:flex;gap:9px;padding:5px 0;border-bottom:1px solid var(--b1);font-size:12px;color:var(--t2);line-height:1.5}
 .dp-duty:last-of-type{border-bottom:none}
@@ -113,10 +119,10 @@ html,body{height:100%;font-family:'Geist',system-ui,sans-serif;background:var(--
       <button class="dp-x" onclick="closeDP()"><svg viewBox="0 0 10 10"><path d="M1.5 1.5l7 7M8.5 1.5l-7 7"/></svg></button>
       <div class="dp-role" id="dp-role"></div>
       <div class="dp-dept" id="dp-dept"></div>
-      <div class="dp-sched"><span class="dp-sd" id="dp-sd"></span><span id="dp-st"></span></div>
+      <div class="dp-sched" id="dp-sched-box"><span class="dp-sd" id="dp-sd"></span><span id="dp-st"></span></div>
     </div>
     <div class="dp-body">
-      <div class="dp-slb">Обязанности</div><div id="dp-duties"></div>
+      <div class="dp-slb" id="dp-slb-duties">Обязанности</div><div id="dp-duties"></div>
       <div class="dp-slb" id="dp-slb-emps">Сотрудники</div><div id="dp-emps"></div>
     </div>
   </div>
@@ -221,14 +227,35 @@ function ha(h, a) {
 }
 
 function esc(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/** Светлый фон требует тёмного текста — иначе подпись не читается. */
+function isLightColor(h) {
+  try {
+    const r = parseInt(h.slice(1,3), 16);
+    const g = parseInt(h.slice(3,5), 16);
+    const b = parseInt(h.slice(5,7), 16);
+    return (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.6;
+  } catch(e) { return false; }
+}
+
+/** Ширина карточки группы — по её тексту: подпись в ней не переносится. */
+function groupCardWidth(roleText, hasArrow) {
+  const probe = document.createElement('span');
+  probe.style.cssText = 'position:absolute;visibility:hidden;white-space:nowrap;left:-9999px;top:-9999px;font-family:Geist,system-ui,sans-serif;font-weight:700;font-size:13.5px';
+  probe.textContent = roleText;
+  document.body.appendChild(probe);
+  const textW = probe.offsetWidth;
+  probe.remove();
+  return Math.max(140, Math.min(640, Math.ceil(textW + 28 + (hasArrow ? 28 : 0))));
 }
 
 function init() {
   const pad = 40;
   const minX = Math.min.apply(null, NODES.map(function(n){return n.x;}));
   const minY = Math.min.apply(null, NODES.map(function(n){return n.y;}));
-  const maxX = Math.max.apply(null, NODES.map(function(n){return n.x + 200;}));
+  const maxX = Math.max.apply(null, NODES.map(function(n){return n.x + (n.kind === 'group' ? (n.w || groupCardWidth(n.role, !!n.desc)) : 200);}));
   const maxY = Math.max.apply(null, NODES.map(function(n){return n.y + 70;}));
   W = maxX - minX + pad * 2;
   H = maxY - minY + pad * 2;
@@ -239,20 +266,33 @@ function init() {
   });
 
   NODES.forEach(function(d) {
+    const isGroup = d.kind === 'group';
     const el = document.createElement('div');
-    el.className = 'onode';
+    el.className = isGroup ? 'onode onode-group' : 'onode';
     el.id = d.id;
     el.style.left = d.x + 'px';
     el.style.top = d.y + 'px';
     const c1 = ha(d.color, .5);
     const c2 = ha(d.color, .93);
+    const light = isLightColor(d.color);
+    const roleColor = light ? '#1a1a1a' : '#fff';
+    const deptColor = light ? 'rgba(0,0,0,.62)' : 'rgba(255,255,255,.7)';
+    const arrBg = light ? 'rgba(0,0,0,.1)' : 'rgba(255,255,255,.2)';
+    const arrStroke = light ? '#1a1a1a' : '#fff';
+    const subtitle = isGroup ? esc(d.dept || '') : (esc(d.dept || '') + ' \u00B7 ' + esc(d.sched || ''));
+    const subHtml = subtitle.trim() ? '<div class="on-dept" style="color:' + deptColor + '">' + subtitle + '</div>' : '';
+    /* Группа без описания раскрывать нечем — она просто шапка. */
+    const expandable = !(isGroup && !d.desc);
+    const arrHtml = expandable ? '<div class="on-arr" style="background:' + arrBg + '"><svg viewBox="0 0 8 8" fill="none"><path d="M2 1.5l3.5 3L2 7" stroke="' + arrStroke + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>' : '';
+    if (!expandable) el.classList.add('onode-static');
+    const centerText = isGroup && !d.dept && !d.desc;
     el.innerHTML =
       '<div class="on-head" style="background:linear-gradient(135deg,' + c1 + ',' + c2 + ')">' +
-      '<div class="on-texts"><div class="on-role">' + esc(d.role) + '</div>' +
-      '<div class="on-dept">' + esc(d.dept) + ' \u00B7 ' + esc(d.sched) + '</div></div>' +
-      '<div class="on-arr"><svg viewBox="0 0 8 8" fill="none"><path d="M2 1.5l3.5 3L2 7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>' +
+      '<div class="on-texts"' + (centerText ? ' style="text-align:center"' : '') + '><div class="on-role" style="color:' + roleColor + '">' + esc(d.role) + '</div>' +
+      subHtml + '</div>' + arrHtml +
       '</div>';
-    el.addEventListener('click', function(e) {
+    if (isGroup) el.style.width = (d.w || groupCardWidth(d.role, expandable)) + 'px';
+    if (expandable) el.addEventListener('click', function(e) {
       e.stopPropagation();
       openNode(d.id);
     });
@@ -281,15 +321,31 @@ function openNode(id) {
   document.getElementById('dp-dept').textContent = d.dept;
   document.getElementById('dp-sd').style.background = d.color;
   document.getElementById('dp-st').textContent = 'График ' + d.sched;
+  document.getElementById('dp-sched-box').style.display = d.kind === 'group' ? 'none' : 'inline-flex';
 
+  const empSlb = document.getElementById('dp-slb-emps');
+  const empDiv = document.getElementById('dp-emps');
+
+  if (d.kind === 'group') {
+    document.getElementById('dp-slb-duties').textContent = 'Описание';
+    document.getElementById('dp-duties').innerHTML = d.desc
+      ? '<div style="font-size:12px;color:var(--t2);line-height:1.6;padding:2px 0;white-space:pre-wrap">' + esc(d.desc) + '</div>'
+      : '<div class="dp-none">—</div>';
+    empSlb.style.display = 'none';
+    empDiv.innerHTML = '';
+    posDP(id);
+    document.getElementById('dp').classList.add('open');
+    drawLines();
+    return;
+  }
+
+  document.getElementById('dp-slb-duties').textContent = 'Обязанности';
   document.getElementById('dp-duties').innerHTML = d.duties && d.duties.length
     ? d.duties.map(function(t){
         return '<div class="dp-duty"><span class="dp-dd" style="background:' + d.color + '"></span>' + esc(t) + '</div>';
       }).join('')
     : '<div class="dp-none">—</div>';
 
-  const empSlb = document.getElementById('dp-slb-emps');
-  const empDiv = document.getElementById('dp-emps');
   if (d.emps === null || d.emps === undefined) {
     empSlb.style.display = 'none';
     empDiv.innerHTML = '';
@@ -314,10 +370,11 @@ function posDP(id) {
   const d = NODES.find(function(n){ return n.id === id; });
   if (!d) return;
   const r = body.getBoundingClientRect();
-  const nx = (d.x + 200) * zoom + vx + r.left;
+  const cw = (document.getElementById(id) || {}).offsetWidth || 200;
+  const nx = (d.x + cw) * zoom + vx + r.left;
   const ny = d.y * zoom + vy + r.top;
   let left = nx + 12;
-  if (left + 320 > window.innerWidth - 8) left = Math.max(8, nx - 200 * zoom - 328);
+  if (left + 320 > window.innerWidth - 8) left = Math.max(8, nx - cw * zoom - 328);
   left = Math.max(8, left);
   const top = Math.max(r.top + 8, Math.min(ny, window.innerHeight - 200));
   const dp = document.getElementById('dp');
@@ -347,7 +404,7 @@ function nbox(id) {
   const el = document.getElementById(id);
   const d = NODES.find(function(n){ return n.id === id; });
   if (!el || !d) return null;
-  return {cx: d.x + 100, top: d.y, bot: d.y + el.offsetHeight};
+  return {cx: d.x + el.offsetWidth / 2, top: d.y, bot: d.y + el.offsetHeight};
 }
 
 function drawLines() {
