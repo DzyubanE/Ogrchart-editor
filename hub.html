@@ -371,6 +371,10 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;c
           <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg>
           Секция контактов
         </button>
+        <button class="btn" id="add-charts">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M17.5 14.5v6M14.5 17.5h6"/></svg>
+          Секция схем
+        </button>
       </div>
     </aside>
 
@@ -486,6 +490,19 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;c
     <div class="modal-ft">
       <button class="btn" id="code-copy">Скопировать</button>
       <button class="btn primary" id="code-dl">Скачать файл</button>
+      <button class="btn" data-close>Закрыть</button>
+    </div>
+  </div>
+</div>
+
+<div class="ov" id="ov-charts">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-hd">
+      <h3>Добавить схему</h3>
+      <p>Схемы из Studio Charts, сохранённые в этом браузере. На страницу вставится снимок — обновить его можно вручную позже.</p>
+    </div>
+    <div class="modal-bd" id="charts-pick-body"></div>
+    <div class="modal-ft">
       <button class="btn" data-close>Закрыть</button>
     </div>
   </div>
@@ -990,6 +1007,83 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;c
       .kb-input { padding-right: 46px; }
       .kb-clear span:first-child { display: none; }
     }
+
+    /* ── Секция схем (Studio Charts) ─────────────────────── */
+    .chart-empty {
+      padding: 28px 20px; text-align: center; font-size: 12.5px; color: #6B778C;
+      border: 1px dashed #DFE1E6; border-radius: 12px; background: #F7F8FA;
+    }
+    .chart-stack { display: flex; flex-direction: column; gap: 22px; width: 100%; }
+    .chart-block { width: 100%; }
+    .chart-block-title { font-size: 13px; font-weight: 700; color: #172B4D; margin-bottom: 8px; }
+    .chart-tabs-wrap { width: 100%; }
+    .chart-tabs { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 14px; }
+    .chart-tab {
+      flex: 0 0 auto; padding: 8px 14px; border-radius: 999px; border: 1px solid #DFE1E6;
+      background: #F7F8FA; color: #5E6C84; font-size: 12.5px; font-weight: 600;
+      cursor: pointer; white-space: nowrap; transition: background .15s, border-color .15s, color .15s;
+      font-family: 'Manrope', sans-serif;
+    }
+    .chart-tab:hover { border-color: #0052CC; color: #172B4D; }
+    .chart-tab.on { background: #0052CC; border-color: #0052CC; color: #fff; }
+    .chart-tab-panel { display: none; }
+    .chart-tab-panel.on { display: block; }
+    .chart-embed {
+      width: 100%; position: relative; overflow: hidden;
+      border: 1px solid #DFE1E6; border-radius: 12px; background: #fff;
+    }
+    .cw-empty { padding: 34px 16px; text-align: center; font-size: 12.5px; color: #8492AA; }
+    .cw-viewport { position: relative; width: 100%; overflow: hidden; }
+    .cw-stage { position: absolute; top: 0; left: 0; transform-origin: top left; }
+    .cw-lines { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; z-index: 1; }
+    .cw-node {
+      position: absolute; width: 200px; border-radius: 14px; overflow: hidden;
+      background: #fff; border: 1.5px solid rgba(0,0,0,.07); box-shadow: 0 1px 3px rgba(0,0,0,.06);
+      cursor: pointer; z-index: 2; transition: box-shadow .15s, transform .15s;
+    }
+    .cw-node:hover { box-shadow: 0 4px 16px rgba(0,0,0,.1); }
+    .cw-node.active { box-shadow: 0 4px 20px rgba(0,0,0,.12), 0 0 0 3px rgba(59,130,246,.15); }
+    .cw-head { padding: 11px 12px; display: flex; align-items: center; gap: 8px; }
+    .cw-texts { flex: 1; min-width: 0; }
+    .cw-role { font-family: 'Manrope', sans-serif; font-size: 12.5px; font-weight: 700; color: #fff; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .cw-dept { font-family: 'Manrope', sans-serif; font-size: 10.5px; color: rgba(255,255,255,.72); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .cw-arr { width: 20px; height: 20px; border-radius: 50%; background: rgba(255,255,255,.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: transform .2s; }
+    .cw-node.active .cw-arr { transform: rotate(90deg); background: rgba(255,255,255,.35); }
+    .cw-dp {
+      position: absolute; z-index: 30; width: 288px; background: #fff;
+      border: 1px solid #DFE1E6; border-radius: 16px; overflow: hidden;
+      box-shadow: 0 8px 32px rgba(15,23,42,.16); opacity: 0; pointer-events: none;
+      transform: scale(.96); transition: opacity .18s, transform .18s;
+    }
+    .cw-dp.on { opacity: 1; transform: scale(1); pointer-events: auto; }
+    .cw-dp-bar { height: 4px; }
+    .cw-dp-head { padding: 14px 15px 10px; position: relative; }
+    .cw-dp-x {
+      position: absolute; top: 10px; right: 10px; width: 22px; height: 22px; border-radius: 7px;
+      background: #F4F5F7; border: 1px solid #DFE1E6; color: #5E6C84; font-size: 14px; line-height: 1;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+    }
+    .cw-dp-role { font-family: 'Manrope', sans-serif; font-size: 13.5px; font-weight: 700; color: #172B4D; padding-right: 26px; line-height: 1.3; }
+    .cw-dp-dept { font-family: 'Manrope', sans-serif; font-size: 11.5px; color: #5E6C84; margin-top: 3px; }
+    .cw-dp-sched {
+      display: inline-flex; align-items: center; gap: 5px; margin-top: 8px; padding: 3px 10px;
+      border-radius: 20px; background: #F4F5F7; border: 1px solid #DFE1E6;
+      font-size: 10.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: #6B778C;
+    }
+    .cw-dp-sd { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; display: inline-block; }
+    .cw-dp-body { padding: 2px 15px 16px; }
+    .cw-slb { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: #8492AA; margin: 12px 0 7px; }
+    .cw-duty { display: flex; gap: 9px; padding: 5px 0; border-bottom: 1px solid #F4F5F7; font-size: 12px; color: #5E6C84; line-height: 1.5; }
+    .cw-duty:last-of-type { border-bottom: none; }
+    .cw-dd { width: 4px; height: 4px; border-radius: 50%; margin-top: 6px; flex-shrink: 0; display: inline-block; }
+    .cw-emp { display: flex; align-items: center; gap: 10px; padding: 8px 10px; margin-bottom: 6px; background: #F7F8FA; border: 1px solid #F4F5F7; border-radius: 11px; }
+    .cw-emp:last-child { margin-bottom: 0; }
+    .cw-av { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10.5px; font-weight: 700; flex-shrink: 0; overflow: hidden; }
+    .cw-av img { width: 100%; height: 100%; object-fit: cover; }
+    .cw-en { font-family: 'Manrope', sans-serif; font-size: 12.5px; font-weight: 600; color: #172B4D; }
+    .cw-eid { font-size: 11px; color: #5E6C84; margin-top: 3px; display: flex; align-items: center; gap: 5px; }
+    .cw-reddy-ic { width: 15px; height: 15px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+    .cw-none { font-size: 11.5px; color: #8492AA; font-style: italic; padding: 6px 0; }
 </script>
 
 <script type="text/plain" id="tpl-js">
@@ -2829,6 +2923,229 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;c
   })();
 </script>
 
+<script type="text/plain" id="tpl-chart">
+/* Встраиваемый просмотрщик org-chart-схем Studio Charts: вписывается
+   по ширине блока, клик по карточке раскрывает панель с обязанностями
+   и сотрудниками. Несколько схем на странице живут независимо друг
+   от друга — идентификаторы узлов не глобальные, а замыкание внутри
+   своего инстанса. */
+(function(){
+  var REDDY_IC = 'data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAG3AbsDASIAAhEBAxEB/8QAHQABAAIBBQEAAAAAAAAAAAAAAAcIAQMEBQYJAv/EAEwQAQACAQICBgUHBwoDCAMAAAABAgMEBQYRBwgSITFRQWFxgZETFCIyNnSyN0JSdaGxsxUjQ1NiY3KCkqIWwcIXJDM0ZHOT0dLh8P/EABwBAQABBQEBAAAAAAAAAAAAAAAEAgMFBgcBCP/EADkRAQABAgMEBggGAgIDAAAAAAABAgMEBREGITFBEjJRYXGRByI1gaGxwdETFFKy4fAjQhVigsLS/9oADAMBAAIRAxEAPwCKgGJfTYAAAAAAAAAAAAADPZt5T8Ds28p+DADPZt5T8Ds28p+DADPKfKWAAAAAAAAAAAAAAAAABnlPlJ2beU/BgBns28p+BMTHolgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACZiPF2rhLo7404q7N9l4f1ebBbw1GSvyWH/XblE+7mREzwWr+ItYejp3aopjtmdI+Lqon7h3qy75niuTfuItFoYnvnHpcVs1o9XOezH73edq6tvA2mrWddrd41948e1nrjrPurXn+1eixXPJreJ2zyixOkXOlP8A1iZ+O6PiqQLr6XoM6MMFYieG/lvXl1ea0/ia9uhXovmOX/Cenj2Z83/5qvy1bGz6Qcuid1FflT/9KQi5uu6AejPUxPye1avSzPpw63J3f6pmHVt66smwZotbZ+I9y0dvRXUY6Zq/s7MvJw9cJVnbrKrk6VTVT4x9plVsS/xP1eePNqrbLtvzHesUd/LT5fk8nL/DflHwmUXb1tG67JrJ0e8bbq9v1Ef0eoxTSZ9nPx9y1VRVTxhseDzTB42NcPcirwnf5cWxAUpwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADc7XoNduu44Nu23SZtXq89+xiw4q9q159UDyqqKYmZnSIbZI3Rn0O8W8bRj1dMEbXtNu/wCe6qsx24/u6eN/b3R60z9DvQJt2x1w7xxlTDuO6Ryvj0f1tPp59f8AWW9vdHr8U5ViK1itYiIiOURHoSreH131Oc55t1TbmbOXxrP6p4e6OfjO7ulHHAPQtwRwnGPPOgjdtwr3/OtdEX5T51p9WvwmfWkiIisRERERHdEQCXTTFO6HNcXjcRjK/wAS/XNU9/8AdwA9RQAAABsd72fat70NtDvG3aXX6a3jjz4ovX9vhPrb4FVNdVFUVUzpMIA6ROrhtesrk1vBetnbtR3z8y1Npvgt6q277U9/aj2K68V8Nb7wtultt3/bc+h1EfVi8fRvHnW0d1o9cPQlxPFfDeycU7Tk2vftvw63TX8IvH0qT+lW3jWfXCPcw9NW+nc3bJtt8XhJi3iv8lHb/tHv5+/zeeolnpn6F924JnLu20Tl3PYOfO2Tlzy6WPLJEeNf7Ue/kiZCqpmmdJdXwOPw+Psxew9XSpn4d09kgDxMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAamlwZ9VqcWl02G+bPmvGPHjpHO17TPKIiPTMyEzERrLecO7NufEG86bZ9o0t9VrdTfs48df2zM+iIjvmfRC5vQz0W7T0f7XGW0Y9ZvmenLU62a+H9jHz+rX9s+M+iI23QN0Y6bgLYY1Wtpjy7/raROqyx3/JR4xirPlHpn0z6ohJidZs9HfPFxzavairH1zhcNOlqOM/q/js7ePZoASGjgAAAAAAAAAAAPnJSmTHbHkpW9LRNbVtHOJifGJhV3rCdC/8AItc/FfCOmmdt776zQ0jnOn870j9Dzj832eFpGLVras1tEWrMcpiY7phRctxXGksvk2c4jKb8XbM7uccpj+8J5POATP1kuiyOE9xniXYsExsesycsuKsd2kyz6PVS3o8p7vJDDHVUzTOku7ZdmFnMcPTiLM7p+E84nvgAUpwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAsd1TOjut+fHu74OcRNse10vHutm/fWPfPkhLo44X1PGXGm3cPaftVrqMnPPkj+jxV772+Hh65hfba9Dpds23TbdocNcOl02KuLDjr4VrWOUQkYe3rPSloW3OdThbEYO1PrV8e6n+flq3ICc5CAAAAAAAAAAAAAAAA2e97Zod62jVbTuWnrqNHqsU4s2O3has/8/X6JUT6UODtZwNxlq9i1U2yYqz8ppc0x/42Gfq29von1xK/CJes9wRHFHAl920eHtbps0Wz4+zH0smH+kp8I7UeuvrWL9vpU6xxht+x2dTl+MizXP8Ajubp7p5T9J7vBTkI745iA7YAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA+seO+XJXFirNsl7RWlY9Mz3RALPdTnhWNNsm48X6nH/O62/wA10szHhipP05j227v8iwDhOA9jxcNcG7TsWKIiNFpaY7cvTflztPvtMz73Nsnbp6NMQ+ec7zCcwx9zEcpnd4Ruj4ACtigAAAAbfcdbo9t0ObX6/U4tLpcFJvly5bRWtKx6ZmVd+kjrIWrmy6DgbRUtSszX+UdXSeVvXTH5eu3wUV3KaOLKZXk2MzSvo4ejXTjPCI8Z+nFZAUH33pD453vJa+48VbreLTz7GPPOKkeytOUOIwb9vuny/K4N73TFf9KmsyRP71j81HY3K36O780+vfiJ7omfjrHyeh4pNwn02dIfD+ana3m266eJ+lg3CPlYmPLt914+KxnRP0y8O8dWpt+WP5K3qY/8pmvE1y+fyd/zvZPKfVPiuUX6a9zA5tslmGXUTcmIrojnTy8Y4/TvSaAvNXAAAAGL1res1tWLVmOUxMc4mGQFDemHhf8A4P6Rd12WlJrpYy/LaT/2b/SrHu76/wCV1FZXrn8PxbS7JxRip9Kl7aHPaPKed6fti/xVqYy7T0aph9A7PZhOYZdavVT62mk+Mbp8+PvAFDNAAAAAAAAAAAAAAAAAAAAAAAAAAAADuXQjtMb10r8O6G1O3jjWVz5Inw7OOJyT+F01MfVD0UanpWyamY5/NNty5I9U2tSn7rSqtxrVEMXnd+cPl1+5HGKZ89NIW9AZR88AAAAD5yXpjx2yZL1pSsTa1rTyiIjxmX0iTrU8VZOH+je23aXLOPV7zl+axMTymMURzyT745V/zKaqujEym5dgq8diqMPRxqnT7z7o3oN6fulHVccb3k2zbc98fDujyTGGlZ5fObR/S284/Rj0R3+MosBjKqpqnWX0HgcDZwNimxZjSmP7rPfIA8Sx9YsmTDlpmw5L48lLRal6TytWY8JiY8JfIHFcHq4dKF+NNpvse95onfdBjiZyT3fOsXh2/wDFHdFvbE+nul9598B8RanhPi/beINLa0W0meLZKxP18c916z7azMPQDSZ8Wq0uLVYLxfFmpXJS0emsxzifgn2LnSp0nk4ptlktGXYuLlmNKLms6dkxxjw5x5cmoAvtPAAAAR/1iNpjd+h/fsUU7WTTYY1eP1TjtFp/2xaPeo+9EOJdHG4cO7loLRzjU6TLhmP8VJj/AJvO+ImsdmfGO6ULFR60S6z6PL81YW9Z/TVE+cfwAIzoQAAAAAAAAAAAAAAAAAAAAAAAAAAAAnrqXUieMN/yemu30r8cn/6QKn3qW/aniL7li/HK5Z68Ne2snTJ7/hHzhaMBknBQAAABVrroay9+L9h0Han5PDoL5oj13ycv+iFpVTuuV+Ubav1TX+LkWMR1G3bD0xOb0TPKKvkhABAdtAAAAF7eg7W5Nf0R8M6nLabX+YUxzM+nsc6f9KiU90c18OhTQZNt6J+GtJlrNbxoMeS0T6Jv9P8A6knC9aXP/SH0fyVrXj0vpOv0dwATXJAAAACYiYmJ8Jec+51im56ukeFc+Sse60vRe0xWs2nwiObzn3G8ZNx1WSPC+e9o99pRMVydM9HOvSxH/j/7NABEdPAAAAAAAAAAAAAAAAAAAAAAAAAAAAE+9S37U8RfcsX45QEn3qW/aniL7li/HK5Z68Nd2s9j3/CP3QtGAyTgwAAAAqd1yvyjbV+qa/xci2Kp3XK/KNtX6pr/ABcixiOo3DYb2tT4VfJCACA7WAAA19BpNVr9bh0Wh0+XU6rPeKYsOKs2te0+EREDyZiI1lznRpwvqOMeN9t2DBW00z5YtqLRH1MNe+9vh3e2YX6w4seHDTDipFMeOsVrWPCIjuiEZdX/AKMacBbFfWblFMm/a+sfObVnnGCnjGKs/tmfTPqiEoJ9i30Kd/FxLa/O6MzxcUWp1t0bontnnP0jw15gC+1IAAABxvFetjbuF913C0xWNNos2bn/AIaTP/J54VmZiJnxnxXc6yO7xtHQ9vUxfs5NZWmjx+ucloif9vaUkQsVPrRDrXo8w804S7en/aqI8o/kARnQQAAAAAAAAAAAAAAAAAAAAAAAAAAABPvUt+1PEX3LF+OUBJ96lv2p4i+5YvxyuWevDXdrPY9/wj90LRgMk4MAAAAKndcr8o21fqmv8XItiqd1yvyjbV+qa/xcixiOo3DYb2tT4VfJCA7X0Z8Bb5x9vn8n7TjjHgx8p1WryRPyeCs+fnafRWO+fVHet10cdFPCPBGDHfRaGms3KI+nr9VWLZZn+z6KR6o98yi27NVfg6Pnm1GEyn1KvWufpj6zy+fcpPtm07ruluztm167XT/6fT3yfhiXN6fo7491Fori4N32Zn9LRXrHxmIhfgX4wsdrTrnpEvzPqWIjxmZ+kKecJ9Xzjvd8tLbrj0ux6afrWz5IyZOXqpSZ7/bMLE9GHRZwxwDi+V2/DbV7navZya/URE5Jj0xWPCkeqPfMu9C7RZpo3w1vNdqMwzOmbdyro0dlO6Pfznz0AF1roAAAADQ3DV6fb9BqNdrMtcWn0+K2XLe3hWtY5zPwgexE1TpCunXO4gi2TZOFsN++va12orE+2mPn/vVxc5x5xDn4r4x3TiDUc4nWZ5vSsz9THHdSvurEQ4NjLlXSqmX0HkWXf8dgLeHnjEaz4zvn7AChlwAAAAAAAAAAAAAAAAAAAAAAAAAAABPvUt+1PEX3LF+OUBJ96lv2p4i+5YvxyuWevDXdrPY9/wAI/dC0YDJODAAAACr3Wn2fXcQdMnDuy7bj+U1et2/HixRPhEzmyc5n1RHOZ9ULQukW4fprOm+eI81ItG37FjwYJn0ZMubLzmPXFazH+Zbu09KNGd2ezCMvxNWJ5001aeM7o+LlujzhLbOCuFtLsW2Ujs447WbNMcrZ8k/Wvb1z+yOUeh2EFcRERpDDXr1d+5Ny5OtU75kAerYAAAAAAAAgbrccc127YcXBegzf973GIy63sz30wRPdWf8AFMfCs+aWukDivbeDOFdXv253/m8NeWLFE8rZsk/VpX1zPwjnPoUR4q3zcOJeIdbvu6ZflNXrMs5L8vCseiseURHKI9iPiLnRjow3nYnJJxeJ/N3I9Sid3fVy8uPk4wBBdiAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE+9S37U8RfcsX45QEn3qW/aniL7li/HK5Z68Nd2s9j3/AAj90LRgMk4MAAAANOmLHXU5M0RHbvWtbeyOfL98tRwOn3en/aBrdhvf+c/kvBrMdfOPlctLfup8Xkyu27dVcVdHlGvxhzwD1aAAAAAAAAG13fcdDtG2ajc9y1WPS6PTUnJmy5J5VrWGjxDvW18P7Rn3beNbi0ejwV53yZJ5R7I85n0RHfKnfTd0r7h0ga/5npIyaPYNPfng00zytmtHhkycvT5V8I9vetXbsUR3tgyDZ+/m97SN1uONX0jtn+y2XTb0j6zpB4k+Vp8pg2bSTNdDp7d08vTktH6Vv2R3efPoAMfVVNU6y7nhMJawdmmxZjSmngAPEgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAT71LftTxF9yxfjlASfepb9qeIvuWL8crlnrw13az2Pf8I/dC0YDJODAAAACvfTdxdfgnrB8Nb5PanS12quHWUr42w2y5It7ZjutHrqsIqd1yvyjbV+qa/wAXIs35mKNYbVsdYoxGY/g3I1pqpqiffC1mi1On1ujw6zSZqZtPnpGTFkpPOt6zHOJifKYaqp/V26YP+Gb4eFeJc8zsuS/LS6m08/mdpn6s/wB3M/6fZ4Wvx3pkx1yY7VvS0RNbVnnExPhMSqt3IrjWGOzvJb+U4ibVzfTPVnlMffthkBcYYAAAAABFXWK6N9dx1sOHVbRrM0bjt0Wti0dskxh1ET4xy8Iv5W90+cU41ODPpdTl02pw5MOfFeaZMeSs1tS0TymJifCXo4hzrAdEGHjDTZOIOH8WPDxBipzvSPo11lYj6s+V/K3un0TEa/Z6XrQ3/ZHamMHpg8VP+PlP6de3u7+XhwqENTU4M+l1OXTanDkw58V5pkx5KzW1LRPKYmJ8JaaE65ExMawAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJ96lv2p4i+5YvxygJPvUt+1PEX3LF+OVyz14a7tZ7Hv8AhH7oWjAZJwYAAAAVO65X5Rtq/VNf4uRbFU7rlflG2r9U1/i5FjEdRuGw3tanwq+SEE5dXrpkvw7kwcLcU6i19ntMU0uqvPOdJM+FbT/V/h9nhBohUVzROsOuZlluHzLDzYvxrE+cT2x3vR/HemTHXJjtW9LRE1tWecTE+mGVUer10yX4dyYOFuKdRa+z2mKaXVXnnOkmfCtp/q/w+zwtbjvTJjrkx2reloia2rPOJifCYlkbdyK41hwvOslxGU4j8K7vieE8pj79scmQFbDgAAAAAIc6f+h/BxhpsnEHD+LHh4gxU+nSOVa6ysfmz5X8re6fRMVG1ODPpdTl02pw5MOfFeaZMeSs1tS0TymJifCXo4hzrAdEGDjDTZOIOH8WPDxBip9OkfRrrKx+bPlfyt7p9ExFvWdfWpdB2U2rnCzGDxk+p/rV+nunu+XhwqENTUYc2nz5NPqMV8ObFaaZMd68rUtE8piY9ExLTQ3WonXfAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAn3qW/aniL7li/HKAk+9S37U8RfcsX45XLPXhru1nse/4R+6FowGScGAAAAFTuuV+Ubav1TX+LkWxVO65X5Rtq/VNf4uRYxHUbhsN7Wp8KvkhABAdrE5dXrpkvw7kwcLcU6i19ntMU0uqvPOdJM/m2n+r/AA+zwg0VUVzROsIGZZbh8yw82L8axPnE9sd70fx3pkx1yY7VvS0RNbVnnExPhMSyqj1eumS/DuTBwtxTqLX2e0xTS6q8850kz+bb+7/D7PC1uO9MmOuTHat6WiJras84mJ8JiWRt3IrjWHC86yXEZTiPwru+J4TymPv2xyZAVsOAAAAAArT1ueAsWnvh462zBFIy3rg3KtY7ptPdTL7/AKs/5VdXoH0hbLj4i4H3nZctYt860eSlPVflzpPutET7nn5ymO60cpjxhAxFHRq1jm7NsNmdeLwM2bk6zbnT3Tw8t8eGgAsN1AAAAAAAAAAAAAAAAAAAAAAAAAAAAE+dS20RxZxBTn3zoMcx7sk//cIDSp1Wd8ps/S1pdPmvFMW56fJo5mfDtTyvT4zTl71dqdK4YPaWzVeyq/RTx6Ovlv8AouYAybgAAAAAqb1ybVt0k7ZWJ767TTn/APLkWyUl6yG94986Xt3vhv28Oi7GipMT3c8cfS/3zZHxM+o3XYKzVXmc1xwppn46QjkBBdmAAE5dXrpkvw7kwcLcU6m19ntMU0uqvPOdJM+FbT/V/h9nhBoqormidYQMyy3D5lh5sX41ifOJ7Y73o/jvTJjrkx2reloia2rPOJifCYllVHq9dMl+HcmDhbinUWvs9p7Gl1V55zpJnwrb+7/D7PC1uO9MmOuTHat6WiJras84mJ9MMjbuRXGsOF51kuIynEfhXd8TwnlMfftjkyArYcAAAAnlynn4POfcuz/KWr7H1fl8nL2dqV+ekbe8fDnAu9b1kv2fmukvbH68kxypHvtMQ8/o58u+ec+lDxU74h1H0dWaoov3eUzTHlrM/OABFdKAAAAAAAAAAAAAAAAAAAAAAAAAAAAGtotTqNFrMGs0mW2LUYMlcuLJXxras84n4w0QeTETGkr59E3Gui474O0u8ae1K6qsRi1uCJ78OaI749k+MeqXbVCOjPjneeAuIa7rtV4vivyrqtLef5vUU8p8pj0T6PjC4/Rv0jcMcd6CuXadZXHrK155tDmmK5sU+nu/Oj+1HOE+zeiuNJ4uJ7TbM3stu1XbNOtqeE/p7p+k/V3ABfaiA6R0ndJ3DPAejv8AP9VXVblNeeHb8FonLefR2v0K+ufdzeTMUxrK/hsLexVyLVmmaqp5Qx01cdabgPgvUa+MlJ3LUROHb8M+Nssx9bl+jXxn3R6VGcuTJly3y5b2yZL2m17WnnNpmeczPvdg6QuMd5444iybzvOWJtMdjBgpz+TwY/RSsfvnxmXXWPu3OnPc7hszkMZRhtK99yrfVPyiPD5gC02QAAAATn1eumS/DuTBwtxTqLX2e0xTS6q8850kz+baf6v8Ps8IMFVFc0TrCBmWW4fMsPNi/GsT5xPbHe9H8d6ZMdcmO1b0tETW1Z5xMT6YZVK6CemvNwnjxcPcTzm1WyRPZwZ4+lk0nq5eNqerxj0c/BajZd22zetuxbjtOu0+u0mWOdMuG8WrPw8J9TIW7kVxucNzrIsVlN2absa08quU/ae5vQFxhQfOS9MWO2TJetKVjna1p5REecygXpq6edDt2mz7FwRqaazcLRNMu4U78Wn8+xP59/X4R61FdcURrLI5blWJzK9FrD069s8o75n+9zgOtvx9i1upxcDbXni+PTZIzbles905I+pi93PtT6+XlKvT6y5MmXLfLlyWyZL2m172nna0z3zMz6ZfLHV1zXVrLvGUZZbyzCU4a3y4z2zzn+8gBSyQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA1NNnz6bUU1GmzZMGbHPapkx3mtqz5xMd8NMCY1jSUmcOdOnSNs2KuG27YtzxV8K6/DGS3+uOVp98y7JPWY4z+T7MbJsMW5fW7GX93bQeK4u1xzYa9s7ld6rpV2KdfDT5aJI4l6b+kbfMV8E7zXbsNu6aaDFGKeX+Pvt8JR1myZM2a+bNkvly3ntXve02tafOZnvl8Cmapq4yn4XA4bCU9GxbimO6IgAeJQAAAAAAAA5XhviPfuG9X862Hd9Xt2WfrThyTFb/4q+FvfDigidFFy3RcpmiuNYnlO+Ew7T1i+kHR44pq67TuPL87Npppaf9Foj9jc67rJ8c58U00+3bHpbT+fXDkvMfG/JCor/Fr7WHnZvKpq6U2KfL6cHaOMOkHjLiyJx77v2q1GCZ5/N6TGPD/oryiffzdXBRMzPFlrFi1Yo6FqmKY7IjSPgAC6AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMxWZrNuU8o5Rz9f/APc2Gec8uXPu8QYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjvAGezbyn4HZt5T8AYGezbyn4HZt5T8AYGezbyn4HZt5T8AYGezbyn4HZt5T8AYGezbyn4HZt5T8AYGezbyn4HZt5T8AYGezbyn4HZt5T8AYGeU+UsAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPAAegAAAAAAAAAAAAAAAAAAAAAD//Z';
+
+  function ha(h, a){
+    try {
+      var r = parseInt(h.slice(1, 3), 16), g = parseInt(h.slice(3, 5), 16), b = parseInt(h.slice(5, 7), 16);
+      return 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')';
+    } catch (e) { return h; }
+  }
+  function esc(s){ return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+  function mountChart(root, nodesObj, connsArr){
+    var NODES = Object.keys(nodesObj || {}).map(function(k){ return nodesObj[k]; });
+    var CONNS = connsArr || [];
+    if (!NODES.length) { root.innerHTML = '<div class="cw-empty">Схема пуста</div>'; return; }
+
+    var padX = 24, padTop = 18, padBottom = 18;
+    var minX = Math.min.apply(null, NODES.map(function(n){ return n.x; }));
+    var minY = Math.min.apply(null, NODES.map(function(n){ return n.y; }));
+    var maxX = Math.max.apply(null, NODES.map(function(n){ return n.x + 200; }));
+    var maxY = Math.max.apply(null, NODES.map(function(n){ return n.y + 70; }));
+    var W = maxX - minX + padX * 2, H = maxY - minY + padTop + padBottom;
+    var shifted = NODES.map(function(n){
+      var c = {}; for (var k in n) c[k] = n[k];
+      c.x = n.x - minX + padX; c.y = n.y - minY + padTop; return c;
+    });
+
+    root.innerHTML = '<div class="cw-viewport"><div class="cw-stage"><svg class="cw-lines"></svg></div></div>';
+    var viewport = root.querySelector('.cw-viewport');
+    var stage = root.querySelector('.cw-stage');
+    var svg = root.querySelector('.cw-lines');
+    var activeId = null, dp = null;
+
+    function nodeById(id){
+      for (var i = 0; i < shifted.length; i++) if (shifted[i].id === id) return shifted[i];
+      return null;
+    }
+
+    var elById = {};
+    shifted.forEach(function(d){
+      var el = document.createElement('div');
+      el.className = 'cw-node';
+      el.style.left = d.x + 'px'; el.style.top = d.y + 'px';
+      var c1 = ha(d.color, .5), c2 = ha(d.color, .93);
+      el.innerHTML =
+        '<div class="cw-head" style="background:linear-gradient(135deg,' + c1 + ',' + c2 + ')">' +
+        '<div class="cw-texts"><div class="cw-role">' + esc(d.role) + '</div>' +
+        '<div class="cw-dept">' + esc(d.dept) + ' · ' + esc(d.sched) + '</div></div>' +
+        '<div class="cw-arr"><svg viewBox="0 0 8 8" fill="none"><path d="M2 1.5l3.5 3L2 7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>';
+      el.addEventListener('click', function(e){ e.stopPropagation(); toggleNode(d.id, el); });
+      stage.appendChild(el);
+      elById[d.id] = el;
+    });
+
+    function nbox(id){
+      var d = nodeById(id);
+      var el = elById[id];
+      if (!el || !d) return null;
+      return { cx: d.x + 100, top: d.y, bot: d.y + el.offsetHeight };
+    }
+
+    function drawLines(){
+      svg.setAttribute('width', stage.offsetWidth);
+      svg.setAttribute('height', stage.offsetHeight);
+      var aSet = {};
+      if (activeId) CONNS.forEach(function(c){ if (c.from === activeId || c.to === activeId) aSet[c.from + '>' + c.to] = 1; });
+      var seen = {}, defs = '<defs>', paths = '', gi = 0;
+      defs += '<marker id="cwah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">' +
+        '<path d="M1 1.5L8 5L1 8.5" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="rgba(0,0,0,.18)"/></marker>';
+      CONNS.forEach(function(c){
+        var k = c.from + '>' + c.to;
+        if (seen[k]) return; seen[k] = 1;
+        var p = nbox(c.from), ch = nbox(c.to);
+        if (!p || !ch) return;
+        var my = (p.bot + ch.top) / 2;
+        if (aSet[k]) {
+          var sc = (nodeById(c.from) || {}).color || '#3b82f6';
+          var tc = (nodeById(c.to) || {}).color || '#3b82f6';
+          var gid = 'cwg' + (gi++) + Math.random().toString(36).slice(2, 6);
+          defs += '<linearGradient id="' + gid + '" x1="' + p.cx + '" y1="' + p.bot + '" x2="' + ch.cx + '" y2="' + ch.top + '" gradientUnits="userSpaceOnUse">' +
+            '<stop offset="0%" stop-color="' + sc + '"/><stop offset="100%" stop-color="' + tc + '"/></linearGradient>';
+          defs += '<marker id="ah-' + gid + '" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">' +
+            '<path d="M1 1.5L8 5L1 8.5" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke="' + tc + '"/></marker>';
+          paths += '<path d="M' + p.cx + ',' + p.bot + ' C' + p.cx + ',' + my + ' ' + ch.cx + ',' + my + ' ' + ch.cx + ',' + ch.top +
+            '" fill="none" stroke="url(#' + gid + ')" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-' + gid + ')"/>';
+        } else {
+          paths += '<path d="M' + p.cx + ',' + p.bot + ' C' + p.cx + ',' + my + ' ' + ch.cx + ',' + my + ' ' + ch.cx + ',' + ch.top +
+            '" fill="none" stroke="' + (c.color || 'rgba(0,0,0,.18)') + '" stroke-width="1.5" stroke-linecap="round" marker-end="url(#cwah)"/>';
+        }
+      });
+      svg.innerHTML = defs + '</defs>' + paths;
+    }
+
+    function closeDP(){
+      if (dp) dp.classList.remove('on');
+      var act = stage.querySelector('.cw-node.active');
+      if (act) act.classList.remove('active');
+      activeId = null;
+      drawLines();
+    }
+
+    function toggleNode(id, el){
+      if (activeId === id) { closeDP(); return; }
+      var prev = stage.querySelector('.cw-node.active');
+      if (prev) prev.classList.remove('active');
+      el.classList.add('active');
+      activeId = id;
+      var d = nodeById(id);
+      if (!dp) { dp = document.createElement('div'); dp.className = 'cw-dp'; root.appendChild(dp); }
+      var dutiesHtml = (d.duties && d.duties.length)
+        ? d.duties.map(function(t){ return '<div class="cw-duty"><span class="cw-dd" style="background:' + d.color + '"></span>' + esc(t) + '</div>'; }).join('')
+        : '<div class="cw-none">—</div>';
+      var empsHtml = '';
+      if (d.emps !== null && d.emps !== undefined) {
+        empsHtml = !d.emps.length ? '<div class="cw-none">Список уточняется</div>' : d.emps.map(function(e){
+          var ini = (e.name || '').split(' ').map(function(w){ return w[0] || ''; }).join('').slice(0, 2).toUpperCase();
+          var avHtml = e.avatar ? '<img src="' + e.avatar + '" alt="">' : ini;
+          var reddyHtml = e.reddy ? '<div class="cw-eid"><img class="cw-reddy-ic" src="' + REDDY_IC + '" alt="Reddy">' + esc(e.reddy) + '</div>' : '';
+          return '<div class="cw-emp"><div class="cw-av" style="background:' + ha(d.color, .13) + ';color:' + d.color + '">' + avHtml + '</div>' +
+            '<div><div class="cw-en">' + esc(e.name || '') + '</div>' + reddyHtml + '</div></div>';
+        }).join('');
+      }
+      dp.innerHTML =
+        '<div class="cw-dp-bar" style="background:' + d.color + '"></div>' +
+        '<div class="cw-dp-head"><button type="button" class="cw-dp-x">×</button>' +
+        '<div class="cw-dp-role">' + esc(d.role) + '</div><div class="cw-dp-dept">' + esc(d.dept) + '</div>' +
+        '<div class="cw-dp-sched"><span class="cw-dp-sd" style="background:' + d.color + '"></span>График ' + esc(d.sched) + '</div></div>' +
+        '<div class="cw-dp-body"><div class="cw-slb">Обязанности</div>' + dutiesHtml +
+        (d.emps !== null && d.emps !== undefined ? '<div class="cw-slb">Сотрудники</div>' + empsHtml : '') + '</div>';
+      dp.querySelector('.cw-dp-x').addEventListener('click', function(ev){ ev.stopPropagation(); closeDP(); });
+      posDP(el);
+      dp.classList.add('on');
+      drawLines();
+    }
+
+    function posDP(el){
+      var rootR = root.getBoundingClientRect();
+      var elR = el.getBoundingClientRect();
+      var dpW = 300;
+      var left = elR.right - rootR.left + 12;
+      if (left + dpW > rootR.width - 8) left = Math.max(8, elR.left - rootR.left - dpW - 12);
+      left = Math.max(8, left);
+      var top = Math.max(8, elR.top - rootR.top);
+      dp.style.left = left + 'px';
+      dp.style.top = top + 'px';
+    }
+
+    root.addEventListener('click', function(e){
+      if (!e.target.closest('.cw-node') && !e.target.closest('.cw-dp')) closeDP();
+    });
+
+    function fit(){
+      var vw = viewport.clientWidth || root.clientWidth || W;
+      var scale = Math.max(.001, Math.min(1, vw / W));
+      stage.style.width = W + 'px';
+      stage.style.height = H + 'px';
+      stage.style.transform = 'scale(' + scale + ')';
+      viewport.style.height = Math.ceil(H * scale) + 'px';
+      drawLines();
+      var act = stage.querySelector('.cw-node.active');
+      if (act && dp) posDP(act);
+    }
+
+    drawLines();
+    fit();
+    var rt;
+    window.addEventListener('resize', function(){ clearTimeout(rt); rt = setTimeout(fit, 120); });
+  }
+
+  var CHART_DATA = {};
+  function collectData(){
+    Array.prototype.forEach.call(document.querySelectorAll('.chart-data[data-chart-data]'), function(s){
+      var id = s.getAttribute('data-chart-data');
+      try { CHART_DATA[id] = JSON.parse(s.textContent); } catch (e) { CHART_DATA[id] = { nodes:{}, conns:[] }; }
+    });
+  }
+  function embedFor(id){
+    var els = document.querySelectorAll('.chart-embed[data-chart]');
+    for (var i = 0; i < els.length; i++) if (els[i].getAttribute('data-chart') === id) return els[i];
+    return null;
+  }
+  function ensureMount(id){
+    var el = embedFor(id);
+    if (!el || el.dataset.chartMounted) return;
+    el.dataset.chartMounted = '1';
+    var payload = CHART_DATA[id] || {};
+    mountChart(el, payload.nodes || {}, payload.conns || []);
+  }
+  function mountVisible(){
+    collectData();
+    Array.prototype.forEach.call(document.querySelectorAll('.chart-embed[data-chart]'), function(el){
+      var panel = el.closest('.chart-tab-panel');
+      if (panel && !panel.classList.contains('on')) return;
+      ensureMount(el.getAttribute('data-chart'));
+    });
+  }
+
+  /* Переключение вкладок: скрытая панель монтируется только при
+     первом открытии — до этого её ширина равна нулю. */
+  document.addEventListener('click', function(e){
+    var tab = e.target.closest('.chart-tab');
+    if (!tab) return;
+    var wrap = tab.closest('.chart-tabs-wrap');
+    if (!wrap) return;
+    var id = tab.getAttribute('data-chart-tab');
+    Array.prototype.forEach.call(wrap.querySelectorAll('.chart-tab'), function(b){ b.classList.toggle('on', b === tab); });
+    Array.prototype.forEach.call(wrap.querySelectorAll('.chart-tab-panel'), function(p){
+      p.classList.toggle('on', p.getAttribute('data-chart-panel') === id);
+    });
+    ensureMount(id);
+  });
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mountVisible);
+  else mountVisible();
+})();
+</script>
+
 <script type="text/plain" id="tpl-preview">
   /* ── Только для превью в конструкторе. В экспорт не попадает. ── */
   (function(){
@@ -3207,6 +3524,17 @@ function newTilesSection(t){
 function newContactsSection(){
   return { id:uid('s'), type:'contacts', title:'Контакты', accent:'#3D5A73', groups:[newGroup()] };
 }
+/* Схема — снимок nodes/conns на момент добавления: страница остаётся
+   самодостаточной, а обновление из Studio Charts делается вручную. */
+function newChartItem(){
+  return { id:uid('ch'), sourceId:'', srcUpdated:0, title:'Схема',
+           nodes:{}, conns:[] };
+}
+function newChartsSection(){
+  return { id:uid('s'), type:'charts', title:'Организационные схемы',
+           accent:ACCENTS[Math.floor(Math.random()*ACCENTS.length)],
+           layout:'stack', charts:[] };
+}
 
 function starterModel(){
   var m = {
@@ -3386,6 +3714,58 @@ function chatTileHtml(c, editing){
   return h;
 }
 
+/* Данные схемы кладутся рядом отдельным JSON-блоком: сам виджет их
+   не рисует напрямую (title/subtitle нужны и вне холста), а разбирает
+   рантайм-скрипт при монтировании. */
+function chartDataScript(c){
+  var payload = { nodes: c.nodes || {}, conns: c.conns || [] };
+  return '        <script type="application/json" class="chart-data" data-chart-data="' + att(c.id) + '">' +
+    JSON.stringify(payload).replace(/</g, '\\u003c') + '<\/script>\n';
+}
+
+/* Секция схем: одна или несколько org-chart-схем из Studio Charts.
+   layout=stack — во всю ширину, друг под другом; layout=tabs —
+   те же схемы, но переключаются вкладками, показана одна за раз. */
+function chartsSectionHtml(s, editing){
+  var charts = s.charts || [];
+  var h = '';
+  if (!charts.length) {
+    h += '      <div class="chart-empty">Секция пуста — добавьте схему из Studio Charts через панель справа.</div>\n';
+    return h;
+  }
+  if (s.layout === 'tabs') {
+    var teid = editing ? ' data-eid="s:' + s.id + '"' : '';
+    h += '      <div class="chart-tabs-wrap"' + teid + '>\n';
+    h += '       <div class="chart-tabs" role="tablist">\n';
+    charts.forEach(function(c, i){
+      h += '        <button type="button" class="chart-tab' + (i === 0 ? ' on' : '') +
+           '" data-chart-tab="' + att(c.id) + '">' + esc(c.title) + '</button>\n';
+    });
+    h += '       </div>\n';
+    charts.forEach(function(c, i){
+      var ceid = editing ? ' data-eid="ch:' + c.id + '"' : '';
+      h += '       <div class="chart-tab-panel' + (i === 0 ? ' on' : '') +
+           '" data-chart-panel="' + att(c.id) + '"' + ceid + '>\n';
+      h += '        <div class="chart-embed" data-chart="' + att(c.id) + '"></div>\n';
+      h += chartDataScript(c);
+      h += '       </div>\n';
+    });
+    h += '      </div>\n';
+  } else {
+    h += '      <div class="chart-stack">\n';
+    charts.forEach(function(c){
+      var ceid = editing ? ' data-eid="ch:' + c.id + '"' : '';
+      h += '       <div class="chart-block"' + ceid + '>\n';
+      h += '        <div class="chart-block-title">' + esc(c.title) + '</div>\n';
+      h += '        <div class="chart-embed" data-chart="' + att(c.id) + '"></div>\n';
+      h += chartDataScript(c);
+      h += '       </div>\n';
+    });
+    h += '      </div>\n';
+  }
+  return h;
+}
+
 /* Модуль поиска. В разметку уходит только строка: выдача рисуется
    скриптом и раскрывается панелью поверх страницы. Настройки лежат
    рядом с модулем — так страница остаётся самодостаточной, а импорт
@@ -3502,6 +3882,8 @@ function sectionHtml(s, editing){
     (s.chats || []).forEach(function(c){ h += chatTileHtml(c, editing) + '\n'; });
     h += '       </div>\n';
     h += '      </article>\n';
+  } else if (s.type === 'charts') {
+    h += chartsSectionHtml(s, editing);
   } else {
     (s.groups || []).forEach(function(g){
       var geid = editing ? ' data-eid="g:' + g.id + '"' : '';
@@ -3662,6 +4044,11 @@ function buildHub(m, opts){
     h += '<script>\n  var KB_DEMO = ' + (editing ? 'true' : 'false') + ';\n' +
          tpl('tpl-search') + '<\/script>\n';
   }
+  /* Движок схем — тем же принципом: только там, где есть хоть одна схема. */
+  var hasCharts = (m.sections || []).some(function(s){ return s.type === 'charts' && (s.charts || []).length; });
+  if (hasCharts) {
+    h += '<script>\n' + tpl('tpl-chart') + '<\/script>\n';
+  }
 
   if (editing) {
     h += '<script>\n' + tpl('tpl-preview') + '<\/script>\n';
@@ -3704,6 +4091,11 @@ function resolve(eid){
     if (kind === 'ct' && s.type === 'chats') {
       for (var q = 0; q < s.chats.length; q++) {
         if (s.chats[q].id === id) return { kind:'chat', obj:s.chats[q], arr:s.chats, idx:q, section:s };
+      }
+    }
+    if (kind === 'ch' && s.type === 'charts') {
+      for (var ci = 0; ci < s.charts.length; ci++) {
+        if (s.charts[ci].id === id) return { kind:'chartItem', obj:s.charts[ci], arr:s.charts, idx:ci, section:s };
       }
     }
     if (s.type === 'contacts') {
@@ -3851,6 +4243,7 @@ function renderOutline(){
       sub: s.type === 'tiles' ? (s.tiles.length + ' пл.')
          : s.type === 'chats' ? (s.chats.length + ' чат.')
          : s.type === 'search' ? (s.groups.length + ' разд.')
+         : s.type === 'charts' ? (s.charts.length + ' сх.')
          : (s.groups.length + ' гр.')
     });
     if (s.type === 'tiles') {
@@ -3860,6 +4253,10 @@ function renderOutline(){
     } else if (s.type === 'chats') {
       s.chats.forEach(function(c){
         h += rowHtml('ct:' + c.id, c.name, { child:true, sub: c.url ? '' : '⏳' });
+      });
+    } else if (s.type === 'charts') {
+      s.charts.forEach(function(c){
+        h += rowHtml('ch:' + c.id, c.title, { child:true, sub: c.sourceId ? '' : '⏳' });
       });
     } else if (s.type === 'search') {
       /* Разделы поисковика правятся в своём окне, а не по одному
@@ -3924,7 +4321,7 @@ function doAct(eid, act){
 function reid(o){
   if (!o || typeof o !== 'object') return;
   if (o.id) o.id = uid(o.id[0]);
-  ['tiles','chats','groups','people','stats'].forEach(function(k){
+  ['tiles','chats','charts','groups','people','stats'].forEach(function(k){
     if (Array.isArray(o[k])) o[k].forEach(reid);
   });
 }
@@ -4012,7 +4409,7 @@ function renderInspector(){
   if (!r) { box.innerHTML = '<div class="insp-empty">Ничего не выбрано.</div>'; return; }
 
   var o = r.obj, h = '';
-  var titles = { hero:'Шапка страницы', section:'Секция', tile:'Плитка', chat:'Чат', group:'Группа контактов', person:'Контакт' };
+  var titles = { hero:'Шапка страницы', section:'Секция', tile:'Плитка', chat:'Чат', chartItem:'Схема', group:'Группа контактов', person:'Контакт' };
   h += '<div class="insp-head"><span class="kind">' + titles[r.kind] + '</span>';
   if (r.arr) {
     h += '<button class="mini" data-act="up" title="Выше">' + SVG_UP + '</button>' +
@@ -4086,6 +4483,16 @@ function renderInspector(){
         ['240','240px — длинные названия'], ['280','280px — с подписями']
       ]);
       h += '<button class="btn" data-add="tile" style="width:100%;justify-content:center;margin-top:14px">+ Плитка</button>';
+    } else if (o.type === 'charts') {
+      h += fLabel('Показ схем', o.charts.length > 1 ? 'несколько схем в секции' : '') + fSeg('layout', o.layout || 'stack', [
+        ['stack','Друг под другом'], ['tabs','Вкладки']
+      ]);
+      h += '<button class="btn" data-add="chart" style="width:100%;justify-content:center;margin-top:14px">+ Схема из Studio Charts</button>';
+      if (o.charts.length) {
+        h += '<div class="hintbox">На странице встраивается снимок схемы: он не следит за оригиналом в Studio Charts. Чтобы подтянуть правки, откройте схему в дереве слева и нажмите «Обновить из Studio Charts».</div>';
+      } else {
+        h += '<div class="hintbox">Схемы берутся из этого же браузера — те, что сохранены в Studio Charts (dashboard.html). Во вкладках видна одна схема за раз, друг под другом — сразу все, во всю ширину блока.</div>';
+      }
     } else {
       h += '<button class="btn" data-add="group" style="width:100%;justify-content:center;margin-top:14px">+ Группа контактов</button>';
       h += '<div class="hintbox">Каждая группа (руководители, специалисты, дежурные, Telegram) — отдельная карточка со своим заголовком и описанием.</div>';
@@ -4131,6 +4538,21 @@ function renderInspector(){
          fText('note', o.note, 'Чат доступен для ограниченного круга сотрудников');
     if (!o.url) {
       h += '<div class="hintbox">Ссылка пуста — по клику на «Перейти» покажется это уведомление. Пустой текст оставит плитку молчаливой.</div>';
+    }
+
+  } else if (r.kind === 'chartItem') {
+    h += fLabel('Название', 'видно как подпись над схемой') + fText('title', o.title, 'Схема');
+    var nCount = Object.keys(o.nodes || {}).length;
+    h += fLabel('Что в снимке') + '<div class="insp-sum"><div><b>' + nCount + '</b> ' +
+         plural(nCount, 'карточка', 'карточки', 'карточек') + '</div></div>';
+    var srcRow = o.sourceId ? docIndex().filter(function(d){ return d.id === o.sourceId; })[0] : null;
+    if (srcRow) {
+      h += '<button class="btn" data-refresh-chart="' + att(o.id) + '" style="width:100%;justify-content:center;margin-top:10px">Обновить из Studio Charts</button>';
+      h += '<div class="hintbox">Вставлен снимок схемы «' + esc(srcRow.title) + '» на момент добавления' +
+           (o.srcUpdated ? ' (правки в оригинале от ' + esc(new Date(srcRow.updated).toLocaleString('ru')) + ')' : '') +
+           '. Он не следит за оригиналом сам — если схему поправили, нажмите «Обновить».</div>';
+    } else {
+      h += '<div class="hintbox">Источник не найден в этом браузере — схему, видимо, удалили из Studio Charts. Обновить снимок не получится, но уже добавленные данные останутся на странице как есть.</div>';
     }
 
   } else if (r.kind === 'group') {
@@ -4281,6 +4703,9 @@ insp.addEventListener('click', function(e){
   var openSearch = e.target.closest('[data-open-search]');
   if (openSearch) { openSearchEditor(openSearch.dataset.openSearch); return; }
 
+  var refreshChart = e.target.closest('[data-refresh-chart]');
+  if (refreshChart) { refreshChartItem(refreshChart.dataset.refreshChart); return; }
+
   var openLib = e.target.closest('[data-open-lib]');
   if (openLib) {
     libTab = openLib.dataset.openLib;
@@ -4321,6 +4746,9 @@ insp.addEventListener('click', function(e){
     var ch = newChat();
     r.obj.chats.push(ch);
     selId = 'ct:' + ch.id;
+  } else if (add.dataset.add === 'chart') {
+    openChartsPicker();
+    return;
   } else if (add.dataset.add === 'group') {
     var g = newGroup('Новая группа');
     r.obj.groups.push(g);
@@ -4330,6 +4758,99 @@ insp.addEventListener('click', function(e){
     r.obj.people.push(p);
     selId = 'p:' + p.id;
   }
+  commit(true);
+});
+
+/* ── Схемы: выбор из Studio Charts ─────────────────── */
+
+/** Секция-получатель схемы: та, что выбрана сейчас, либо родитель
+    выбранного элемента схемы (если открыли пикер из карточки схемы). */
+function chartsTargetSection(){
+  var r = sel();
+  if (!r) return null;
+  if (r.kind === 'section' && r.obj.type === 'charts') return r.obj;
+  if (r.kind === 'chartItem') return r.section;
+  return null;
+}
+
+function openChartsPicker(){
+  renderChartsPicker();
+  openOv('ov-charts');
+}
+
+function renderChartsPicker(){
+  var box = $('charts-pick-body');
+  var rows = docIndex().filter(function(d){ return d.kind !== 'hub'; })
+    .sort(function(a, b){ return (b.updated || 0) - (a.updated || 0); });
+  if (!rows.length) {
+    box.innerHTML = '<div class="lib-empty">В этом браузере нет сохранённых схем. Создайте их в Studio Charts — ' +
+      '<a href="dashboard.html" target="_blank" rel="noopener">открыть дашборд</a>.</div>';
+    return;
+  }
+  var h = '';
+  rows.forEach(function(row){
+    var body = lsRead(LS_DOC + row.id, null);
+    var n = body ? Object.keys(body.nodes || {}).length : 0;
+    h += '<div class="lib-row">' +
+      '<span class="ic-lg">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' +
+        '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/>' +
+        '<rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M17.5 14.5v6M14.5 17.5h6"/></svg>' +
+      '</span>' +
+      '<span style="flex:1;min-width:0;overflow:hidden">' +
+        '<span style="display:block;font-size:12.5px;font-weight:600;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + esc(row.title || 'Без названия') + '</span>' +
+        '<span style="display:block;font-size:11px;color:var(--t3);margin-top:1px">' + n + ' ' + plural(n, 'карточка', 'карточки', 'карточек') + '</span>' +
+      '</span>' +
+      '<button class="btn" data-pick-chart="' + att(row.id) + '">Добавить</button>' +
+      '</div>';
+  });
+  box.innerHTML = h;
+}
+
+function addChartFromSource(sourceId){
+  var target = chartsTargetSection();
+  if (!target) { toast('Сначала выберите секцию схем'); return; }
+  var row = docIndex().filter(function(d){ return d.id === sourceId; })[0];
+  var body = lsRead(LS_DOC + sourceId, null);
+  if (!row || !body) { toast('Схема не найдена'); return; }
+  var item = newChartItem();
+  item.sourceId = sourceId;
+  item.title = row.title || 'Без названия';
+  item.nodes = body.nodes || {};
+  item.conns = body.conns || [];
+  item.srcUpdated = row.updated || 0;
+  target.charts.push(item);
+  selId = 'ch:' + item.id;
+  closeOv();
+  commit(true);
+  toast('Схема добавлена');
+}
+
+function refreshChartItem(itemId){
+  var r = resolve('ch:' + itemId);
+  if (!r || r.kind !== 'chartItem') return;
+  var o = r.obj;
+  if (!o.sourceId) { toast('У этой схемы нет источника'); return; }
+  var row = docIndex().filter(function(d){ return d.id === o.sourceId; })[0];
+  var body = lsRead(LS_DOC + o.sourceId, null);
+  if (!row || !body) { toast('Источник не найден в этом браузере'); return; }
+  o.nodes = body.nodes || {};
+  o.conns = body.conns || [];
+  o.srcUpdated = row.updated || 0;
+  commit(true);
+  toast('Снимок обновлён');
+}
+
+$('charts-pick-body').addEventListener('click', function(e){
+  var pick = e.target.closest('[data-pick-chart]');
+  if (pick) addChartFromSource(pick.dataset.pickChart);
+});
+
+$('add-charts').addEventListener('click', function(){
+  var s = newChartsSection();
+  s.accent = ACCENTS[model.sections.length % ACCENTS.length];
+  model.sections.push(s);
+  selId = 's:' + s.id;
   commit(true);
 });
 
@@ -4451,6 +4972,15 @@ function normalize(m){
       if (!s.panelHeight) s.panelHeight = 460;
       if (!s.cacheHours) s.cacheHours = 6;
       if (!s.snippets) s.snippets = 3;
+    } else if (s.type === 'charts') {
+      s.charts = Array.isArray(s.charts) ? s.charts : [];
+      s.charts.forEach(function(c){
+        if (!c.id) c.id = uid('ch');
+        c.nodes = c.nodes || {};
+        c.conns = Array.isArray(c.conns) ? c.conns : [];
+        if (!c.title) c.title = 'Схема';
+      });
+      if (s.layout !== 'tabs') s.layout = 'stack';
     } else {
       s.type = 'contacts';
       s.groups = s.groups || [];
@@ -4564,6 +5094,11 @@ function buildMarkdown(m){
         var tail = [b ? b.label : null, t.subtitle || null, t.href ? null : 'в работе']
                      .filter(Boolean).join(' · ');
         out.push('- ' + name + (tail ? ' — ' + tail : ''));
+      });
+    } else if (sec.type === 'charts') {
+      (sec.charts || []).forEach(function(c){
+        var cn = Object.keys(c.nodes || {}).length;
+        out.push('- ' + c.title + ' — ' + cn + ' ' + plural(cn, 'карточка', 'карточки', 'карточек'));
       });
     } else {
       (sec.groups || []).forEach(function(g){
