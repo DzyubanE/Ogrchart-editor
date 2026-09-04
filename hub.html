@@ -196,6 +196,8 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;c
 .lib-add{border:1px dashed var(--b2);border-radius:10px;padding:11px;margin-top:10px}
 .lib-add .fl{margin-top:10px}
 .lib-add .fl:first-child{margin-top:0}
+.tab-add-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px}
+.tab-add-grid .btn{justify-content:center;padding:7px 6px;font-size:11.5px}
 .lib-empty{font-size:12px;color:var(--t3);line-height:1.7;padding:4px 2px 10px}
 #import-in{width:100%;height:230px;font-family:'Geist Mono',ui-monospace,monospace;font-size:11px;line-height:1.5;background:var(--s2);border:1px solid var(--b1);border-radius:9px;padding:11px;color:var(--t1);resize:vertical;outline:none}
 #import-in:focus{border-color:var(--accent)}
@@ -374,6 +376,10 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;c
         <button class="btn" id="add-charts">
           <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M17.5 14.5v6M14.5 17.5h6"/></svg>
           Секция схем
+        </button>
+        <button class="btn" id="add-tabs" title="Блок, который переключает секции горизонтально">
+          <svg viewBox="0 0 24 24"><rect x="3" y="4" width="7" height="4" rx="1.5"/><rect x="12" y="4" width="9" height="4" rx="1.5"/><rect x="3" y="11" width="18" height="9" rx="2"/></svg>
+          Блок с вкладками
         </button>
       </div>
     </aside>
@@ -1008,82 +1014,97 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;c
       .kb-clear span:first-child { display: none; }
     }
 
+    /* ── Вкладки секций ──────────────────────────────────
+       Блок, который переключает секции горизонтально:
+       ряд кнопок сверху, под ним — одна активная секция. */
+    .hub-tabs-bar {
+      display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px;
+      scrollbar-width: thin; scrollbar-color: var(--hub-line) transparent;
+    }
+    .hub-tab {
+      flex: 0 0 auto; padding: 8px 15px; border-radius: 999px;
+      border: 1px solid var(--hub-line); background: var(--hub-tile); color: var(--hub-muted);
+      font-family: 'Manrope', sans-serif; font-size: 13px; font-weight: 600;
+      cursor: pointer; white-space: nowrap;
+      transition: background 180ms cubic-bezier(.4,0,.2,1), border-color 180ms cubic-bezier(.4,0,.2,1), color 180ms cubic-bezier(.4,0,.2,1);
+    }
+    .hub-tab:hover { border-color: var(--hub-accent); color: var(--hub-text); }
+    .hub-tab.on { background: var(--hub-accent); border-color: var(--hub-accent); color: #fff; }
+    .hub-tab-panel { display: none; }
+    .hub-tab-panel.on { display: flex; flex-direction: column; gap: 32px; }
+    .hub-tab-empty { font-size: 12.5px; color: var(--hub-soft); padding: 18px 2px; }
+
     /* ── Секция схем (Studio Charts) ─────────────────────── */
     .chart-empty {
-      padding: 28px 20px; text-align: center; font-size: 12.5px; color: #6B778C;
-      border: 1px dashed #DFE1E6; border-radius: 12px; background: #F7F8FA;
+      padding: 28px 20px; text-align: center; font-size: 12.5px; color: var(--hub-soft);
+      border: 1px dashed var(--hub-line); border-radius: 12px; background: var(--hub-card);
     }
     .chart-stack { display: flex; flex-direction: column; gap: 22px; width: 100%; }
     .chart-block { width: 100%; }
-    .chart-block-title { font-size: 13px; font-weight: 700; color: #172B4D; margin-bottom: 8px; }
-    .chart-tabs-wrap { width: 100%; }
-    .chart-tabs { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 14px; }
-    .chart-tab {
-      flex: 0 0 auto; padding: 8px 14px; border-radius: 999px; border: 1px solid #DFE1E6;
-      background: #F7F8FA; color: #5E6C84; font-size: 12.5px; font-weight: 600;
-      cursor: pointer; white-space: nowrap; transition: background .15s, border-color .15s, color .15s;
-      font-family: 'Manrope', sans-serif;
-    }
-    .chart-tab:hover { border-color: #0052CC; color: #172B4D; }
-    .chart-tab.on { background: #0052CC; border-color: #0052CC; color: #fff; }
-    .chart-tab-panel { display: none; }
-    .chart-tab-panel.on { display: block; }
+    .chart-block-title { font-family: 'Manrope', sans-serif; font-size: 13px; font-weight: 700; color: var(--hub-text); margin-bottom: 8px; }
     .chart-embed {
-      width: 100%; position: relative; overflow: hidden;
-      border: 1px solid #DFE1E6; border-radius: 12px; background: #fff;
+      width: 100%; position: relative;
+      border: 1px solid var(--hub-line); border-radius: 12px; background: var(--hub-card);
     }
-    .cw-empty { padding: 34px 16px; text-align: center; font-size: 12.5px; color: #8492AA; }
-    .cw-viewport { position: relative; width: 100%; overflow: hidden; }
+    .cw-empty { padding: 34px 16px; text-align: center; font-size: 12.5px; color: var(--hub-soft); }
+    /* Горизонтальная прокрутка нужна широким схемам: ужимать их
+       до нечитаемого размера хуже, чем дать прокрутить. */
+    .cw-viewport { position: relative; width: 100%; overflow-x: auto; overflow-y: hidden; border-radius: 12px; }
+    .cw-spacer { pointer-events: none; }
     .cw-stage { position: absolute; top: 0; left: 0; transform-origin: top left; }
     .cw-lines { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; z-index: 1; }
     .cw-node {
       position: absolute; width: 200px; border-radius: 14px; overflow: hidden;
-      background: #fff; border: 1.5px solid rgba(0,0,0,.07); box-shadow: 0 1px 3px rgba(0,0,0,.06);
-      cursor: pointer; z-index: 2; transition: box-shadow .15s, transform .15s;
+      background: var(--hub-tile); border: 1.5px solid var(--hub-line); box-shadow: 0 1px 3px rgba(0,0,0,.06);
+      cursor: pointer; z-index: 2; transition: box-shadow 180ms cubic-bezier(.4,0,.2,1);
     }
-    .cw-node:hover { box-shadow: 0 4px 16px rgba(0,0,0,.1); }
-    .cw-node.active { box-shadow: 0 4px 20px rgba(0,0,0,.12), 0 0 0 3px rgba(59,130,246,.15); }
+    .cw-node:hover { box-shadow: var(--hub-shadow-hv); }
+    .cw-node.active { box-shadow: var(--hub-shadow-hv), 0 0 0 3px var(--hub-accent-soft); }
     .cw-head { padding: 11px 12px; display: flex; align-items: center; gap: 8px; }
     .cw-texts { flex: 1; min-width: 0; }
     .cw-role { font-family: 'Manrope', sans-serif; font-size: 12.5px; font-weight: 700; color: #fff; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .cw-dept { font-family: 'Manrope', sans-serif; font-size: 10.5px; color: rgba(255,255,255,.72); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .cw-arr { width: 20px; height: 20px; border-radius: 50%; background: rgba(255,255,255,.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: transform .2s; }
+    .cw-dept { font-family: 'Manrope', sans-serif; font-size: 10.5px; color: rgba(255,255,255,.75); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .cw-arr { width: 20px; height: 20px; border-radius: 50%; background: rgba(255,255,255,.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: transform 220ms cubic-bezier(.4,0,.2,1); }
     .cw-node.active .cw-arr { transform: rotate(90deg); background: rgba(255,255,255,.35); }
+    /* Карточка сотрудника живёт в <body>, а не внутри схемы:
+       иначе её обрезает рамка блока. */
     .cw-dp {
-      position: absolute; z-index: 30; width: 288px; background: #fff;
-      border: 1px solid #DFE1E6; border-radius: 16px; overflow: hidden;
-      box-shadow: 0 8px 32px rgba(15,23,42,.16); opacity: 0; pointer-events: none;
-      transform: scale(.96); transition: opacity .18s, transform .18s;
+      position: absolute; z-index: 90; width: 292px; max-height: 78vh; overflow-y: auto;
+      background: var(--hub-tile); color: var(--hub-text);
+      border: 1px solid var(--hub-line); border-radius: 16px;
+      box-shadow: 0 12px 34px rgba(9,30,66,.22); opacity: 0; pointer-events: none;
+      transform: scale(.97); transition: opacity 180ms cubic-bezier(.4,0,.2,1), transform 180ms cubic-bezier(.4,0,.2,1);
+      font-family: 'Manrope', sans-serif;
     }
     .cw-dp.on { opacity: 1; transform: scale(1); pointer-events: auto; }
     .cw-dp-bar { height: 4px; }
     .cw-dp-head { padding: 14px 15px 10px; position: relative; }
     .cw-dp-x {
       position: absolute; top: 10px; right: 10px; width: 22px; height: 22px; border-radius: 7px;
-      background: #F4F5F7; border: 1px solid #DFE1E6; color: #5E6C84; font-size: 14px; line-height: 1;
-      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      background: var(--hub-card); border: 1px solid var(--hub-line); color: var(--hub-muted);
+      font-size: 14px; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center;
     }
-    .cw-dp-role { font-family: 'Manrope', sans-serif; font-size: 13.5px; font-weight: 700; color: #172B4D; padding-right: 26px; line-height: 1.3; }
-    .cw-dp-dept { font-family: 'Manrope', sans-serif; font-size: 11.5px; color: #5E6C84; margin-top: 3px; }
+    .cw-dp-role { font-size: 13.5px; font-weight: 700; color: var(--hub-text); padding-right: 26px; line-height: 1.3; }
+    .cw-dp-dept { font-size: 11.5px; color: var(--hub-muted); margin-top: 3px; }
     .cw-dp-sched {
       display: inline-flex; align-items: center; gap: 5px; margin-top: 8px; padding: 3px 10px;
-      border-radius: 20px; background: #F4F5F7; border: 1px solid #DFE1E6;
-      font-size: 10.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: #6B778C;
+      border-radius: 20px; background: var(--hub-card); border: 1px solid var(--hub-line);
+      font-size: 10.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: var(--hub-soft);
     }
     .cw-dp-sd { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; display: inline-block; }
     .cw-dp-body { padding: 2px 15px 16px; }
-    .cw-slb { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: #8492AA; margin: 12px 0 7px; }
-    .cw-duty { display: flex; gap: 9px; padding: 5px 0; border-bottom: 1px solid #F4F5F7; font-size: 12px; color: #5E6C84; line-height: 1.5; }
+    .cw-slb { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--hub-soft); margin: 12px 0 7px; }
+    .cw-duty { display: flex; gap: 9px; padding: 5px 0; border-bottom: 1px solid var(--hub-line); font-size: 12px; color: var(--hub-muted); line-height: 1.5; }
     .cw-duty:last-of-type { border-bottom: none; }
     .cw-dd { width: 4px; height: 4px; border-radius: 50%; margin-top: 6px; flex-shrink: 0; display: inline-block; }
-    .cw-emp { display: flex; align-items: center; gap: 10px; padding: 8px 10px; margin-bottom: 6px; background: #F7F8FA; border: 1px solid #F4F5F7; border-radius: 11px; }
+    .cw-emp { display: flex; align-items: center; gap: 10px; padding: 8px 10px; margin-bottom: 6px; background: var(--hub-card); border: 1px solid var(--hub-line); border-radius: 11px; }
     .cw-emp:last-child { margin-bottom: 0; }
     .cw-av { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10.5px; font-weight: 700; flex-shrink: 0; overflow: hidden; }
     .cw-av img { width: 100%; height: 100%; object-fit: cover; }
-    .cw-en { font-family: 'Manrope', sans-serif; font-size: 12.5px; font-weight: 600; color: #172B4D; }
-    .cw-eid { font-size: 11px; color: #5E6C84; margin-top: 3px; display: flex; align-items: center; gap: 5px; }
+    .cw-en { font-size: 12.5px; font-weight: 600; color: var(--hub-text); }
+    .cw-eid { font-size: 11px; color: var(--hub-muted); margin-top: 3px; display: flex; align-items: center; gap: 5px; }
     .cw-reddy-ic { width: 15px; height: 15px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
-    .cw-none { font-size: 11.5px; color: #8492AA; font-style: italic; padding: 6px 0; }
+    .cw-none { font-size: 11.5px; color: var(--hub-soft); font-style: italic; padding: 6px 0; }
 </script>
 
 <script type="text/plain" id="tpl-js">
@@ -2940,6 +2961,19 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;c
   }
   function esc(s){ return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
 
+  /* Все схемы на странице: карточка сотрудника всегда одна —
+     открытая в соседней схеме закрывается сама. */
+  var INSTANCES = [];
+  function closeOthers(exceptRoot){
+    INSTANCES.forEach(function(inst){ if (inst.root !== exceptRoot) inst.close(); });
+  }
+  function closeAll(){ INSTANCES.forEach(function(inst){ inst.close(); }); }
+  document.addEventListener('click', function(e){
+    if (e.target.closest('.cw-node') || e.target.closest('.cw-dp')) return;
+    closeAll();
+  });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeAll(); });
+
   function mountChart(root, nodesObj, connsArr){
     var NODES = Object.keys(nodesObj || {}).map(function(k){ return nodesObj[k]; });
     var CONNS = connsArr || [];
@@ -2956,8 +2990,10 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;c
       c.x = n.x - minX + padX; c.y = n.y - minY + padTop; return c;
     });
 
-    root.innerHTML = '<div class="cw-viewport"><div class="cw-stage"><svg class="cw-lines"></svg></div></div>';
+    root.innerHTML = '<div class="cw-viewport"><div class="cw-spacer"></div>' +
+      '<div class="cw-stage"><svg class="cw-lines"></svg></div></div>';
     var viewport = root.querySelector('.cw-viewport');
+    var spacer = root.querySelector('.cw-spacer');
     var stage = root.querySelector('.cw-stage');
     var svg = root.querySelector('.cw-lines');
     var activeId = null, dp = null;
@@ -2996,8 +3032,13 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;c
       var aSet = {};
       if (activeId) CONNS.forEach(function(c){ if (c.from === activeId || c.to === activeId) aSet[c.from + '>' + c.to] = 1; });
       var seen = {}, defs = '<defs>', paths = '', gi = 0;
-      defs += '<marker id="cwah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">' +
-        '<path d="M1 1.5L8 5L1 8.5" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="rgba(0,0,0,.18)"/></marker>';
+      /* Линии подстраиваются под тему страницы: на тёмной чёрный
+         штрих сливается с фоном, на светлой — белый. */
+      var dark = document.body.getAttribute('data-theme') === 'dark';
+      var lineCol = dark ? 'rgba(255,255,255,.32)' : 'rgba(9,30,66,.22)';
+      var mid = 'cwah' + (dark ? 'd' : 'l');
+      defs += '<marker id="' + mid + '" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">' +
+        '<path d="M1 1.5L8 5L1 8.5" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="' + lineCol + '"/></marker>';
       CONNS.forEach(function(c){
         var k = c.from + '>' + c.to;
         if (seen[k]) return; seen[k] = 1;
@@ -3016,7 +3057,7 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;c
             '" fill="none" stroke="url(#' + gid + ')" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-' + gid + ')"/>';
         } else {
           paths += '<path d="M' + p.cx + ',' + p.bot + ' C' + p.cx + ',' + my + ' ' + ch.cx + ',' + my + ' ' + ch.cx + ',' + ch.top +
-            '" fill="none" stroke="' + (c.color || 'rgba(0,0,0,.18)') + '" stroke-width="1.5" stroke-linecap="round" marker-end="url(#cwah)"/>';
+            '" fill="none" stroke="' + (c.color || lineCol) + '" stroke-width="1.5" stroke-linecap="round" marker-end="url(#' + mid + ')"/>';
         }
       });
       svg.innerHTML = defs + '</defs>' + paths;
@@ -3032,12 +3073,18 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;c
 
     function toggleNode(id, el){
       if (activeId === id) { closeDP(); return; }
+      closeOthers(root);
       var prev = stage.querySelector('.cw-node.active');
       if (prev) prev.classList.remove('active');
       el.classList.add('active');
       activeId = id;
       var d = nodeById(id);
-      if (!dp) { dp = document.createElement('div'); dp.className = 'cw-dp'; root.appendChild(dp); }
+      if (!dp) {
+        dp = document.createElement('div');
+        dp.className = 'cw-dp';
+        /* В <body>, а не внутрь схемы: рамка блока обрезала бы карточку. */
+        document.body.appendChild(dp);
+      }
       var dutiesHtml = (d.duties && d.duties.length)
         ? d.duties.map(function(t){ return '<div class="cw-duty"><span class="cw-dd" style="background:' + d.color + '"></span>' + esc(t) + '</div>'; }).join('')
         : '<div class="cw-none">—</div>';
@@ -3064,32 +3111,55 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;c
       drawLines();
     }
 
+    /* Позиционируем в координатах страницы: панель лежит в <body>,
+       поэтому прокрутка двигает её вместе с содержимым. */
     function posDP(el){
-      var rootR = root.getBoundingClientRect();
+      if (!dp) return;
       var elR = el.getBoundingClientRect();
-      var dpW = 300;
-      var left = elR.right - rootR.left + 12;
-      if (left + dpW > rootR.width - 8) left = Math.max(8, elR.left - rootR.left - dpW - 12);
-      left = Math.max(8, left);
-      var top = Math.max(8, elR.top - rootR.top);
-      dp.style.left = left + 'px';
-      dp.style.top = top + 'px';
+      var sx = window.pageXOffset, sy = window.pageYOffset;
+      var docW = document.documentElement.clientWidth;
+      var dpW = dp.offsetWidth || 292;
+      var left = elR.right + 12;
+      if (left + dpW > docW - 10) left = elR.left - dpW - 12;
+      if (left < 10) left = Math.max(10, Math.min(elR.left, docW - dpW - 10));
+      dp.style.left = (left + sx) + 'px';
+      dp.style.top = (elR.top + sy) + 'px';
+      /* Если панель выше нижнего края экрана — подтягиваем её вверх. */
+      requestAnimationFrame(function(){
+        var h = dp.offsetHeight;
+        var vh = window.innerHeight;
+        var topVp = elR.top;
+        if (topVp + h > vh - 10) topVp = Math.max(10, vh - h - 10);
+        dp.style.top = (topVp + sy) + 'px';
+      });
     }
 
-    root.addEventListener('click', function(e){
-      if (!e.target.closest('.cw-node') && !e.target.closest('.cw-dp')) closeDP();
+    viewport.addEventListener('scroll', function(){
+      var act = stage.querySelector('.cw-node.active');
+      if (act && dp && dp.classList.contains('on')) posDP(act);
     });
 
+    INSTANCES.push({ close: closeDP, root: root });
+
+    /* Схема вписывается по ширине блока, но не мельче MIN_SCALE:
+       ниже этого порога подписи перестают читаться, и полоса
+       прокрутки честнее, чем нечитаемая картинка. */
+    var MIN_SCALE = .68;
     function fit(){
       var vw = viewport.clientWidth || root.clientWidth || W;
-      var scale = Math.max(.001, Math.min(1, vw / W));
+      if (!vw) return;
+      var scale = Math.min(1, vw / W);
+      if (scale < MIN_SCALE) scale = MIN_SCALE;
       stage.style.width = W + 'px';
       stage.style.height = H + 'px';
       stage.style.transform = 'scale(' + scale + ')';
       viewport.style.height = Math.ceil(H * scale) + 'px';
+      /* Ширину прокручиваемой области держит распорка. */
+      spacer.style.width = Math.ceil(W * scale) + 'px';
+      spacer.style.height = Math.ceil(H * scale) + 'px';
       drawLines();
       var act = stage.querySelector('.cw-node.active');
-      if (act && dp) posDP(act);
+      if (act && dp && dp.classList.contains('on')) posDP(act);
     }
 
     drawLines();
@@ -3117,32 +3187,46 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;c
     var payload = CHART_DATA[id] || {};
     mountChart(el, payload.nodes || {}, payload.conns || []);
   }
+  /* Схему нельзя нарисовать в скрытой вкладке — её ширина равна
+     нулю. Поэтому монтируем только видимые, а вкладки дёргают
+     hubChartsSync() после переключения. */
+  function visible(el){ return !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length); }
   function mountVisible(){
     collectData();
     Array.prototype.forEach.call(document.querySelectorAll('.chart-embed[data-chart]'), function(el){
-      var panel = el.closest('.chart-tab-panel');
-      if (panel && !panel.classList.contains('on')) return;
+      if (!visible(el)) return;
       ensureMount(el.getAttribute('data-chart'));
     });
   }
-
-  /* Переключение вкладок: скрытая панель монтируется только при
-     первом открытии — до этого её ширина равна нулю. */
-  document.addEventListener('click', function(e){
-    var tab = e.target.closest('.chart-tab');
-    if (!tab) return;
-    var wrap = tab.closest('.chart-tabs-wrap');
-    if (!wrap) return;
-    var id = tab.getAttribute('data-chart-tab');
-    Array.prototype.forEach.call(wrap.querySelectorAll('.chart-tab'), function(b){ b.classList.toggle('on', b === tab); });
-    Array.prototype.forEach.call(wrap.querySelectorAll('.chart-tab-panel'), function(p){
-      p.classList.toggle('on', p.getAttribute('data-chart-panel') === id);
-    });
-    ensureMount(id);
-  });
+  window.hubChartsSync = mountVisible;
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mountVisible);
   else mountVisible();
+})();
+</script>
+
+<script type="text/plain" id="tpl-tabs">
+/* Горизонтальные вкладки блока: переключают секции, не трогая
+   остальную страницу. Схемы внутри скрытой вкладки рисуются
+   только когда её открыли — до этого её ширина равна нулю. */
+(function(){
+  document.addEventListener('click', function(e){
+    var tab = e.target.closest('.hub-tab');
+    if (!tab) return;
+    var bar = tab.closest('.hub-tabs-bar');
+    if (!bar) return;
+    var id = tab.getAttribute('data-hub-tab');
+    Array.prototype.forEach.call(bar.querySelectorAll('.hub-tab'), function(b){
+      b.classList.toggle('on', b === tab);
+    });
+    var node = bar.nextElementSibling;
+    while (node && node.classList && node.classList.contains('hub-tab-panel')) {
+      node.classList.toggle('on', node.getAttribute('data-hub-panel') === id);
+      node = node.nextElementSibling;
+    }
+    if (typeof window.hubChartsSync === 'function') window.hubChartsSync();
+    window.dispatchEvent(new Event('resize'));
+  });
 })();
 </script>
 
@@ -3166,7 +3250,34 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;c
     function mark(id){
       if (SEL) SEL.classList.remove('__hb-sel');
       SEL = id ? document.querySelector('[data-eid="' + id + '"]') : null;
-      if (SEL) SEL.classList.add('__hb-sel');
+      if (SEL) { SEL.classList.add('__hb-sel'); openTabFor(SEL); }
+    }
+
+    /* Клики в превью перехвачены ради выбора элемента, поэтому
+       вкладки переключаем сами: выбрали что-то внутри вкладки —
+       открыли её. */
+    function openTabFor(el){
+      var btn = el.closest('.hub-tab');
+      var panel = el.closest('.hub-tab-panel');
+      var id = btn ? btn.getAttribute('data-hub-tab')
+             : panel ? panel.getAttribute('data-hub-panel') : null;
+      if (!id) return;
+      var bar = btn ? btn.closest('.hub-tabs-bar') : null;
+      if (!bar && panel) {
+        var prev = panel.previousElementSibling;
+        while (prev && !(prev.classList && prev.classList.contains('hub-tabs-bar'))) prev = prev.previousElementSibling;
+        bar = prev;
+      }
+      if (!bar) return;
+      Array.prototype.forEach.call(bar.querySelectorAll('.hub-tab'), function(b){
+        b.classList.toggle('on', b.getAttribute('data-hub-tab') === id);
+      });
+      var node = bar.nextElementSibling;
+      while (node && node.classList && node.classList.contains('hub-tab-panel')) {
+        node.classList.toggle('on', node.getAttribute('data-hub-panel') === id);
+        node = node.nextElementSibling;
+      }
+      if (typeof window.hubChartsSync === 'function') window.hubChartsSync();
     }
 
     /* Ни одна ссылка внутри превью не должна никуда уводить */
@@ -3533,7 +3644,30 @@ function newChartItem(){
 function newChartsSection(){
   return { id:uid('s'), type:'charts', title:'Организационные схемы',
            accent:ACCENTS[Math.floor(Math.random()*ACCENTS.length)],
-           layout:'stack', charts:[] };
+           charts:[] };
+}
+/* Вкладка блока — это просто набор секций под своим названием. */
+function newTab(t){
+  return { id:uid('tb'), title:t || 'Новая вкладка', sections:[] };
+}
+function newTabsSection(){
+  return { id:uid('s'), type:'tabs', title:'Блок с вкладками',
+           accent:ACCENTS[Math.floor(Math.random()*ACCENTS.length)],
+           tabs:[ newTab('Первая вкладка'), newTab('Вторая вкладка') ] };
+}
+
+/** Все секции документа, включая вложенные во вкладки. */
+function flatSections(m){
+  var out = [];
+  (m.sections || []).forEach(function(s){
+    out.push(s);
+    if (s.type === 'tabs') {
+      (s.tabs || []).forEach(function(t){
+        (t.sections || []).forEach(function(sub){ out.push(sub); });
+      });
+    }
+  });
+  return out;
 }
 
 function starterModel(){
@@ -3724,8 +3858,7 @@ function chartDataScript(c){
 }
 
 /* Секция схем: одна или несколько org-chart-схем из Studio Charts.
-   layout=stack — во всю ширину, друг под другом; layout=tabs —
-   те же схемы, но переключаются вкладками, показана одна за раз. */
+   Каждая — во всю ширину блока, друг под другом, со своим названием. */
 function chartsSectionHtml(s, editing){
   var charts = s.charts || [];
   var h = '';
@@ -3733,36 +3866,48 @@ function chartsSectionHtml(s, editing){
     h += '      <div class="chart-empty">Секция пуста — добавьте схему из Studio Charts через панель справа.</div>\n';
     return h;
   }
-  if (s.layout === 'tabs') {
-    var teid = editing ? ' data-eid="s:' + s.id + '"' : '';
-    h += '      <div class="chart-tabs-wrap"' + teid + '>\n';
-    h += '       <div class="chart-tabs" role="tablist">\n';
-    charts.forEach(function(c, i){
-      h += '        <button type="button" class="chart-tab' + (i === 0 ? ' on' : '') +
-           '" data-chart-tab="' + att(c.id) + '">' + esc(c.title) + '</button>\n';
-    });
+  h += '      <div class="chart-stack">\n';
+  charts.forEach(function(c){
+    var ceid = editing ? ' data-eid="ch:' + c.id + '"' : '';
+    h += '       <div class="chart-block"' + ceid + '>\n';
+    h += '        <div class="chart-block-title">' + esc(c.title) + '</div>\n';
+    h += '        <div class="chart-embed" data-chart="' + att(c.id) + '"></div>\n';
+    h += chartDataScript(c);
     h += '       </div>\n';
-    charts.forEach(function(c, i){
-      var ceid = editing ? ' data-eid="ch:' + c.id + '"' : '';
-      h += '       <div class="chart-tab-panel' + (i === 0 ? ' on' : '') +
-           '" data-chart-panel="' + att(c.id) + '"' + ceid + '>\n';
-      h += '        <div class="chart-embed" data-chart="' + att(c.id) + '"></div>\n';
-      h += chartDataScript(c);
-      h += '       </div>\n';
-    });
-    h += '      </div>\n';
-  } else {
-    h += '      <div class="chart-stack">\n';
-    charts.forEach(function(c){
-      var ceid = editing ? ' data-eid="ch:' + c.id + '"' : '';
-      h += '       <div class="chart-block"' + ceid + '>\n';
-      h += '        <div class="chart-block-title">' + esc(c.title) + '</div>\n';
-      h += '        <div class="chart-embed" data-chart="' + att(c.id) + '"></div>\n';
-      h += chartDataScript(c);
-      h += '       </div>\n';
-    });
-    h += '      </div>\n';
+  });
+  h += '      </div>\n';
+  return h;
+}
+
+/* Блок вкладок: несколько секций, которые переключаются
+   горизонтально — на странице видна одна за раз.
+   activeTab — какую вкладку открыть сразу (в превью конструктора
+   это вкладка с выбранным элементом, на готовой странице первая). */
+function tabsSectionHtml(s, editing, activeTab){
+  var tabs = s.tabs || [];
+  var h = '';
+  if (!tabs.length) {
+    h += '      <div class="chart-empty">Вкладок пока нет — добавьте первую в панели справа.</div>\n';
+    return h;
   }
+  var actId = activeTab && tabs.some(function(t){ return t.id === activeTab; }) ? activeTab : tabs[0].id;
+  h += '      <div class="hub-tabs-bar" role="tablist">\n';
+  tabs.forEach(function(t){
+    var teid = editing ? ' data-eid="tb:' + t.id + '"' : '';
+    h += '       <button type="button" class="hub-tab' + (t.id === actId ? ' on' : '') +
+         '" data-hub-tab="' + att(t.id) + '"' + teid + '>' + esc(t.title) + '</button>\n';
+  });
+  h += '      </div>\n';
+  tabs.forEach(function(t){
+    h += '      <div class="hub-tab-panel' + (t.id === actId ? ' on' : '') +
+         '" data-hub-panel="' + att(t.id) + '">\n';
+    if (!(t.sections || []).length) {
+      h += '       <div class="hub-tab-empty">Во вкладке пока нет секций.</div>\n';
+    } else {
+      t.sections.forEach(function(sub){ h += sectionHtml(sub, editing, activeTab) + '\n'; });
+    }
+    h += '      </div>\n';
+  });
   return h;
 }
 
@@ -3853,7 +3998,7 @@ function personHtml(p, hi, editing){
   return h;
 }
 
-function sectionHtml(s, editing){
+function sectionHtml(s, editing, activeTab){
   var eid = editing ? ' data-eid="s:' + s.id + '"' : '';
   var h = '';
   h += '<!-- СЕКЦИЯ: ' + String(s.title || '').toUpperCase() + ' -->\n';
@@ -3884,6 +4029,8 @@ function sectionHtml(s, editing){
     h += '      </article>\n';
   } else if (s.type === 'charts') {
     h += chartsSectionHtml(s, editing);
+  } else if (s.type === 'tabs') {
+    h += tabsSectionHtml(s, editing, activeTab);
   } else {
     (s.groups || []).forEach(function(g){
       var geid = editing ? ' data-eid="g:' + g.id + '"' : '';
@@ -3975,7 +4122,7 @@ function usedColors(m){
     if (HANDLE_ICONS[k].bg) set[HANDLE_ICONS[k].bg] = 1;
   });
   allAccents().forEach(function(c){ set[c] = 1; });
-  (m.sections || []).forEach(function(s){ if (s.accent) set[s.accent] = 1; });
+  flatSections(m).forEach(function(s){ if (s.accent) set[s.accent] = 1; });
   return Object.keys(set);
 }
 
@@ -4033,21 +4180,26 @@ function buildHub(m, opts){
   h += '   </div>\n\n';
   h += '   <main class="w-full pb-8">\n';
   h += '    <section class="w-full px-6 flex flex-col gap-8">\n\n';
-  (m.sections || []).forEach(function(s){ h += sectionHtml(s, editing) + '\n'; });
+  (m.sections || []).forEach(function(s){ h += sectionHtml(s, editing, opts.activeTab) + '\n'; });
   h += '    </section>\n';
   h += '   </main>\n';
   h += '  </div>\n\n';
   /* Движок поиска весит немало — кладём его только в те хабы,
      где поисковый модуль действительно есть. */
-  var hasSearch = (m.sections || []).some(function(s){ return s.type === 'search'; });
+  var all = flatSections(m);
+  var hasSearch = all.some(function(s){ return s.type === 'search'; });
   if (hasSearch) {
     h += '<script>\n  var KB_DEMO = ' + (editing ? 'true' : 'false') + ';\n' +
          tpl('tpl-search') + '<\/script>\n';
   }
   /* Движок схем — тем же принципом: только там, где есть хоть одна схема. */
-  var hasCharts = (m.sections || []).some(function(s){ return s.type === 'charts' && (s.charts || []).length; });
+  var hasCharts = all.some(function(s){ return s.type === 'charts' && (s.charts || []).length; });
   if (hasCharts) {
     h += '<script>\n' + tpl('tpl-chart') + '<\/script>\n';
+  }
+  var hasTabs = all.some(function(s){ return s.type === 'tabs' && (s.tabs || []).length; });
+  if (hasTabs) {
+    h += '<script>\n' + tpl('tpl-tabs') + '<\/script>\n';
   }
 
   if (editing) {
@@ -4070,6 +4222,23 @@ function buildHub(m, opts){
    5. ПОИСК ПО МОДЕЛИ
    ═══════════════════════════════════════════════════ */
 
+/** Секции документа парами «секция + её массив»: во вкладках
+    секции лежат не в model.sections, а внутри своей вкладки. */
+function sectionSlots(){
+  var out = [];
+  (model.sections || []).forEach(function(s, i){
+    out.push({ s:s, arr:model.sections, idx:i, tab:null, host:null });
+    if (s.type === 'tabs') {
+      (s.tabs || []).forEach(function(t){
+        (t.sections || []).forEach(function(sub, j){
+          out.push({ s:sub, arr:t.sections, idx:j, tab:t, host:s });
+        });
+      });
+    }
+  });
+  return out;
+}
+
 /** Разрешает data-eid в объект модели + его контейнер. */
 function resolve(eid){
   if (!eid) return null;
@@ -4077,11 +4246,25 @@ function resolve(eid){
 
   var kind = eid.slice(0, eid.indexOf(':'));
   var id = eid.slice(eid.indexOf(':') + 1);
-  var secs = model.sections;
 
-  for (var i = 0; i < secs.length; i++) {
-    var s = secs[i];
-    if (kind === 's' && s.id === id) return { kind:'section', obj:s, arr:secs, idx:i };
+  /* Вкладка живёт в своём блоке, а не в секции. */
+  if (kind === 'tb') {
+    var found = null;
+    (model.sections || []).forEach(function(s){
+      if (s.type !== 'tabs' || found) return;
+      (s.tabs || []).forEach(function(t, ti){
+        if (t.id === id) found = { kind:'tab', obj:t, arr:s.tabs, idx:ti, section:s };
+      });
+    });
+    return found;
+  }
+
+  var slots = sectionSlots();
+  for (var i = 0; i < slots.length; i++) {
+    var slot = slots[i], s = slot.s;
+    if (kind === 's' && s.id === id) {
+      return { kind:'section', obj:s, arr:slot.arr, idx:slot.idx, tab:slot.tab, host:slot.host };
+    }
 
     if (kind === 't' && s.type === 'tiles') {
       for (var j = 0; j < s.tiles.length; j++) {
@@ -4113,6 +4296,23 @@ function resolve(eid){
     }
   }
   return null;
+}
+
+/** Вкладка, внутри которой лежит выбранный элемент (для превью). */
+function activeTabId(){
+  var r = resolve(selId);
+  if (!r) return '';
+  if (r.kind === 'tab') return r.obj.id;
+  var sec = r.kind === 'section' ? r.obj : r.section;
+  if (!sec) return '';
+  var hit = '';
+  (model.sections || []).forEach(function(s){
+    if (s.type !== 'tabs') return;
+    (s.tabs || []).forEach(function(t){
+      (t.sections || []).forEach(function(sub){ if (sub === sec) hit = t.id; });
+    });
+  });
+  return hit;
 }
 
 function sel(){ return resolve(selId); }
@@ -4161,7 +4361,7 @@ var refreshT = 0, frameReady = false;
 
 function refreshPreview(){
   frameReady = false;
-  frame.srcdoc = buildHub(model, { editing:true, theme:theme });
+  frame.srcdoc = buildHub(model, { editing:true, theme:theme, activeTab:activeTabId() });
 }
 function schedulePreview(){
   clearTimeout(refreshT);
@@ -4216,7 +4416,8 @@ var SVG_DEL  = '<svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a
 function rowHtml(eid, label, opts){
   opts = opts || {};
   var cls = 'ol-row' + (opts.child ? ' child' : '') + (selId === eid ? ' sel' : '');
-  var h = '<div class="' + cls + '" data-eid="' + att(eid) + '">';
+  var pad = opts.depth ? ' style="padding-left:' + (7 + opts.depth * 12) + 'px"' : '';
+  var h = '<div class="' + cls + '" data-eid="' + att(eid) + '"' + pad + '>';
   if (opts.dot) h += '<span class="dot" style="background:' + att(opts.dot) + '"></span>';
   h += '<span class="lbl">' + esc(label || '—') + '</span>';
   if (opts.sub) h += '<span class="sub">' + esc(opts.sub) + '</span>';
@@ -4232,46 +4433,67 @@ function rowHtml(eid, label, opts){
   return h;
 }
 
+function sectionSub(s){
+  return s.type === 'tiles'  ? (s.tiles.length + ' пл.')
+       : s.type === 'chats'  ? (s.chats.length + ' чат.')
+       : s.type === 'search' ? (s.groups.length + ' разд.')
+       : s.type === 'charts' ? (s.charts.length + ' сх.')
+       : s.type === 'tabs'   ? (s.tabs.length + ' вкл.')
+       : (s.groups.length + ' гр.');
+}
+
+/** Содержимое секции в дереве. depth сдвигает строки внутри вкладок. */
+function sectionRows(s, depth){
+  var h = '';
+  if (s.type === 'tiles') {
+    s.tiles.forEach(function(t){
+      h += rowHtml('t:' + t.id, t.title, { child:true, depth:depth, sub: t.href ? '' : '⏳' });
+    });
+  } else if (s.type === 'chats') {
+    s.chats.forEach(function(c){
+      h += rowHtml('ct:' + c.id, c.name, { child:true, depth:depth, sub: c.url ? '' : '⏳' });
+    });
+  } else if (s.type === 'charts') {
+    s.charts.forEach(function(c){
+      h += rowHtml('ch:' + c.id, c.title, { child:true, depth:depth, sub: c.sourceId ? '' : '⏳' });
+    });
+  } else if (s.type === 'search') {
+    /* Разделы поисковика правятся в своём окне, а не по одному
+       в дереве: у них нет ни порядка на странице, ни выделения. */
+    s.groups.forEach(function(g){
+      h += rowHtml('s:' + s.id, g.name, {
+        child:true, depth:depth, acts:false, dot:g.color,
+        sub: (g.pages || []).length + ''
+      });
+    });
+  } else if (s.type === 'tabs') {
+    s.tabs.forEach(function(t){
+      h += rowHtml('tb:' + t.id, t.title, {
+        child:true, depth:depth, sub: (t.sections || []).length + ' сек.'
+      });
+      (t.sections || []).forEach(function(sub){
+        h += rowHtml('s:' + sub.id, sub.title, {
+          child:true, depth:depth + 1, dot:sub.accent, sub:sectionSub(sub)
+        });
+        h += sectionRows(sub, depth + 2);
+      });
+    });
+  } else {
+    s.groups.forEach(function(g){
+      h += rowHtml('g:' + g.id, g.title, { child:true, depth:depth, sub: g.people.length + '' });
+    });
+  }
+  return h;
+}
+
 function renderOutline(){
   var h = '';
   h += '<div class="ol-group">' + rowHtml('hero', 'Шапка (hero)', { acts:false, dot:'#0052CC' }) + '</div>';
 
   model.sections.forEach(function(s){
     h += '<div class="ol-group">';
-    h += rowHtml('s:' + s.id, s.title, {
-      dot: s.accent,
-      sub: s.type === 'tiles' ? (s.tiles.length + ' пл.')
-         : s.type === 'chats' ? (s.chats.length + ' чат.')
-         : s.type === 'search' ? (s.groups.length + ' разд.')
-         : s.type === 'charts' ? (s.charts.length + ' сх.')
-         : (s.groups.length + ' гр.')
-    });
-    if (s.type === 'tiles') {
-      s.tiles.forEach(function(t){
-        h += rowHtml('t:' + t.id, t.title, { child:true, sub: t.href ? '' : '⏳' });
-      });
-    } else if (s.type === 'chats') {
-      s.chats.forEach(function(c){
-        h += rowHtml('ct:' + c.id, c.name, { child:true, sub: c.url ? '' : '⏳' });
-      });
-    } else if (s.type === 'charts') {
-      s.charts.forEach(function(c){
-        h += rowHtml('ch:' + c.id, c.title, { child:true, sub: c.sourceId ? '' : '⏳' });
-      });
-    } else if (s.type === 'search') {
-      /* Разделы поисковика правятся в своём окне, а не по одному
-         в дереве: у них нет ни порядка на странице, ни выделения. */
-      s.groups.forEach(function(g){
-        h += rowHtml('s:' + s.id, g.name, {
-          child:true, acts:false, dot:g.color,
-          sub: (g.pages || []).length + ''
-        });
-      });
-    } else {
-      s.groups.forEach(function(g){
-        h += rowHtml('g:' + g.id, g.title, { child:true, sub: g.people.length + '' });
-      });
-    }
+    h += rowHtml('s:' + s.id, s.title, { dot: s.accent, sub: sectionSub(s) });
+    h += sectionRows(s, 0);
     h += '</div>';
   });
 
@@ -4321,7 +4543,7 @@ function doAct(eid, act){
 function reid(o){
   if (!o || typeof o !== 'object') return;
   if (o.id) o.id = uid(o.id[0]);
-  ['tiles','chats','charts','groups','people','stats'].forEach(function(k){
+  ['tiles','chats','charts','groups','people','stats','tabs','sections'].forEach(function(k){
     if (Array.isArray(o[k])) o[k].forEach(reid);
   });
 }
@@ -4409,7 +4631,7 @@ function renderInspector(){
   if (!r) { box.innerHTML = '<div class="insp-empty">Ничего не выбрано.</div>'; return; }
 
   var o = r.obj, h = '';
-  var titles = { hero:'Шапка страницы', section:'Секция', tile:'Плитка', chat:'Чат', chartItem:'Схема', group:'Группа контактов', person:'Контакт' };
+  var titles = { hero:'Шапка страницы', section:'Секция', tile:'Плитка', chat:'Чат', chartItem:'Схема', tab:'Вкладка', group:'Группа контактов', person:'Контакт' };
   h += '<div class="insp-head"><span class="kind">' + titles[r.kind] + '</span>';
   if (r.arr) {
     h += '<button class="mini" data-act="up" title="Выше">' + SVG_UP + '</button>' +
@@ -4484,15 +4706,15 @@ function renderInspector(){
       ]);
       h += '<button class="btn" data-add="tile" style="width:100%;justify-content:center;margin-top:14px">+ Плитка</button>';
     } else if (o.type === 'charts') {
-      h += fLabel('Показ схем', o.charts.length > 1 ? 'несколько схем в секции' : '') + fSeg('layout', o.layout || 'stack', [
-        ['stack','Друг под другом'], ['tabs','Вкладки']
-      ]);
       h += '<button class="btn" data-add="chart" style="width:100%;justify-content:center;margin-top:14px">+ Схема из Studio Charts</button>';
       if (o.charts.length) {
-        h += '<div class="hintbox">На странице встраивается снимок схемы: он не следит за оригиналом в Studio Charts. Чтобы подтянуть правки, откройте схему в дереве слева и нажмите «Обновить из Studio Charts».</div>';
+        h += '<div class="hintbox">Схемы идут во всю ширину блока, друг под другом, каждая со своим названием. На странице встраивается снимок: чтобы подтянуть правки из Studio Charts, откройте схему в дереве слева и нажмите «Обновить».</div>';
       } else {
-        h += '<div class="hintbox">Схемы берутся из этого же браузера — те, что сохранены в Studio Charts (dashboard.html). Во вкладках видна одна схема за раз, друг под другом — сразу все, во всю ширину блока.</div>';
+        h += '<div class="hintbox">Схемы берутся из этого же браузера — те, что сохранены в Studio Charts (dashboard.html).</div>';
       }
+    } else if (o.type === 'tabs') {
+      h += '<button class="btn" data-add="tab" style="width:100%;justify-content:center;margin-top:14px">+ Вкладка</button>';
+      h += '<div class="hintbox">Вкладки переключают секции горизонтально: на странице видна одна за раз. Секции внутрь вкладки добавляются в её свойствах — выберите вкладку в дереве слева.</div>';
     } else {
       h += '<button class="btn" data-add="group" style="width:100%;justify-content:center;margin-top:14px">+ Группа контактов</button>';
       h += '<div class="hintbox">Каждая группа (руководители, специалисты, дежурные, Telegram) — отдельная карточка со своим заголовком и описанием.</div>';
@@ -4539,6 +4761,24 @@ function renderInspector(){
     if (!o.url) {
       h += '<div class="hintbox">Ссылка пуста — по клику на «Перейти» покажется это уведомление. Пустой текст оставит плитку молчаливой.</div>';
     }
+
+  } else if (r.kind === 'tab') {
+    h += fLabel('Название вкладки', 'подпись на кнопке') + fText('title', o.title, 'Вкладка');
+    h += fLabel('Секции внутри вкладки');
+    if ((o.sections || []).length) {
+      h += '<div class="insp-sum">' + o.sections.map(function(sub){
+        return '<div>' + esc(sub.title || 'Без названия') + ' <b>' + esc(sectionSub(sub)) + '</b></div>';
+      }).join('') + '</div>';
+    } else {
+      h += '<div class="insp-empty" style="margin:0 0 4px">Пока пусто — добавьте секцию кнопками ниже.</div>';
+    }
+    h += '<div class="tab-add-grid">' +
+      '<button class="btn" data-add-sec="tiles">+ Плитки</button>' +
+      '<button class="btn" data-add-sec="chats">+ Чаты</button>' +
+      '<button class="btn" data-add-sec="charts">+ Схемы</button>' +
+      '<button class="btn" data-add-sec="contacts">+ Контакты</button>' +
+      '</div>';
+    h += '<div class="hintbox">В конструкторе превью показывает ту вкладку, элемент которой сейчас выбран — так правки видно сразу. На готовой странице вкладки переключаются кликом.</div>';
 
   } else if (r.kind === 'chartItem') {
     h += fLabel('Название', 'видно как подпись над схемой') + fText('title', o.title, 'Схема');
@@ -4732,6 +4972,22 @@ insp.addEventListener('click', function(e){
   var del = e.target.closest('[data-stat-del]');
   if (del) { model.hero.stats.splice(+del.dataset.statDel, 1); commit(true); return; }
 
+  /* Секция внутрь вкладки */
+  var addSec = e.target.closest('[data-add-sec]');
+  if (addSec) {
+    if (r.kind !== 'tab') return;
+    var kindSec = addSec.dataset.addSec;
+    var ns = kindSec === 'tiles' ? newTilesSection()
+           : kindSec === 'chats' ? newChatsSection()
+           : kindSec === 'charts' ? newChartsSection()
+           : newContactsSection();
+    ns.accent = ACCENTS[(r.obj.sections || []).length % ACCENTS.length];
+    r.obj.sections.push(ns);
+    selId = 's:' + ns.id;
+    commit(true);
+    return;
+  }
+
   var add = e.target.closest('[data-add]');
   if (!add) return;
 
@@ -4749,6 +5005,10 @@ insp.addEventListener('click', function(e){
   } else if (add.dataset.add === 'chart') {
     openChartsPicker();
     return;
+  } else if (add.dataset.add === 'tab') {
+    var tb = newTab();
+    r.obj.tabs.push(tb);
+    selId = 'tb:' + tb.id;
   } else if (add.dataset.add === 'group') {
     var g = newGroup('Новая группа');
     r.obj.groups.push(g);
@@ -4844,6 +5104,14 @@ function refreshChartItem(itemId){
 $('charts-pick-body').addEventListener('click', function(e){
   var pick = e.target.closest('[data-pick-chart]');
   if (pick) addChartFromSource(pick.dataset.pickChart);
+});
+
+$('add-tabs').addEventListener('click', function(){
+  var s = newTabsSection();
+  s.accent = ACCENTS[model.sections.length % ACCENTS.length];
+  model.sections.push(s);
+  selId = 's:' + s.id;
+  commit(true);
 });
 
 $('add-charts').addEventListener('click', function(){
@@ -4949,7 +5217,12 @@ function normalize(m){
   if (!m.lib.badges || typeof m.lib.badges !== 'object') m.lib.badges = {};
   if (!m.lib.icons  || typeof m.lib.icons  !== 'object') m.lib.icons  = {};
   if (!m.lib.chatBadges || typeof m.lib.chatBadges !== 'object') m.lib.chatBadges = {};
-  m.sections.forEach(function(s){
+  normalizeSections(m.sections);
+}
+
+/** Достраивает список секций — свой и вложенные во вкладки. */
+function normalizeSections(list){
+  list.forEach(function(s){
     if (!s.id) s.id = uid('s');
     if (s.type === 'tiles') {
       s.tiles = s.tiles || [];
@@ -4980,7 +5253,16 @@ function normalize(m){
         c.conns = Array.isArray(c.conns) ? c.conns : [];
         if (!c.title) c.title = 'Схема';
       });
-      if (s.layout !== 'tabs') s.layout = 'stack';
+      delete s.layout;                       /* вкладки переехали на уровень блоков */
+    } else if (s.type === 'tabs') {
+      s.tabs = Array.isArray(s.tabs) ? s.tabs : [];
+      s.tabs.forEach(function(t){
+        if (!t.id) t.id = uid('tb');
+        if (!t.title) t.title = 'Вкладка';
+        t.sections = Array.isArray(t.sections) ? t.sections : [];
+        normalizeSections(t.sections);        /* вкладки не вкладываются друг в друга */
+        t.sections = t.sections.filter(function(sub){ return sub.type !== 'tabs'; });
+      });
     } else {
       s.type = 'contacts';
       s.groups = s.groups || [];
@@ -5099,6 +5381,12 @@ function buildMarkdown(m){
       (sec.charts || []).forEach(function(c){
         var cn = Object.keys(c.nodes || {}).length;
         out.push('- ' + c.title + ' — ' + cn + ' ' + plural(cn, 'карточка', 'карточки', 'карточек'));
+      });
+    } else if (sec.type === 'tabs') {
+      (sec.tabs || []).forEach(function(t){
+        out.push('### ' + (t.title || ''), '');
+        (t.sections || []).forEach(function(sub){ out.push('- ' + (sub.title || '')); });
+        out.push('');
       });
     } else {
       (sec.groups || []).forEach(function(g){
@@ -5630,7 +5918,7 @@ function renderLib(){
 
   if (libTab === 'colors') {
     var used = {};
-    model.sections.forEach(function(s){ if (s.accent) used[s.accent] = (used[s.accent] || 0) + 1; });
+    flatSections(model).forEach(function(s){ if (s.accent) used[s.accent] = (used[s.accent] || 0) + 1; });
 
     h += '<div class="lib-empty">Стандартная палитра полосок секций уже содержит 7 цветов. Здесь — ваши дополнительные.</div>';
     h += l.colors.length ? '' : '<div class="lib-empty">Своих цветов пока нет.</div>';
@@ -5737,19 +6025,19 @@ $('lib-tabs').addEventListener('click', function(e){
     откатятся на «Статья», поэтому чистим ссылки явно. */
 function dropBadge(key){
   delete lib().badges[key];
-  model.sections.forEach(function(s){
+  flatSections(model).forEach(function(s){
     (s.tiles || []).forEach(function(t){ if (t.badge === key) t.badge = 'article'; });
   });
 }
 function dropChatBadge(key){
   delete lib().chatBadges[key];
-  model.sections.forEach(function(s){
+  flatSections(model).forEach(function(s){
     (s.chats || []).forEach(function(c){ if (c.kind === key) c.kind = 'chat'; });
   });
 }
 function dropIcon(key){
   delete lib().icons[key];
-  model.sections.forEach(function(s){
+  flatSections(model).forEach(function(s){
     (s.tiles || []).forEach(function(t){ if (t.icon === key) t.icon = 'doc'; });
   });
   var lb = lib().badges;
@@ -5765,7 +6053,7 @@ $('lib-body').addEventListener('input', function(e){
     if (!hex) return;
     var old = l.colors[i];
     l.colors[i] = hex;
-    model.sections.forEach(function(s){ if (s.accent === old) s.accent = hex; });
+    flatSections(model).forEach(function(s){ if (s.accent === old) s.accent = hex; });
     commit(false);
     if (t.type === 'color') renderLib();
     return;
